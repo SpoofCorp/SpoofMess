@@ -6,7 +6,7 @@ public class ChangeChatSettingsRequest
 
     public long? ChatTypeId { get; set; }
 
-    public long? OwnerId { get; set; }
+    public Guid? OwnerId { get; set; }
 
     public string? ChatName { get; set; }
 

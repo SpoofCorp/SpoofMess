@@ -1,6 +1,6 @@
 ﻿using CommonObjects.Results;
 using SpoofEntranceService.Models;
-using SpoofEntranceService.Validators;
+using SpoofEntranceService.ServiceRealizations.Validators;
 
 namespace SpoofEntranceServiceTest.SessionServiceTests;
 

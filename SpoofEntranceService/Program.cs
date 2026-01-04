@@ -6,10 +6,11 @@ using DataHelpers.ServiceRealizations.Cache.Redis;
 using DataHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
-using SpoofEntranceService.Repositories;
 using SpoofEntranceService.ServiceRealizations;
+using SpoofEntranceService.ServiceRealizations.Repositories;
+using SpoofEntranceService.ServiceRealizations.Validators;
 using SpoofEntranceService.Services;
-using SpoofEntranceService.Validators;
+using SpoofEntranceService.Services.Repositories;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,9 +50,9 @@ builder.Services.AddTransient<IRedisService, BaseRedisCache>();
 //multi cache(in-memory + redis)
 builder.Services.AddTransient<ICacheService, MultiCache>();
 
-builder.Services.AddTransient<SessionRepository>();
-builder.Services.AddTransient<TokenRepository>();
-builder.Services.AddTransient<UserRepository>();
+builder.Services.AddTransient<ISessionRepository, SessionRepository>();
+builder.Services.AddTransient<ITokenRepository, TokenRepository>();
+builder.Services.AddTransient<IUserEntryRepository, UserRepository>();
 
 builder.Services.AddTransient<TokenValidator>();
 builder.Services.AddTransient<SessionValidator>();
