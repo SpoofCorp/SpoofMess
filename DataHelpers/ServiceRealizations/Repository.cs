@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataHelpers.ServiceRealizations;
 
-public class Repository<T, TKey>(ICacheService cache, DbContext context, ProcessQueueTasksService processQueueTasks) where T : IdentifiedEntity<TKey>
+public class Repository<T, TKey>(ICacheService cache, DbContext context, ProcessQueueTasksService processQueueTasks) : IBaseRepository<T, TKey> where T : IdentifiedEntity<TKey>
 {
     protected readonly ICacheService _cache = cache;
     protected readonly DbContext _context = context;
