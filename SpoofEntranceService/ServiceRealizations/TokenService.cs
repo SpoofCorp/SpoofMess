@@ -6,15 +6,15 @@ using Microsoft.EntityFrameworkCore;
 using SecurityLibrary;
 using SpoofEntranceService.Converters;
 using SpoofEntranceService.Models;
-using SpoofEntranceService.Repositories;
 using SpoofEntranceService.Services;
-using SpoofEntranceService.Validators;
+using SpoofEntranceService.Services.Repositories;
+using SpoofEntranceService.Services.Validators;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
-public class TokenService(TokenRepository repository, TokenValidator tokenValidator, ILoggerService loger) : ITokenService
+public class TokenService(ITokenRepository repository, TokenValidator tokenValidator, ILoggerService loger) : ITokenService
 {
-    private readonly TokenRepository _repository = repository;
+    private readonly ITokenRepository _repository = repository;
     private readonly ILoggerService _logService = loger;
     private readonly TokenValidator _tokenValidator = tokenValidator;
 

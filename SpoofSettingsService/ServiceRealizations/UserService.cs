@@ -2,21 +2,22 @@
 using CommonObjects.Results;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
-using SpoofSettingsService.Repositories;
 using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setter;
-using SpoofSettingsService.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class UserService(UserRepository userRepository) : IUserService
+public class UserService(IUserRepository userRepository, IUserValidator userValidator) : IUserService
 {
-    private readonly UserRepository _userRepository = userRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserValidator _userValidator = userValidator;
 
-    public async ValueTask<Result> ChangeSettings(ChangeUserSettingsRequest request, long userId)
+    public async ValueTask<Result> ChangeSettings(ChangeUserSettingsRequest request, Guid userId)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
-        Result result = UserValidator.Validate(user);
+        Result result = _userValidator.Validate(user);
 
         if (!result.Success) return result;
 
@@ -24,10 +25,10 @@ public class UserService(UserRepository userRepository) : IUserService
         return Result.SuccessResult();
     }
 
-    public async ValueTask<Result> Delete(long userId)
+    public async ValueTask<Result> Delete(Guid userId)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
-        Result result = UserValidator.Validate(user);
+        Result result = _userValidator.Validate(user);
 
         if (!result.Success) return result;
 

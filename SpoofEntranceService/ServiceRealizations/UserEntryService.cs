@@ -4,21 +4,21 @@ using CommonObjects.Responses;
 using CommonObjects.Results;
 using SecurityLibrary;
 using SpoofEntranceService.Models;
-using SpoofEntranceService.Repositories;
 using SpoofEntranceService.Services;
-using SpoofEntranceService.Validators;
+using SpoofEntranceService.Services.Repositories;
+using SpoofEntranceService.Services.Validators;
 
 namespace SpoofEntranceService.ServiceRealizations
 {
     public class UserEntryService(
-        UserRepository repository,
+        IUserEntryRepository repository,
         UserEntryValidator validator,
         ILoggerService logService,
         ITokenService tokenService,
         ISessionService sessionService
     ) : IUserEntryService
     {
-        private readonly UserRepository _repository = repository;
+        private readonly IUserEntryRepository _repository = repository;
         private readonly UserEntryValidator _validator = validator;
         private readonly ILoggerService _logService = logService;
         private readonly ISessionService _sessionService = sessionService;

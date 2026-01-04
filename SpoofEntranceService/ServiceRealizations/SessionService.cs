@@ -4,21 +4,21 @@ using CommonObjects.Results;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Converters;
 using SpoofEntranceService.Models;
-using SpoofEntranceService.Repositories;
 using SpoofEntranceService.Services;
-using SpoofEntranceService.Validators;
+using SpoofEntranceService.Services.Repositories;
+using SpoofEntranceService.Services.Validators;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
 public class SessionService(
-        SessionRepository sessionRepository,
-        SessionValidator sessionValidator,
+        ISessionRepository sessionRepository,
+        ISessionValidator sessionValidator,
         ILoggerService logService
     ) : ISessionService
 {
     private readonly ILoggerService _logService = logService;
-    private readonly SessionRepository _sessionRepository = sessionRepository;
-    private readonly SessionValidator _sessionValidator = sessionValidator;
+    private readonly ISessionRepository _sessionRepository = sessionRepository;
+    private readonly ISessionValidator _sessionValidator = sessionValidator;
 
     public async Task<Result> EndSession(EndSessionRequest request, Guid sessionInfoId)
     {

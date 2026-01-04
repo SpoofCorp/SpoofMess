@@ -2,19 +2,20 @@
 using CommonObjects.Requests;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
-using SpoofSettingsService.Repositories;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Validators;
+using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserService(ILoggerService loggerService, IChatService chatService, IRoleTypeService roleTypeService, UserRepository userRepository, ChatUserRepository chatUserRepository) : IChatUserService
+public class ChatUserService(ILoggerService loggerService, IChatService chatService, IBaseValidator baseValidator, IRoleTypeService roleTypeService, IUserRepository userRepository, IChatUserRepository chatUserRepository) : IChatUserService
 {
+    private readonly IBaseValidator _baseValidator = baseValidator;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatService _chatService = chatService;
     private readonly IRoleTypeService _roleTypeService = roleTypeService;
-    private readonly UserRepository _userRepository = userRepository;
-    private readonly ChatUserRepository _chatUserRepository = chatUserRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IChatUserRepository _chatUserRepository = chatUserRepository;
     public async Task<Result> AddMember(AddMemberRequest request, Guid userId)
     {
         try
@@ -24,11 +25,11 @@ public class ChatUserService(ILoggerService loggerService, IChatService chatServ
                 return result.Result;
 
             User? member = await _userRepository.GetByIdAsync(request.MemberId);
-            Result validateResult = BaseValidator.ValidateExist(member);
+            Result validateResult = _baseValidator.ValidateExist(member);
             if (!validateResult.Success) return validateResult;
 
             RoleType? roleType = await _roleTypeService.GetRoleById(request.RoleId); 
-            validateResult = BaseValidator.ValidateExist(roleType);
+            validateResult = _baseValidator.ValidateExist(roleType);
             if (!validateResult.Success) return validateResult;
 
             ChatUser newMember = new()
