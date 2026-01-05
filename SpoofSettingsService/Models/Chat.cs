@@ -18,11 +18,11 @@ public partial class Chat : IdentifiedEntity<Guid>, IChangeable
 
     public DateTime LastModified { get; set; }
 
-    public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = new List<ChatAvatar>();
+    public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = [];
 
     public virtual ChatType ChatType { get; set; } = null!;
 
-    public virtual ICollection<ChatUser> ChatUsers { get; set; } = new List<ChatUser>();
+    public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 
     public virtual User? Owner { get; set; }
 

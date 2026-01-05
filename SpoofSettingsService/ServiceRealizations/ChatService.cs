@@ -5,7 +5,7 @@ using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Interfaces;
 using SpoofSettingsService.Services.Validators;
-using SpoofSettingsService.Setter;
+using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 

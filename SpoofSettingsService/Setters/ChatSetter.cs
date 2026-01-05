@@ -1,7 +1,7 @@
 ﻿using CommonObjects.Requests;
 using SpoofSettingsService.Models;
 
-namespace SpoofSettingsService.Setter;
+namespace SpoofSettingsService.Setters;
 
 public static class ChatSetter
 {
