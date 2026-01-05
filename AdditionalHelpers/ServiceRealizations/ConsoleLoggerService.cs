@@ -1,5 +1,6 @@
-﻿
-namespace AdditionalHelpers;
+﻿using AdditionalHelpers.Services;
+
+namespace AdditionalHelpers.ServiceRealizations;
 
 public class ConsoleLoggerService(LogLevel minLogLevel) : ILoggerService
 {
