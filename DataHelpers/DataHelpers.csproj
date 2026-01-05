@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdditionalHelpers\AdditionalHelpers.csproj" />
+    <ProjectReference Include="..\CommonObjects\CommonObjects.csproj" />
   </ItemGroup>
 
 </Project>
