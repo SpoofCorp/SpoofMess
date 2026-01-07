@@ -11,18 +11,18 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IChatAvatarRepository chatAvatarRepository, ISoftDeletableValidator softDeletableValidator) : IChatAvatarService
+public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IChatAvatarRepository userAvatarRepository, ISoftDeletableValidator softDeletableValidator) : IUserAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
-    private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
+    private readonly IChatAvatarRepository _userAvatarRepository = userAvatarRepository;
     private readonly ISoftDeletableValidator _softDeletableValidator = softDeletableValidator;
     private readonly IChatAvatarPublisherService _chatAvatarPublisher = chatAvatarPublisher;
 
-    public async Task<Result<AvatarResponse>> GetAvatar(GetChatAvatarRequest request)
+    public async Task<Result<AvatarResponse>> GetAvatar(GetUserAvatarRequest request)
     {
         try
         {
-            ChatAvatar? avatar = await _chatAvatarRepository.GetActualChatAvatarById(request.ChatId);
+            UserAvatar? avatar = await _userAvatarRepository.GetActualUserAvatarById(request.UserId);
             Result result = _softDeletableValidator.IsNullOrDeleted(avatar);
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
@@ -36,17 +36,16 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         }
     }
 
-    public async Task<Result<List<AvatarResponse>>> GetAvatars(GetChatAvatarRequest request)
+    public async Task<Result<List<AvatarResponse>>> GetAvatars(GetUserAvatarRequest request)
     {
         try
         {
-
-            List<ChatAvatar>? avatars = await _chatAvatarRepository.GetChatAvatarsById(request.ChatId);
+            List<UserAvatar>? avatars = await _userAvatarRepository.GetUserAvatarsById(request.UserId);
             Result result = _softDeletableValidator.IsNullOrEmptyCollection(avatars);
             if (!result.Success)
                 return Result<List<AvatarResponse>>.From(result);
 
-            ChatAvatar avatar = null!;
+            UserAvatar avatar = null!;
             Result<List<AvatarResponse>> response = Result<List<AvatarResponse>>.OkResult([]);
 
             for (int i = 0; i < avatars!.Count; i++)
@@ -63,12 +62,11 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
             return Result<List<AvatarResponse>>.ErrorResult("DataBase error");
         }
     }
-
-    public async Task<Result> RemoveAvatar(RemoveChatAvatarRequest request)
+    public async Task<Result> RemoveAvatar(RemoveUserAvatarRequest request)
     {
         try
         {
-            bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
+            bool result = await _userAvatarRepository.TryDeleteAvatarByIds(request.UserId, request.FileId);
 
             return result ? Result.OkResult() : Result.BadRequest("Invalid id");
         }
@@ -79,20 +77,21 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         }
     }
 
-    public async Task<Result> SetAvatar(SetChatAvatarRequest request)
+    public async Task<Result> SetAvatar(SesUserAvatarRequest request)
     {
+
         try
         {
-            ChatAvatar chatAvatar = new()
+            UserAvatar avatar = new()
             {
-                ChatId = request.ChatId,
+                UserId = request.UserId,
                 File = request.Metadata.Set()
             };
-            chatAvatar.File.Id = request.FileId;
+            avatar.File.Id = request.FileId;
 
-            await _chatAvatarRepository.AddAsync(chatAvatar);
+            await _userAvatarRepository.AddAsync(avatar);
 
-            _ = Task.Run(async () => await _chatAvatarPublisher.Publish(chatAvatar));
+            _ = Task.Run(async () => await _chatAvatarPublisher.Publish(avatar));
 
             return Result.OkResult();
         }
