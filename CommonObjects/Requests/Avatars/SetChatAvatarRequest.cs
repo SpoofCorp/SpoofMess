@@ -1,5 +1,6 @@
 ﻿using CommonObjects.DTO;
-namespace CommonObjects.Requests;
+
+namespace CommonObjects.Requests.Avatars;
 
 public class SetChatAvatarRequest
 {

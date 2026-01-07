@@ -1,4 +1,4 @@
-﻿namespace CommonObjects.Requests;
+﻿namespace CommonObjects.Requests.Avatars;
 
 public class RemoveChatAvatarRequest
 {
