@@ -5,6 +5,6 @@ namespace SpoofSettingsService.Services.Validators;
 
 public interface ISoftDeletableValidator
 {
-    public Result IsNullOrDeleted<T>(T? obj) where T : ISoftDeletable;
-    public Result IsNullOrEmptyCollection<T>(List<T>? objs);
+    public Result IsActive<T>(T? obj) where T : ISoftDeletable;
+    public Result IsAvailableCollection<T>(List<T>? objs);
 }

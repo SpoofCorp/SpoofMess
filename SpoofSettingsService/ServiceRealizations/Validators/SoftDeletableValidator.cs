@@ -6,7 +6,7 @@ namespace SpoofSettingsService.ServiceRealizations.Validators;
 
 public class SoftDeletableValidator : ISoftDeletableValidator
 {
-    public Result IsNullOrDeleted<T>(T? obj) where T : ISoftDeletable
+    public Result IsActive<T>(T? obj) where T : ISoftDeletable
     {
         if (obj is null)
             return Result.NotFoundResult("Invalid id");
@@ -16,7 +16,7 @@ public class SoftDeletableValidator : ISoftDeletableValidator
         return Result.OkResult();
     }
 
-    public Result IsNullOrEmptyCollection<T>(List<T>? objs)
+    public Result IsAvailableCollection<T>(List<T>? objs)
     {
         if(objs is null)
             return Result.NotFoundResult("Invalid id");

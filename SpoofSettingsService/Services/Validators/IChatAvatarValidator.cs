@@ -5,9 +5,9 @@ namespace SpoofSettingsService.Services.Validators;
 
 public interface IChatAvatarValidator
 {
-    public Result IsNullOrDeleted(ChatAvatar? chatAvatar);
+    public Result IsAvailable(ChatAvatar? chatAvatar);
 
-    public Result FileIsNullOrDeleted(ChatAvatar? chatAvatar);
+    public Result FileIsActive(ChatAvatar? chatAvatar);
 
-    public Result AvatarsIsNullOrEmpty(List<ChatAvatar>? chatAvatars);
+    public Result AvatarsIsAvailable(List<ChatAvatar>? chatAvatars);
 }
