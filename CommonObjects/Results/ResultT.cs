@@ -1,4 +1,6 @@
-﻿namespace CommonObjects.Results;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace CommonObjects.Results;
 
 public class Result<T>
 {
@@ -13,15 +15,18 @@ public class Result<T>
 
     public T? Body { get; set; }
 
+    private static Result<T> GetResult(bool success = true, string? message = null, string? error = null, int statusCode = 200, T? body = default) =>
+     new()
+     {
+         Success = success,
+         Error = error,
+         StatusCode = statusCode,
+         Message = message,
+         Body = body,
+     };
 
     public static Result<T> SuccessResult(T body, string? message = "OK", int statusCode = 200) =>
-        new()
-        {
-            Success = true,
-            Message = message,
-            StatusCode = statusCode,
-            Body = body
-        };
+        GetResult(success: true, message: message, statusCode: statusCode, body: body);
 
     public static Result<T> OkResult(T body) =>
         SuccessResult(body);
@@ -29,23 +34,16 @@ public class Result<T>
     public static Result<T> NotFoundResult(string error) =>
         ErrorResult(error, 404);
 
+    public static Result<T> Forbidden(string error = "Forbidden") =>
+        ErrorResult(error, 403);
     public static Result<T> BadRequest(string error) =>
         ErrorResult(error, 400);
 
     public static Result<T> ErrorResult(string error, int statusCode = 500) =>
-        new()
-        {
-            Success = false,
-            Error = error,
-            StatusCode = statusCode
-        };
+        GetResult(success: false, error: error, statusCode: statusCode);
 
     public static Result<T> From(Result result) =>
-        new()
-        {
-            Success = result.Success,
-            Error = result.Error,
-            StatusCode = result.StatusCode,
-            Message = result.Message,
-        };
+        GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
+    public static Result<T> From<TAnother>(Result<TAnother> result) =>
+        GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
 }

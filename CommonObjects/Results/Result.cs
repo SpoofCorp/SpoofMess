@@ -10,19 +10,26 @@ public class Result
 
     public int StatusCode = 200;
 
-    public static Result SuccessResult(string message = "Ok", int statusCode = 200) =>
+    private static Result GetResult(bool success = true, string? message = null, string? error = null, int statusCode = 200) =>
         new()
         {
-            Success = true,
+            Success = success,
+            Error = error,
+            StatusCode = statusCode,
             Message = message,
-            StatusCode = statusCode
         };
+
+    public static Result SuccessResult(string message = "Ok", int statusCode = 200) =>
+        GetResult(message: message, statusCode: statusCode);
 
     public static Result OkResult(string message = "Ok") =>
         SuccessResult(message);
 
     public static Result DeletedResult(string message = "Deleted") =>
         SuccessResult(message, 204);
+
+    public static Result Forbidden(string error = "Forbidden") =>
+        ErrorResult(error, 403);
 
     public static Result NotFoundResult(string error) =>
         ErrorResult(error, 404);
@@ -31,10 +38,8 @@ public class Result
         ErrorResult(error, 400);
 
     public static Result ErrorResult(string error, int statusCode = 500) =>
-        new()
-        {
-            Success = false,
-            Error = error,
-            StatusCode = statusCode
-        };
+        GetResult(success: false, error: error, statusCode: statusCode);
+
+    public static Result From<T>(Result<T> result) =>
+        GetResult(result.Success, result.Message, result.Error, result.StatusCode);;
 }
