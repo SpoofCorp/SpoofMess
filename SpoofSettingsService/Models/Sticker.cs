@@ -2,11 +2,11 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class Sticker : IdentifiedEntity<long>, IChangeable
+public partial class Sticker : IdentifiedEntity<Guid>, IChangeable
 {
-    public long StickerPackId { get; set; }
+    public Guid StickerPackId { get; set; }
 
-    public long? FileId { get; set; }
+    public Guid? FileId { get; set; }
 
     public string Title { get; set; } = null!;
 

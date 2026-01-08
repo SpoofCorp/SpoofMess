@@ -2,11 +2,11 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class UserAvatar : IdentifiedEntity<long>, IChangeable
+public partial class UserAvatar : IdentifiedEntity<Guid>, IChangeable
 {
-    public long? UserId { get; set; }
+    public Guid? UserId { get; set; }
 
-    public long? FileId { get; set; }
+    public Guid? FileId { get; set; }
 
     public bool IsActive { get; set; }
 
