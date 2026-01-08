@@ -1,4 +1,4 @@
-﻿using AdditionalHelpers;
+﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests;
 using CommonObjects.Responses;
 using CommonObjects.Results;
@@ -12,11 +12,11 @@ using SpoofEntranceService.Services.Validators;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
-public class TokenService(ITokenRepository repository, TokenValidator tokenValidator, ILoggerService loger) : ITokenService
+public class TokenService(ITokenRepository repository, ITokenValidator tokenValidator, ILoggerService loger) : ITokenService
 {
     private readonly ITokenRepository _repository = repository;
     private readonly ILoggerService _logService = loger;
-    private readonly TokenValidator _tokenValidator = tokenValidator;
+    private readonly ITokenValidator _tokenValidator = tokenValidator;
 
     public async Task<Result<UserAuthorizeResponse>> Create(SessionInfo sessionInfo)
     {

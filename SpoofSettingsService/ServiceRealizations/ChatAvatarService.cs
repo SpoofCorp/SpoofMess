@@ -23,7 +23,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         try
         {
             ChatAvatar? avatar = await _chatAvatarRepository.GetActualChatAvatarById(request.ChatId);
-            Result result = _softDeletableValidator.IsNullOrDeleted(avatar);
+            Result result = _softDeletableValidator.IsActive(avatar);
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
@@ -42,7 +42,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         {
 
             List<ChatAvatar>? avatars = await _chatAvatarRepository.GetChatAvatarsById(request.ChatId);
-            Result result = _softDeletableValidator.IsNullOrEmptyCollection(avatars);
+            Result result = _softDeletableValidator.IsAvailableCollection(avatars);
             if (!result.Success)
                 return Result<List<AvatarResponse>>.From(result);
 

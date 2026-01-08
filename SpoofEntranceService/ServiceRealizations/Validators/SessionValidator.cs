@@ -2,7 +2,7 @@
 using SpoofEntranceService.Models;
 using SpoofEntranceService.Services.Validators;
 
-namespace SpoofEntranceService.Validators;
+namespace SpoofEntranceService.ServiceRealizations.Validators;
 
 public class SessionValidator : ISessionValidator
 {

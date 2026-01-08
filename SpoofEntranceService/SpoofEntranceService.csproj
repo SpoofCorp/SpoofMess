@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AdditionalHelpers\AdditionalHelpers.csproj" />
     <ProjectReference Include="..\CommonObjects\CommonObjects.csproj" />
+    <ProjectReference Include="..\CommunicationLibrary\CommunicationLibrary.csproj" />
     <ProjectReference Include="..\DataHelpers\DataHelpers.csproj" />
     <ProjectReference Include="..\SecurityLibrary\SecurityLibrary.csproj" />
   </ItemGroup>

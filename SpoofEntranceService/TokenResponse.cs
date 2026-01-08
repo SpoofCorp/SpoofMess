@@ -2,7 +2,4 @@
 using SpoofEntranceService.Models;
 
 namespace SpoofEntranceService;
-public readonly record struct TokenResponse(
-    Token Token,
-    UserAuthorizeResponse Response
-    );
+public readonly record struct TokenResponse(Token Token, UserAuthorizeResponse Response);

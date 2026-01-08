@@ -11,10 +11,10 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IChatAvatarRepository userAvatarRepository, ISoftDeletableValidator softDeletableValidator) : IUserAvatarService
+public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IUserAvatarRepository userAvatarRepository, ISoftDeletableValidator softDeletableValidator) : IUserAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
-    private readonly IChatAvatarRepository _userAvatarRepository = userAvatarRepository;
+    private readonly IUserAvatarRepository _userAvatarRepository = userAvatarRepository;
     private readonly ISoftDeletableValidator _softDeletableValidator = softDeletableValidator;
     private readonly IChatAvatarPublisherService _chatAvatarPublisher = chatAvatarPublisher;
 
@@ -23,7 +23,7 @@ public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         try
         {
             UserAvatar? avatar = await _userAvatarRepository.GetActualUserAvatarById(request.UserId);
-            Result result = _softDeletableValidator.IsNullOrDeleted(avatar);
+            Result result = _softDeletableValidator.IsActive(avatar);
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
@@ -41,7 +41,7 @@ public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         try
         {
             List<UserAvatar>? avatars = await _userAvatarRepository.GetUserAvatarsById(request.UserId);
-            Result result = _softDeletableValidator.IsNullOrEmptyCollection(avatars);
+            Result result = _softDeletableValidator.IsAvailableCollection(avatars);
             if (!result.Success)
                 return Result<List<AvatarResponse>>.From(result);
 

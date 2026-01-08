@@ -25,9 +25,10 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
     [HttpPost("Registration")]
     public async ValueTask<IActionResult> Enter(RegistrationRequest request)
     {
-        Result<UserAuthorizeResponse> result = await _userEntryService.Registration(request, new());
+        throw new NotImplementedException();
+        //Result<UserAuthorizeResponse> result = await _userEntryService.Registration(request, new());
 
-        return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
+        //return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
     }
 
     [Authorize]

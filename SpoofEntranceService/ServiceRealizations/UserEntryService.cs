@@ -1,4 +1,4 @@
-﻿using AdditionalHelpers;
+﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests;
 using CommonObjects.Responses;
 using CommonObjects.Results;
@@ -8,96 +8,91 @@ using SpoofEntranceService.Services;
 using SpoofEntranceService.Services.Repositories;
 using SpoofEntranceService.Services.Validators;
 
-namespace SpoofEntranceService.ServiceRealizations
+namespace SpoofEntranceService.ServiceRealizations;
+
+public class UserEntryService(IUserEntryRepository repository, IUserEntryValidator validator, ILoggerService logService, ITokenService tokenService, ISessionService sessionService, IUserPublisherService userPublisher) : IUserEntryService
 {
-    public class UserEntryService(
-        IUserEntryRepository repository,
-        UserEntryValidator validator,
-        ILoggerService logService,
-        ITokenService tokenService,
-        ISessionService sessionService
-    ) : IUserEntryService
+    private readonly IUserEntryRepository _repository = repository;
+    private readonly ISessionService _sessionService = sessionService;
+    private readonly ITokenService _tokenService = tokenService;
+    private readonly IUserEntryValidator _validator = validator;
+    private readonly ILoggerService _logService = logService;
+    private readonly IUserPublisherService _userPublisher = userPublisher;
+
+    public async Task<Result<UserAuthorizeResponse>> Authorization(
+        UserAuthorizeRequest request,
+        SessionInfo sessionInfo)
     {
-        private readonly IUserEntryRepository _repository = repository;
-        private readonly UserEntryValidator _validator = validator;
-        private readonly ILoggerService _logService = logService;
-        private readonly ISessionService _sessionService = sessionService;
-        private readonly ITokenService _tokenService = tokenService;
-
-        public async Task<Result<UserAuthorizeResponse>> Authorization(
-            UserAuthorizeRequest request,
-            SessionInfo sessionInfo)
+        try
         {
-            try
-            {
-                UserEntry? user = await _repository.GetByLogin(request.Login);
+            UserEntry? user = await _repository.GetByLogin(request.Login);
 
-                Result result = _validator.IsActive(user);
-                if (!result.Success)
-                    return Result<UserAuthorizeResponse>.From(result);
+            Result result = _validator.IsActive(user);
+            if (!result.Success)
+                return Result<UserAuthorizeResponse>.From(result);
 
-                if (!Hasher.VerifyPassword(request.Password, user!.PasswordHash))
-                    return Result<UserAuthorizeResponse>.ErrorResult("Invalid password", 403);
+            if (!Hasher.VerifyPassword(request.Password, user!.PasswordHash))
+                return Result<UserAuthorizeResponse>.ErrorResult("Invalid password", 403);
 
-                await _sessionService.StartSession(user, sessionInfo);
+            await _sessionService.StartSession(user, sessionInfo);
 
-                return await _tokenService.Create(sessionInfo);
-            }
-            catch (Exception ex)
-            {
-                _logService.Error("Error", ex);
-                return Result<UserAuthorizeResponse>.ErrorResult(ex.Message);
-            }
+            return await _tokenService.Create(sessionInfo);
         }
-        [Obsolete("This method does not have the ability to correctly create an account in the entire system.", true)]
-        public async Task<Result<UserAuthorizeResponse>> Registration(RegistrationRequest request, SessionInfo sessionInfo)
+        catch (Exception ex)
         {
-            try
-            {
-                UserEntry? user = await _repository.GetByLogin(request.Login);
-
-                if (user is { IsDeleted: false })
-                    return Result<UserAuthorizeResponse>.ErrorResult("Login is busy");
-
-                UserEntry newUser = new()
-                {
-                    Id = Guid.CreateVersion7(),
-                    UniqueName = request.Login,
-                    PasswordHash = Hasher.HashPassword(request.Password)
-                };
-
-                await _repository.Change(newUser, user);
-
-                await _sessionService.StartSession(newUser, sessionInfo);
-
-                return await _tokenService.Create(sessionInfo);
-            }
-            catch (Exception ex)
-            {
-                _logService.Error("Error", ex);
-                return Result<UserAuthorizeResponse>.ErrorResult(ex.Message);
-            }
+            _logService.Error("Error", ex);
+            return Result<UserAuthorizeResponse>.ErrorResult(ex.Message);
         }
-
-        public async Task<Result> Delete(SessionInfo sessionInfo)
+    }
+    public async Task<Result<UserAuthorizeResponse>> Registration(RegistrationRequest request, SessionInfo sessionInfo)
+    {
+        try
         {
-            try
-            {
-                UserEntry? user = await _repository.GetByIdAsync(sessionInfo.UserEntryId);
+            UserEntry? user = await _repository.GetByLogin(request.Login);
 
-                Result result = _validator.IsActive(user);
-                if (!result.Success)
-                    return result;
+            if (user is { IsDeleted: false })
+                return Result<UserAuthorizeResponse>.ErrorResult("Login is busy");
 
-                await _sessionService.EndSessions(sessionInfo.Id, true);
-                await _repository.SoftDeleteAsync(user!);
-                return Result.OkResult("Ok");
-            }
-            catch(Exception ex)
+            UserEntry newUser = new()
             {
-                _logService.Error("Error", ex);
-                return Result.ErrorResult(ex.Message);
-            }
+                Id = Guid.CreateVersion7(),
+                UniqueName = request.Login,
+                PasswordHash = Hasher.HashPassword(request.Password)
+            };
+
+            await _repository.Change(newUser, user);
+
+            await _sessionService.StartSession(newUser, sessionInfo);
+
+            _ = Task.Run(async () => await _userPublisher.PublishUser(newUser));
+
+            return await _tokenService.Create(sessionInfo);
+        }
+        catch (Exception ex)
+        {
+            _logService.Error("Error", ex);
+            return Result<UserAuthorizeResponse>.ErrorResult(ex.Message);
+        }
+    }
+
+    public async Task<Result> Delete(SessionInfo sessionInfo)
+    {
+        try
+        {
+            UserEntry? user = await _repository.GetByIdAsync(sessionInfo.UserEntryId);
+
+            Result result = _validator.IsActive(user);
+            if (!result.Success)
+                return result;
+
+            await _sessionService.EndSessions(sessionInfo.Id, true);
+            await _repository.SoftDeleteAsync(user!);
+            return Result.OkResult("Ok");
+        }
+        catch(Exception ex)
+        {
+            _logService.Error("Error", ex);
+            return Result.ErrorResult(ex.Message);
         }
     }
 }
