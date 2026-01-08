@@ -2,6 +2,8 @@
 
 public class FileMetadata
 {
+    public Guid Id { get; set; }    
+
     public required string Name { get; init; }
 
     public required string Bucket { get; set; } = null!;
