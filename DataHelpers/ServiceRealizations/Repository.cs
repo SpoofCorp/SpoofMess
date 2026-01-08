@@ -206,4 +206,13 @@ public class Repository<T, TKey>(ICacheService cache, DbContext context, Process
 
     protected void SaveToCaches(string key, T entity) =>
         _processQueueTasks.AddTask(async () => await _cache.Save(key, entity));
+
+    public async Task<bool> SoftDeleteAsync(TKey id)
+    {
+        T? entity = await GetByIdAsync(id);
+        if (entity is null)
+            return false;
+        await SoftDeleteAsync(entity);
+        return true;
+    }
 }
