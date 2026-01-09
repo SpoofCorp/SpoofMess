@@ -87,7 +87,6 @@ public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublishe
                 UserId = request.UserId,
                 File = request.Metadata.Set()
             };
-            avatar.File.Id = request.FileId;
 
             await _userAvatarRepository.AddAsync(avatar);
 

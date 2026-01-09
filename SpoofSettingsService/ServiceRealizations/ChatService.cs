@@ -4,18 +4,19 @@ using DataHelpers.ServiceRealizations;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatService(IChatRepository chatRepository, IUserValidator userValidator, IUserRepository userRepository, Repository<ChatType, long> chatTypeRepository, IChatValidator chatValidator) : IChatService
+public class ChatService(IChatRepository chatRepository, IUserValidator userValidator, IUserRepository userRepository, IChatTypeRepository chatTypeRepository, IChatValidator chatValidator) : IChatService
 {
     private readonly IChatValidator _chatValidator = chatValidator;
     private readonly IUserValidator _userValidator = userValidator;
     private readonly IChatRepository _chatRepository = chatRepository;
     private readonly IUserRepository _userRepository = userRepository;
-    private readonly Repository<ChatType, long> _chatTypeRepository = chatTypeRepository;
+    private readonly IChatTypeRepository _chatTypeRepository = chatTypeRepository;
 
     public async ValueTask<Result> ChangeSettings(ChangeChatSettingsRequest request, Guid userId)
     {
