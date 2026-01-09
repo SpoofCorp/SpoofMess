@@ -1,11 +1,98 @@
+using AdditionalHelpers.ServiceRealizations;
+using AdditionalHelpers.Services;
+using DataHelpers.ServiceRealizations;
+using DataHelpers.ServiceRealizations.Cache;
+using DataHelpers.ServiceRealizations.Cache.Memory;
+using DataHelpers.ServiceRealizations.Cache.Redis;
+using DataHelpers.Services;
+using Microsoft.EntityFrameworkCore;
+using SpoofSettingsService.Models;
+using SpoofSettingsService.ServiceRealizations;
+using SpoofSettingsService.ServiceRealizations.Consumers;
+using SpoofSettingsService.ServiceRealizations.Publishers;
+using SpoofSettingsService.ServiceRealizations.Repositories;
+using SpoofSettingsService.ServiceRealizations.Validators;
+using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.Consumers;
+using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Publisher;
+using SpoofSettingsService.Services.Repositories;
+using SpoofSettingsService.Services.Validators;
+using StackExchange.Redis;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
+    configuration.AbortOnConnectFail = false;
+    configuration.ConnectTimeout = 5000;
+    configuration.SyncTimeout = 5000;
+    configuration.ReconnectRetryPolicy = new LinearRetry(1000);
+
+    return ConnectionMultiplexer.Connect(configuration);
+});
+
+builder.Services.AddTransient<ILoggerService>(provider =>
+    new ConsoleLoggerService(
+        minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
+    )
+);
+
+builder.Services.AddTransient<Microsoft.Extensions.Caching.Memory.IMemoryCache, Microsoft.Extensions.Caching.Memory.MemoryCache>();
+builder.Services.AddTransient<IMemoryCacheService, LocalCacheService>();
+
+//redis
+builder.Services.AddTransient<IRedisService, BaseRedisCache>();
+
+//multi cache(in-memory + redis)
+builder.Services.AddTransient<ICacheService, MultiCache>();
+
+builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
+builder.Services.AddTransient<IChatService, ChatService>();
+builder.Services.AddTransient<IChatUserService, ChatUserService>();
+builder.Services.AddTransient<IStickerPackService, StickerPackService>();
+builder.Services.AddTransient<IStickerService, StickerService>();
+builder.Services.AddTransient<IUserAvatarService, UserAvatarService>();
+builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
+builder.Services.AddTransient<IRoleTypeService, RoleTypeService>();
+
+builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
+builder.Services.AddTransient<IUserConsumerService, UserConsumerService>();
+
+builder.Services.AddTransient<IBaseValidator, BaseValidator>();
+builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
+builder.Services.AddTransient<IChatValidator, ChatValidator>();
+builder.Services.AddTransient<ISoftDeletableValidator, SoftDeletableValidator>();
+builder.Services.AddTransient<IStickerPackValidator, StickerPackValidator>();
+builder.Services.AddTransient<IStickerValidator, StickerValidator>();
+builder.Services.AddTransient<IUserValidator, UserValidator>();
+
+builder.Services.AddTransient<IChatAvatarRepository, ChatAvatarRepository>();
+builder.Services.AddTransient<IChatRepository, ChatRepository>();
+builder.Services.AddTransient<IChatUserRepository, ChatUserRepository>();
+builder.Services.AddTransient<IStickerPackRepository, StickerPackRepository>();
+builder.Services.AddTransient<IStickerRepository, StickerRepository>();
+builder.Services.AddTransient<IUserAvatarRepository, UserAvatarRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IChatTypeRepository, ChatTypeRepository>();
+
+builder.Services.AddTransient<ProcessQueueTasksService>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwaggerUI();
+    app.UseSwagger();
     app.MapOpenApi();
 }
 
