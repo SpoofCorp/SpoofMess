@@ -20,6 +20,28 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+    ssssql:
+        image: postgres:18.1
+        container_name: spoof-settings-service-db
+        environment:
+            POSTGRES_DB: SpoofSettingsService
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres123
+            PGDATA: /var/lib/postgresql/data/pgdata
+        command: ["postgres", "-c", "port=5433"]
+        ports:
+            - "5433:5433"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./SpoofSettingsService/SpoofSettingsService.sql:/docker-entrypoint-initdb.d/init.sql
+        restart: unless-stopped
+        networks:
+            - spoof-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -p 5433"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
     redis:
         image: redis:8.4.0
         container_name: redis-test
@@ -51,6 +73,25 @@ services:
             - ConnectionStrings__DefaultConnection=Host=sessql;Port=5432;Database=SpoofEntranceService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
         ports:
             - "5000:8080"
+        volumes:
+            - ./src:/app/src
+        networks:
+            - spoof-network
+    spoofsettingsservice:
+        build:
+            context: .
+            dockerfile: SpoofSettingsService/Dockerfile
+        container_name: spoof-settings-service
+        depends_on:
+            - redis
+            - sessql
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
+            - Redis__Password=redis123
+            - ConnectionStrings__DefaultConnection=Host=ssssql;Port=5433;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+        ports:
+            - "5001:8081"
         volumes:
             - ./src:/app/src
         networks:
