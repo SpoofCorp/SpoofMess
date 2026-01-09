@@ -1,57 +1,57 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+create extension "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS UserEntry
+create table "UserEntry"
 (
-    Id UUID PRIMARY KEY,
-    PasswordHash VARCHAR(100) NOT NULL,
-    UniqueName VARCHAR(100) UNIQUE NOT NULL,
-    IsDeleted BOOLEAN NOT NULL DEFAULT FALSE
+    "Id" uuid primary key,
+    "PasswordHash" varchar(100) not null,
+    "UniqueName" varchar(100) UNIQUE not null,
+    "IsDeleted" boolean not null default false
 );
 
-CREATE INDEX IF NOT EXISTS IX_UserEntry_UniqueName ON UserEntry(UniqueName);
+create index "IX_UserEntry_UniqueName" on "UserEntry"("UniqueName");
 
-CREATE TABLE IF NOT EXISTS SessionInfo
+create table "SessionInfo"
 (
-    Id UUID PRIMARY KEY,
-    UserEntryId UUID NOT NULL,
-    DeviceId VARCHAR(100) NOT NULL,
-    DeviceName VARCHAR(255),
-    Platform VARCHAR(50),
-    UserAgent VARCHAR(500),
-    IpAddress VARCHAR(45),
-    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    LastActivityAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    IsActive BOOLEAN NOT NULL DEFAULT TRUE,
-    IsDeleted BOOLEAN NOT NULL DEFAULT FALSE,
+    "Id" uuid primary key,
+    "UserEntryId" uuid not null,
+    "DeviceId" varchar(100) not null,
+    "DeviceName" varchar(255),
+    "Platform" varchar(50),
+    "UserAgent" varchar(500),
+    "IpAddress" varchar(45),
+    "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
+    "LastActivityAt" timestamp not null default CURRENT_TIMESTAMP,
+    "IsActive" boolean not null default TRUE,
+    "IsDeleted" boolean not null default false,
     
-    CONSTRAINT FK_SessionInfo_UserEntryId 
-        FOREIGN KEY (UserEntryId) 
-        REFERENCES UserEntry(Id) 
-        ON DELETE CASCADE
+    CONSTRAINT "FK_SessionInfo_UserEntryId" 
+        FOREIGN key ("UserEntryId") 
+        REFERENCES "UserEntry"("Id") 
+        on DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS IX_SessionInfo_Id ON SessionInfo(Id);
-CREATE INDEX IF NOT EXISTS IX_SessionInfo_UserId_Active 
-    ON SessionInfo(UserEntryId) 
-    WHERE IsActive = TRUE AND IsDeleted = FALSE;
+create index "IX_SessionInfo_Id" on "SessionInfo"("Id");
+create index "IX_SessionInfo_UserId_Active" 
+    on "SessionInfo"("UserEntryId") 
+    where "IsActive" = true and "IsDeleted" = false;
 
-CREATE TABLE IF NOT EXISTS Token
+create table "Token"
 (
-    RefreshTokenHash VARCHAR(100) PRIMARY KEY,
-    SessionInfoId UUID NOT NULL,
-    ValidTo TIMESTAMP NOT NULL,
-    IsDeleted BOOLEAN NOT NULL DEFAULT FALSE,
+    "RefreshTokenHash" varchar(100) primary key,
+    "SessionInfoId" uuid not null,
+    "ValidTo" timestamp not null,
+    "IsDeleted" boolean not null default false,
     
-    CONSTRAINT FK_Token_SessionInfoId 
-        FOREIGN KEY (SessionInfoId) 
-        REFERENCES SessionInfo(Id) 
-        ON DELETE CASCADE
+    constraint "FK_Token_SessionInfoId" 
+        foreign key ("SessionInfoId") 
+        references "SessionInfo"("Id") 
+        on delete cascade
 );
 
-CREATE INDEX IF NOT EXISTS IX_Token_SessionInfoId 
-    ON Token(SessionInfoId) 
-    WHERE IsDeleted = FALSE;
+create index "IX_Token_SessionInfoId" 
+    on "Token"("SessionInfoId") 
+    where "IsDeleted" = false;
     
-CREATE INDEX IF NOT EXISTS IX_Token_ValidTo 
-    ON Token(RefreshTokenHash) 
-    WHERE IsDeleted = FALSE;
+create index "IX_Token_ValidTo" 
+    on "Token"("RefreshTokenHash") 
+    where "IsDeleted" = false;

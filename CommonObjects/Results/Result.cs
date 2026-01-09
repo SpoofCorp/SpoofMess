@@ -41,5 +41,5 @@ public class Result
         GetResult(success: false, error: error, statusCode: statusCode);
 
     public static Result From<T>(Result<T> result) =>
-        GetResult(result.Success, result.Message, result.Error, result.StatusCode);;
+        GetResult(result.Success, result.Message, result.Error, result.StatusCode);
 }
