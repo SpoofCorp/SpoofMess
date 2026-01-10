@@ -1,8 +1,6 @@
-create extension "uuid-ossp";
-
 create table "User"
 (
-	"Id" uuid constraint "PK_User_Id" primary key,
+	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
 	"WasOnline" timestamp not null default CURRENT_TIMESTAMP,
 	"Name" varchar(100) not null,
 	"MonthsBeforeDelete" int not null default 6,
@@ -10,12 +8,13 @@ create table "User"
 	"ShowMe" boolean not null default true,
 	"ForwardMessage" boolean not null default true,
 	"InviteMe" boolean not null default true,
-	"IsDeleted" boolean not null default false,
+	"IsDeleted" boolean not null default false
 );
 
 create table "ChatType"
 (
     "Id" serial constraint "PK_ChatType_Id" primary key,
+	"IsDeleted" boolean not null default false,
     "Name" varchar(50) not null unique
 );
 
@@ -23,116 +22,126 @@ create table "ChatProperty"
 (
     "Id" smallserial constraint "PK_ChatProperty_Id" primary key,
     "Name" varchar(50) not null,
+	"IsDeleted" boolean not null default false,
     "Description" varchar(100)
 );
 
 create table "ChatTypeChatProperty"
 (
-    "ChatTypeId" int constraint "FK_ChatTypeChatProperty_ChatTypeId" references "ChatType"("Id"),
-    "ChatPropertyId" smallint "FK_ChatTypeChatProperty_ChatPropertyId" references "ChatProperty"("Id"),
+    "ChatTypeId" int not null constraint "FK_ChatTypeChatProperty_ChatTypeId" references "ChatType"("Id") on delete cascade,
+    "ChatPropertyId" smallint not null constraint "FK_ChatTypeChatProperty_ChatPropertyId" references "ChatProperty"("Id") on delete cascade,
+	"IsDeleted" boolean not null default false,
     constraint "PK_ChatTypeChatProperty_Id" primary key("ChatTypeId", "ChatPropertyId")
 );
 
 create table "Role"
 (
     "Id" serial constraint "PK_Role_Id" primary key,
-    "Name" varchar(50) not null unique,
+	"IsDeleted" boolean not null default false,
+    "Name" varchar(50) not null unique
 );
 
 create table "Permission"
 (
     "Id" smallserial constraint "PK_Permission_Id" primary key,
     "Name" varchar(50) not null,
+	"IsDeleted" boolean not null default false,
     "Description" varchar(100)
 );
 
 create table "RolePermission"
 (
-    "RoleId" int constraint "FK_RolePermission_RoleId" references "Role"("Id"),
-    "PermissionId" smallint "FK_RolePermission_PermissionId" references "Permission"("Id"),
+    "RoleId" int not null constraint "FK_RolePermission_RoleId" references "Role"("Id") on delete cascade,
+    "PermissionId" smallint not null constraint "FK_RolePermission_PermissionId" references "Permission"("Id") on delete cascade,
+	"IsDeleted" boolean not null default false,
     constraint "PK_RolePermission_Id" primary key("RoleId", "PermissionId")
 );
 
 create table "Chat"
 (
     "Id" uuid constraint "PK_Chat_Id" primary key,
-    "ChatTypeId" bigint not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id"),
-	"OwnerId" bigint constraint "FK_Chat_OwnerId" references "User"("Id"),
+    "ChatTypeId" int not null not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
+	"OwnerId" uuid not null constraint "FK_Chat_OwnerId" references "User"("Id") on delete cascade,
     "ChatUniqueName" varchar(100) unique not null,
     "ChatName" varchar(100) not null,
     "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
     "LastModified" timestamp not null default CURRENT_TIMESTAMP,
-	"IsDeleted" boolean not null default false,
+	"IsDeleted" boolean not null default false
 );
 
 create table "Extension"
 (
     "Id" smallserial constraint "PK_Extension_Id" primary key,
     "FileCategory" smallint not null,
-    "Name" varchar(50) not null,
+	"IsDeleted" boolean not null default false,
+    "Name" varchar(50) not null
 );
 
 create table "FileMetadata" (
-    "Id" bigserial constraint "PK_FileMetadata_Id" primary key,
-	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id"),
+    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
+	"IsDeleted" boolean not null default false,
+	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
 );
 
-CREATE TABLE "ChatUser"
+create TABLE "ChatUser"
 (
-    "ChatId" uuid constraint "FK_ChatUser_ChatId" references Chat("Id"),
-    "UserId" uuid constraint "FK_ChatUser_UserId" references [User]("Id"),
-    "RoleId" int constraint "FK_ChatUser_RoleId" references RoleType("Id"),
+    "ChatId" uuid not null constraint "FK_ChatUser_ChatId" references "Chat"("Id") on delete cascade,
+    "UserId" uuid not null constraint "FK_ChatUser_UserId" references "User"("Id") on delete cascade,
+    "RoleId" int not null constraint "FK_ChatUser_RoleId" references "Role"("Id"),
 	"JoinedAt" timestamp not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false,
     constraint "PK_ChatUser_Id" primary key("ChatId", "UserId")
 );
-CREATE UNIQUE INDEX UX_ChatUser_ChatId_UserId ON ChatUser(ChatId, UserId) WHERE "IsDeleted" = 0
-CREATE INDEX IX_ChatUser_UserChat ON ChatUser(UserId, ChatId) WHERE "IsDeleted" = 0;
-CREATE INDEX IX_ChatUser_ChatId ON ChatUser(ChatId) WHERE "IsDeleted" = 0;
+create unique index "UX_ChatUser_ChatId_UserId" on "ChatUser"("ChatId", "UserId") where "IsDeleted" = false;
+create index "IX_ChatUser_UserChat" on "ChatUser"("UserId", "ChatId") where "IsDeleted" = false;
+create index "IX_ChatUser_ChatId" on "ChatUser"("ChatId") where "IsDeleted" = false;
 
 create table "ChatUserPermission"
 (
-    "ChatId" int constraint "FK_ChatUserPermission_ChatId" references "ChatUser"("ChatId"),
-    "UserId" int constraint "FK_ChatUserPermission_UserId" references "ChatUser"("UserId"),
-    "PermissionId" smallint "FK_ChatUserPermission_PermissionId" references "Permission"("Id"),
+    "ChatId" uuid not null,
+    "UserId" uuid not null,
+    "PermissionId" smallint not null constraint "FK_ChatUserPermission_PermissionId" references "Permission"("Id"),
+	"IsDeleted" boolean not null default false,
+    constraint "FK_ChatUserPermission_ChatUser" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade,
     constraint "PK_ChatUserPermission_Id" primary key("ChatId", "UserId", "PermissionId")
 );
 
-CREATE TABLE StickerPack
+create table "StickerPack"
 (
 	"Id" bigserial constraint "PK_StickerPack_Id" primary key,
-	"AuthorId" uuid constraint "FK_StickerPack_AuthorId" references "User"("Id"),
+	"AuthorId" uuid not null constraint "FK_StickerPack_AuthorId" references "User"("Id") on delete cascade,
+	"PreviewId" uuid not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
 	"Title" varchar(100),
-	"PreviewId" uuid constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id"),
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
-	"IsDeleted" boolean not null default false,
+	"IsDeleted" boolean not null default false
 );
-GO
-CREATE INDEX IX_StickerPack_AuthorId ON "StickerPack"("AuthorId") WHERE "IsDeleted" = 0;
 
-CREATE TABLE Sticker
+create index "IX_StickerPack_AuthorId" on "StickerPack"("AuthorId") where "IsDeleted" = false;
+
+create table "Sticker"
 (
-	"Id" uuid constraint "PK_Sticker_Id" primary key,
-	"StickerPackId" bigint constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id"),
-	"FileId" uuid constraint "FK_Sticker_FileId" references "FileMetadata"("Id"),
+	"Id" uuid constraint "PK_Sticker_Id" primary key default uuidv7(),
+	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
+	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
 	"Title" varchar(50),
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
-	"IsDeleted" boolean not null default false,
+	"IsDeleted" boolean not null default false
 );
 
-CREATE TABLE UserAvatar
+create table "UserAvatar"
 (
-	"UserId" uuid constraint "FK_UserAvatar_UserId" references "User"("Id"),
-	"FileId" uuid constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id"),
+	"UserId" uuid not null constraint "FK_UserAvatar_UserId" references "User"("Id") on delete cascade,
+	"FileId" uuid not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
     constraint "PK_UserAvatar_Id" primary key("UserId", "FileId")
 );
 
-CREATE TABLE ChatAvatar
+create table "ChatAvatar"
 (
-	"ChatId" BIGINT constraint "FK_ChatAvatar_ChatId" references "Chat"("Id"),
-	"FileId" BIGINT constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id"),
+	"ChatId" uuid not null constraint "FK_ChatAvatar_ChatId" references "Chat"("Id") on delete cascade,
+	"FileId" uuid not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
