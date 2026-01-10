@@ -50,9 +50,9 @@ public class ChatAvatarValidatorTests
 
     {
         yield return new object[] { null!, 404 };
-        yield return new object[] { new ChatAvatar { IsDeleted = true, FileId = null }, 400 };
+        yield return new object[] { new ChatAvatar { IsDeleted = true }, 400 };
         yield return new object[] { new ChatAvatar { IsDeleted = true, FileId = new() }, 400 };
-        yield return new object[] { new ChatAvatar { IsDeleted = false, FileId = null }, 400 };
+        yield return new object[] { new ChatAvatar { IsDeleted = false }, 400 };
         yield return new object[] { new ChatAvatar { IsDeleted = false, FileId = new() }, 200 };
     }
     public static IEnumerable<object[]> GetAvatar()

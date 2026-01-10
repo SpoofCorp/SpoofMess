@@ -11,8 +11,6 @@ public class UserAvatarValidator : SoftDeletableValidator<UserAvatar>, IUserAvat
         Result result = IsAvailable(userAvatar);
         if (!result.Success)
             return result;
-        if (userAvatar!.FileId is null)
-            return Result.BadRequest("Avatar has broken");
 
         return Result.SuccessResult();
     }

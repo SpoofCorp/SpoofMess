@@ -11,8 +11,6 @@ public class ChatAvatarValidator : SoftDeletableValidator<ChatAvatar>, IChatAvat
         Result result = IsAvailable(chatAvatar);
         if (!result.Success)
             return result;
-        if (chatAvatar!.FileId is null)
-            return Result.BadRequest("Avatar has broken");
 
         return Result.SuccessResult();
     }

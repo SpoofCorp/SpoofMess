@@ -50,9 +50,7 @@ public class UserAvatarValidatorTests
 
     {
         yield return new object[] { null!, 404 };
-        yield return new object[] { new UserAvatar { IsDeleted = true, FileId = null }, 400 };
         yield return new object[] { new UserAvatar { IsDeleted = true, FileId = new() }, 400 };
-        yield return new object[] { new UserAvatar { IsDeleted = false, FileId = null }, 400 };
         yield return new object[] { new UserAvatar { IsDeleted = false, FileId = new() }, 200 };
     }
     public static IEnumerable<object[]> GetAvatar()
