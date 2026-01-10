@@ -43,7 +43,7 @@ public class StickerService(ILoggerService loggerService, IStickerRepository sti
             await _stickerRepository.AddAsync(sticker);
             return Result.OkResult();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
             return Result.ErrorResult("Internal server error");
@@ -76,14 +76,11 @@ public class StickerService(ILoggerService loggerService, IStickerRepository sti
         try
         {
             Sticker? sticker = await _stickerRepository.GetByIdAsync(request.StickerId);
-            Result result = _stickerValidator.IsNotNullOrNotDeleted(sticker);
+            Result result = _stickerValidator.IsAvailable(sticker);
             if (!result.Success)
                 return Result<GetStickerResponse>.From(result);
 
-            if(_stickerValidator.IsPublic(sticker))
-                return Result<GetStickerResponse>.OkResult(new() { FileId = sticker!.FileId!.Value});
-            else
-                return Result<GetStickerResponse>.BadRequest("This sticker is not public");
+            return Result<GetStickerResponse>.OkResult(new() { FileId = sticker!.FileId!.Value });
         }
         catch (Exception ex)
         {

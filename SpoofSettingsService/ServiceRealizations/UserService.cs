@@ -21,7 +21,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
         try
         {
             User? user = await _userRepository.GetByIdAsync(userId);
-            Result result = _userValidator.Validate(user);
+            Result result = _userValidator.IsAvailable(user);
 
             if (!result.Success) return result;
 
@@ -40,7 +40,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
         try
         {
             User? user = await _userRepository.GetByIdAsync(userId);
-            Result result = _userValidator.Validate(user);
+            Result result = _userValidator.IsAvailable(user);
 
             if (!result.Success) return result;
 

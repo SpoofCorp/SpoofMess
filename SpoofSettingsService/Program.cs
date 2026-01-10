@@ -64,10 +64,10 @@ builder.Services.AddTransient<IRoleTypeService, RoleTypeService>();
 builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 builder.Services.AddTransient<IUserConsumerService, UserConsumerService>();
 
-builder.Services.AddTransient<IBaseValidator, BaseValidator>();
 builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
 builder.Services.AddTransient<IChatValidator, ChatValidator>();
-builder.Services.AddTransient<ISoftDeletableValidator, SoftDeletableValidator>();
+builder.Services.AddTransient<IUserAvatarValidator, UserAvatarValidator>();
+builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
 builder.Services.AddTransient<IStickerPackValidator, StickerPackValidator>();
 builder.Services.AddTransient<IStickerValidator, StickerValidator>();
 builder.Services.AddTransient<IUserValidator, UserValidator>();

@@ -10,12 +10,22 @@ using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
-
-public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IChatAvatarRepository chatAvatarRepository, ISoftDeletableValidator softDeletableValidator) : IChatAvatarService
+/*
+    public Chat(long chatTypeId, Guid? ownerId, string? chatName, bool? isPublic, string? uniqueName, DateTime createdAt, DateTime lastModified)
+    {
+        ChatTypeId = chatTypeId;
+        OwnerId = ownerId;
+        ChatName = chatName;
+        IsPublic = isPublic;
+        UniqueName = uniqueName;
+        CreatedAt = createdAt;
+        LastModified = lastModified;
+    }*/
+public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
-    private readonly ISoftDeletableValidator _softDeletableValidator = softDeletableValidator;
+    private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
     private readonly IChatAvatarPublisherService _chatAvatarPublisher = chatAvatarPublisher;
 
     public async Task<Result<AvatarResponse>> GetAvatar(GetChatAvatarRequest request)
@@ -23,7 +33,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         try
         {
             ChatAvatar? avatar = await _chatAvatarRepository.GetActualChatAvatarById(request.ChatId);
-            Result result = _softDeletableValidator.IsActive(avatar);
+            Result result = _chatAvatarValidator.IsAvailable(avatar);
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
@@ -42,7 +52,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         {
 
             List<ChatAvatar>? avatars = await _chatAvatarRepository.GetChatAvatarsById(request.ChatId);
-            Result result = _softDeletableValidator.IsAvailableCollection(avatars);
+            Result result = _chatAvatarValidator.IsAvailableCollection(avatars);
             if (!result.Success)
                 return Result<List<AvatarResponse>>.From(result);
 

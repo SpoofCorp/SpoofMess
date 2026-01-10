@@ -32,7 +32,7 @@ public class ChatService(IChatRepository chatRepository, IUserValidator userVali
     public async ValueTask<Result> CreateChat(CreateChatRequest request, Guid userId)
     {
         User? user = await _userRepository.GetByIdAsync(userId);
-        Result result = _userValidator.Validate(user);
+        Result result = _userValidator.IsAvailable(user);
         if (!result.Success) return result;
 
         ChatType? chatType = await _chatTypeRepository.GetByIdAsync(request.ChatTypeId);
@@ -65,7 +65,7 @@ public class ChatService(IChatRepository chatRepository, IUserValidator userVali
     {
         User? user = await _userRepository.GetByIdAsync(userId);
 
-        Result result = _userValidator.Validate(user);
+        Result result = _userValidator.IsAvailable(user);
         if (!result.Success) return new(null, null, result);
 
         Chat? chat = await _chatRepository.GetByIdAsync(chatId);
