@@ -2,9 +2,11 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class ChatType : IdentifiedEntity<long>
+public partial class ChatType : IdentifiedSoftDeletableEntity<int>
 {
-    public string Title { get; set; } = null!;
+    public string Name { get; set; } = null!;
+
+    public virtual ICollection<ChatTypeChatProperty> ChatTypeChatProperties { get; set; } = [];
 
     public virtual ICollection<Chat> Chats { get; set; } = [];
 }

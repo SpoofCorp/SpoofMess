@@ -2,11 +2,11 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class Extension : IdentifiedEntity<long>
+public partial class Extension : IdentifiedSoftDeletableEntity<short>
 {
-    public string Title { get; set; } = null!;
+    public short FileCategory { get; set; }
 
-    public byte FileCategory { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<FileMetadatum> FileMetadata { get; set; } = [];
 }

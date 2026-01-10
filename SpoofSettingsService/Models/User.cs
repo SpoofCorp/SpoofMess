@@ -2,13 +2,13 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class User : IdentifiedEntity<Guid>
+public partial class User : IdentifiedSoftDeletableEntity<Guid>
 {
     public DateTime WasOnline { get; set; }
 
     public string Name { get; set; } = null!;
 
-    public long MonthsBeforeDelete { get; set; }
+    public int MonthsBeforeDelete { get; set; }
 
     public bool SearchMe { get; set; }
 
