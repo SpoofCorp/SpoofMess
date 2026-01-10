@@ -1,24 +1,18 @@
 ﻿using CommonObjects.Results;
 using SpoofSettingsService.Models;
+using SpoofSettingsService.Services.Validators;
 
-namespace SpoofSettingsService.Services.Validators;
+namespace SpoofSettingsService.ServiceRealizations.Validators;
 
-public class ChatValidator : IChatValidator
+public class ChatValidator : SoftDeletableValidator<Chat>, IChatValidator
 {
-    public Result ValidateChat(Chat? chat)
-    {
-        if (chat is null)
-            return Result.NotFoundResult("Chat not exist");
-
-        if (chat.IsDeleted)
-            return Result.BadRequest("Chat is deleted");
-
-        return Result.OkResult();
-    }
     public Result ValidateChatType(ChatType? chatType)
     {
         if (chatType is null)
             return Result.NotFoundResult("Chat type is not exist");
+
+        if (chatType.IsDeleted)
+            return Result.BadRequest("ChatType is deleted");
 
         return Result.OkResult();
     }
@@ -33,15 +27,12 @@ public class ChatValidator : IChatValidator
 
     public Result ValidateChatAndOwner(Chat? chat, Guid userId)
     {
-        if (chat is null)
-            return Result.NotFoundResult("Chat not exist");
-
-        if (chat.IsDeleted)
-            return Result.BadRequest("Chat is deleted");
-
-        if (chat.OwnerId == userId)
+        Result result = IsAvailable(chat);
+        if (!result.Success)
+            return result;
+        if (chat!.OwnerId == userId)
             return Result.OkResult();
         else
-            return Result.ErrorResult("You is not owner", 403);
+            return Result.Forbidden("You is not owner");
     }
 }

@@ -3,8 +3,8 @@ using DataHelpers;
 
 namespace SpoofSettingsService.Services.Validators;
 
-public interface ISoftDeletableValidator
+public interface ISoftDeletableValidator<T> where T : ISoftDeletable
 {
-    public Result IsActive<T>(T? obj) where T : ISoftDeletable;
-    public Result IsAvailableCollection<T>(List<T>? objs);
+    public Result IsAvailable(T? obj);
+    public Result IsAvailableCollection(List<T>? objs);
 }

@@ -4,9 +4,9 @@ using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations.Validators;
 
-public class SoftDeletableValidator : ISoftDeletableValidator
+public class SoftDeletableValidator<T> : ISoftDeletableValidator<T> where T : ISoftDeletable
 {
-    public Result IsActive<T>(T? obj) where T : ISoftDeletable
+    public Result IsAvailable(T? obj)
     {
         if (obj is null)
             return Result.NotFoundResult("Invalid id");
@@ -16,7 +16,7 @@ public class SoftDeletableValidator : ISoftDeletableValidator
         return Result.OkResult();
     }
 
-    public Result IsAvailableCollection<T>(List<T>? objs)
+    public Result IsAvailableCollection(List<T>? objs)
     {
         if(objs is null)
             return Result.NotFoundResult("Invalid id");

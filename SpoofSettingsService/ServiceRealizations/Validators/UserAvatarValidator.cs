@@ -4,14 +4,14 @@ using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations.Validators;
 
-public class ChatAvatarValidator : SoftDeletableValidator<ChatAvatar>, IChatAvatarValidator
+public class UserAvatarValidator : SoftDeletableValidator<UserAvatar>, IUserAvatarValidator
 {
-    public Result FileIsActive(ChatAvatar? chatAvatar)
+    public Result FileIsActive(UserAvatar? userAvatar)
     {
-        Result result = IsAvailable(chatAvatar);
+        Result result = IsAvailable(userAvatar);
         if (!result.Success)
             return result;
-        if (chatAvatar!.FileId is null)
+        if (userAvatar!.FileId is null)
             return Result.BadRequest("Avatar has broken");
 
         return Result.SuccessResult();

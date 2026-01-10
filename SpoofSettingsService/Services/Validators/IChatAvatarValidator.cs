@@ -3,11 +3,7 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Validators;
 
-public interface IChatAvatarValidator
+public interface IChatAvatarValidator : ISoftDeletableValidator<ChatAvatar>
 {
-    public Result IsAvailable(ChatAvatar? chatAvatar);
-
     public Result FileIsActive(ChatAvatar? chatAvatar);
-
-    public Result AvatarsIsAvailable(List<ChatAvatar>? chatAvatars);
 }

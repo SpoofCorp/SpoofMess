@@ -3,9 +3,7 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Validators;
 
-public interface IStickerPackValidator
+public interface IStickerPackValidator : ISoftDeletableValidator<StickerPack>
 {
-    public Result IsAvailable(StickerPack? stickerPack);
-
     public Result IsOwner(StickerPack? stickerPack, Guid userId);
 }
