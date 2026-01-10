@@ -1,8 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using DataHelpers.Services;
+using System.Collections.Concurrent;
 
 namespace DataHelpers.ServiceRealizations;
 
-public class ProcessQueueTasksService : IDisposable
+public class ProcessQueueTasksService : IProcessQueueTasksService
 {
     private readonly ConcurrentQueue<Func<Task>> _backgroundTasks = new();
     private readonly CancellationTokenSource _cts = new();
@@ -46,13 +47,17 @@ public class ProcessQueueTasksService : IDisposable
         }
     }
 
-    public void AddTask(Func<Task> task) =>
-        _backgroundTasks.Enqueue(task);
-
-    public void Dispose()
+    public void AddTask(Func<Task> task)
     {
+        if (_cts.IsCancellationRequested)
+            throw new InvalidOperationException("Cancel was called");
+        _backgroundTasks.Enqueue(task);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _backgroundProcessor.WaitAsync(TimeSpan.FromSeconds(5), _cts.Token);
         _cts.Cancel();
-        _backgroundProcessor.Wait(5000);
         _cts.Dispose();
         _semaphore.Dispose();
         GC.SuppressFinalize(this);

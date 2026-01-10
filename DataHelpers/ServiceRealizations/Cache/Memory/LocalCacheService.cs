@@ -41,4 +41,14 @@ public class LocalCacheService(IMemoryCache cache, ILoggerService loggerService)
         _loggerService.Trace($"Save by {key} to cache");
         return Task.CompletedTask;
     }
+
+    public async Task SaveRange<T>(Func<T, string> getKey, List<T> values)
+    {
+        T value;
+        for(int i = 0; i < values.Count; i++)
+        {
+            value = values[i];
+            await Save(getKey(value), value);
+        }
+    }
 }

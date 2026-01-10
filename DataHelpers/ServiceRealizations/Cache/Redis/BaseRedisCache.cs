@@ -58,4 +58,21 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
             throw new Exception(ex.Message);
         }
     }
+
+    public async Task SaveRange<T>(Func<T, string> getKey, List<T> values)
+    {
+        try
+        {
+            T value;
+            for (int i = 0; i < values.Count; i++)
+            {
+                value = values[i];
+                await Save(getKey(value), value);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using AdditionalHelpers.Services;
 using DataHelpers.Services;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DataHelpers.ServiceRealizations.Cache;
 
@@ -42,5 +43,13 @@ public class MultiCache(IMemoryCacheService localCache, IRedisService cache, ILo
         }
 
         return entity;
+    }
+
+    public async Task SaveRange<T>(Func<T, string> getKey, List<T> values)
+    {
+        await _localCache.SaveRange(getKey, values);
+        _loggerService.Trace($"Save collection {values.GetType().Name} to in-memory cache");
+        await _cache.SaveRange(getKey, values);
+        _loggerService.Trace($"Save by {values.GetType().Name} to redis");
     }
 }

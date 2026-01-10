@@ -17,4 +17,7 @@ public class RedisCache(IRedisService cache) : ICacheService
 
     public async ValueTask<List<T>?> GetMany<T>(string key) => 
         await _cache.Get<List<T>?>(key);
+
+    public async Task SaveRange<T>(Func<T, string> getKey, List<T> values) =>
+        await _cache.SaveRange(getKey, values); 
 }
