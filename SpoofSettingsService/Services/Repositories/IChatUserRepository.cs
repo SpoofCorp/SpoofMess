@@ -1,9 +1,9 @@
-﻿using DataHelpers.Services;
+﻿using DataHelpers.Services.Repositories;
 using SpoofSettingsService.Models;
 
-namespace SpoofSettingsService.Services.Interfaces;
+namespace SpoofSettingsService.Services.Repositories;
 
-public interface IChatUserRepository : IBaseRepository<ChatUser, Guid>
+public interface IChatUserRepository : ISoftDeletableRepository<ChatUser>
 {
     public Task<bool> DeleteMemberById(Guid memberId, Guid chatId);
 }

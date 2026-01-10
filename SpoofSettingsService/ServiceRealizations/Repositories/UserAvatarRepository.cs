@@ -1,4 +1,4 @@
-﻿using DataHelpers.ServiceRealizations;
+﻿using DataHelpers.ServiceRealizations.Repositories.WithCache;
 using DataHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
@@ -6,13 +6,13 @@ using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
-public class UserAvatarRepository(ICacheService cache, SpoofSettingsServiceContext context, ProcessQueueTasksService tasksService) : Repository<UserAvatar, Guid>(cache, context, tasksService), IUserAvatarRepository
+public class UserAvatarRepository(ICacheService cache, SpoofSettingsServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableRepository<UserAvatar>(cache, context, tasksService), IUserAvatarRepository
 {
     public async Task<UserAvatar?> GetActualUserAvatarById(Guid userId) =>
         await GetAsync(GetKey(userId), async () => await _set.FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive));
 
     public async Task<List<UserAvatar>?> GetUserAvatarsById(Guid userId) =>
-        await GetManyAsync(GetManyKey(userId), async () => await _set.Where(x => x.UserId == userId && !x.IsDeleted).ToListAsync());
+        await _set.Where(x => x.UserId == userId && !x.IsDeleted).ToListAsync();
 
     public async Task<bool> TryDeleteAvatarByIds(Guid userId, Guid fileId)
     {
@@ -24,9 +24,10 @@ public class UserAvatarRepository(ICacheService cache, SpoofSettingsServiceConte
         return true;
     }
 
-    private new static string GetKey(Guid userId) =>
+    private static string GetKey(Guid userId) =>
         $"{typeof(UserAvatar).Name.ToLower()}:{userId}";
 
-    private static string GetManyKey(Guid userId) =>
-        $"{typeof(UserAvatar).Name.ToLower()}s:{userId}";
+    protected override string GetKey(UserAvatar entity) =>
+        $"{typeof(UserAvatar).Name.ToLower()}:{entity.UserId}:{entity.FileId}";
+
 }

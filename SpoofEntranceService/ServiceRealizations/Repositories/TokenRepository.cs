@@ -1,12 +1,12 @@
-﻿using DataHelpers.ServiceRealizations;
-using DataHelpers.Services;
+﻿using DataHelpers.Services;
 using SpoofEntranceService.Models;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Services.Repositories;
+using DataHelpers.ServiceRealizations.Repositories.WithCache;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class TokenRepository(ICacheService cache, SpoofEntranceServiceDbContext context, ProcessQueueTasksService tasksService) : Repository<Token, string>(cache, context, tasksService), ITokenRepository
+public class TokenRepository(ICacheService cache, SpoofEntranceServiceDbContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<Token, string>(cache, context, tasksService), ITokenRepository
 {
     public async ValueTask Add(Token token) =>
         await AddAsync(token);

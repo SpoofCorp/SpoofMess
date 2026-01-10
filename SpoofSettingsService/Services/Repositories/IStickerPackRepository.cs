@@ -1,9 +1,9 @@
-﻿using DataHelpers.Services;
+﻿using DataHelpers.Services.Repositories;
 using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Repositories;
 
-public interface IStickerPackRepository : IBaseRepository<StickerPack, Guid>
+public interface IStickerPackRepository : IIdentifiedRepository<StickerPack, long>
 {
-    public Task<StickerPack?> GetWithStickers(Guid id);
+    public Task<StickerPack?> GetWithStickers(long id);
 }

@@ -1,4 +1,4 @@
-﻿using DataHelpers.ServiceRealizations;
+﻿using DataHelpers.ServiceRealizations.Repositories.WithCache;
 using DataHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
@@ -6,7 +6,7 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class UserRepository(ICacheService cache, SpoofEntranceServiceDbContext context, ProcessQueueTasksService tasksService) : Repository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
+public class UserRepository(ICacheService cache, SpoofEntranceServiceDbContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
 {
     public async Task Change(UserEntry newUser, UserEntry? oldUser)
     {

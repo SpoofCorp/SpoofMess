@@ -1,8 +1,8 @@
-﻿using DataHelpers.Services;
+﻿using DataHelpers.Services.Repositories;
 using SpoofSettingsService.Models;
 
-namespace SpoofSettingsService.Services.Interfaces;
+namespace SpoofSettingsService.Services.Repositories;
 
-public interface IUserRepository : IBaseRepository<User, Guid>
+public interface IUserRepository : ISoftDeletableIdentifiedRepository<User, Guid>
 {
 }

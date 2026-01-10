@@ -1,4 +1,4 @@
-﻿using DataHelpers.ServiceRealizations;
+﻿using DataHelpers.ServiceRealizations.Repositories.WithCache;
 using DataHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
@@ -6,15 +6,14 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class SessionRepository(ICacheService cache, SpoofEntranceServiceDbContext context, ProcessQueueTasksService tasksService) : Repository<SessionInfo, Guid>(cache, context, tasksService), ISessionRepository
+public class SessionRepository(ICacheService cache, SpoofEntranceServiceDbContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<SessionInfo, Guid>(cache, context, tasksService), ISessionRepository
 {
     public async ValueTask<List<SessionInfo>?> GetSessionsByUserId(Guid userId) =>
-        await GetManyAsync("user:sessions:" + userId,
-            async () => await context.SessionInfos
+        await context.SessionInfos
                 .Where(x => x.UserEntryId == userId
                     && !x.IsDeleted
                     && x.IsActive)
-                .ToListAsync());
+                .ToListAsync();
 
     public async Task SoftDelete(SessionInfo entity)
     {

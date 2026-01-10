@@ -1,9 +1,9 @@
-﻿using DataHelpers.Services;
+﻿using DataHelpers.Services.Repositories;
 using SpoofEntranceService.Models;
 
 namespace SpoofEntranceService.Services.Repositories;
 
-public interface ITokenRepository : IBaseRepository<Token, string>
+public interface ITokenRepository : ISoftDeletableIdentifiedRepository<Token, string>
 {
     public ValueTask Add(Token token);
 

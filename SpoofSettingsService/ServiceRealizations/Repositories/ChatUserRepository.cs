@@ -1,16 +1,17 @@
 ﻿using DataHelpers.ServiceRealizations;
+using DataHelpers.ServiceRealizations.Repositories.WithCache;
 using DataHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
-using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
-public class ChatUserRepository(ICacheService cache, SpoofSettingsServiceContext context, ProcessQueueTasksService tasksService) : Repository<ChatUser, Guid>(cache, context, tasksService), IChatUserRepository
+public class ChatUserRepository(ICacheService cache, SpoofSettingsServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableRepository<ChatUser>(cache, context, tasksService), IChatUserRepository
 {
     public async Task<bool> DeleteMemberById(Guid memberId, Guid chatId)
     {
-        ChatUser? member = await GetAsync($"{typeof(ChatUser).Name.ToLower()}:{chatId}-{memberId}",
+        ChatUser? member = await GetAsync(GetKey(chatId, memberId),
             async() => await context.ChatUsers.FirstOrDefaultAsync(x => x.ChatId == chatId && x.UserId == memberId));
         if (member is null)
             return false;
@@ -18,4 +19,10 @@ public class ChatUserRepository(ICacheService cache, SpoofSettingsServiceContext
         await SoftDeleteAsync(member);
         return true;
     }
+
+    protected override string GetKey(ChatUser entity) =>
+        $"{entity.GetType().Name.ToLower()}:{entity.ChatId}-{entity.UserId}";
+
+    protected virtual string GetKey(Guid chatId, Guid userId) =>
+        $"{typeof(ChatUser).Name.ToLower()}:{chatId}-{userId}";
 }

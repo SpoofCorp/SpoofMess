@@ -1,9 +1,9 @@
-﻿using DataHelpers.Services;
+﻿using DataHelpers.Services.Repositories;
 using SpoofEntranceService.Models;
 
 namespace SpoofEntranceService.Services.Repositories;
 
-public interface ISessionRepository : IBaseRepository<SessionInfo, Guid>
+public interface ISessionRepository : ISoftDeletableIdentifiedRepository<SessionInfo, Guid>
 {
     public ValueTask<List<SessionInfo>?> GetSessionsByUserId(Guid userId);
 
