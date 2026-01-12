@@ -2,7 +2,7 @@
 
 namespace SpoofEntranceService.Models;
 
-public partial class UserEntry : IdentifiedEntity<Guid>
+public partial class UserEntry : IdentifiedSoftDeletableEntity<Guid>
 {
     public string PasswordHash { get; set; } = null!;
 

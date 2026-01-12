@@ -17,4 +17,11 @@ A cross-platform messenger with any type of chats, stickers/emoji - that's just 
     - Db models services
     - DTO setters
 
+~text~
+
+|Monday|22 декабря 2025 г.|
+|-|-|
+|2|История|
+|10:10-11:40|Симакова В В|
+
 ### Now this is a simply example only for test entrance functions

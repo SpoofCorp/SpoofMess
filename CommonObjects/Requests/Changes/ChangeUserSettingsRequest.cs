@@ -4,7 +4,7 @@ public class ChangeUserSettingsRequest
 {
     public string? Name { get; set; }
 
-    public long? MonthsBeforeDelete { get; set; }
+    public int? MonthsBeforeDelete { get; set; }
 
     public bool? SearchMe { get; set; }
 

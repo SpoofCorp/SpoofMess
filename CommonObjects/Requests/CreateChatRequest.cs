@@ -2,7 +2,7 @@
 
 public class CreateChatRequest
 {
-    public long ChatTypeId { get; set; }
+    public int ChatTypeId { get; set; }
 
     public required string ChatName { get; set; }
 

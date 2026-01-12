@@ -1,10 +1,10 @@
-﻿namespace CommonObjects.Requests;
+﻿namespace CommonObjects.Requests.Changes;
 
 public class ChangeChatSettingsRequest
 {
     public Guid Id { get; set; }
 
-    public long? ChatTypeId { get; set; }
+    public int? ChatTypeId { get; set; }
 
     public Guid? OwnerId { get; set; }
 

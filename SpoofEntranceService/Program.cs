@@ -12,6 +12,7 @@ using SpoofEntranceService.ServiceRealizations.Repositories;
 using SpoofEntranceService.ServiceRealizations.Validators;
 using SpoofEntranceService.Services;
 using SpoofEntranceService.Services.Repositories;
+using SpoofEntranceService.Services.Validators;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(configuration);
 });
 
-builder.Services.AddTransient<ProcessQueueTasksService>();
+builder.Services.AddTransient<IProcessQueueTasksService, ProcessQueueTasksService>();
 
 //in-memory cache
 builder.Services.AddTransient<Microsoft.Extensions.Caching.Memory.IMemoryCache, Microsoft.Extensions.Caching.Memory.MemoryCache>();
@@ -55,9 +56,9 @@ builder.Services.AddTransient<ISessionRepository, SessionRepository>();
 builder.Services.AddTransient<ITokenRepository, TokenRepository>();
 builder.Services.AddTransient<IUserEntryRepository, UserRepository>();
 
-builder.Services.AddTransient<TokenValidator>();
-builder.Services.AddTransient<SessionValidator>();
-builder.Services.AddTransient<UserEntryValidator>();
+builder.Services.AddTransient<ITokenValidator, TokenValidator>();
+builder.Services.AddTransient<ISessionValidator, SessionValidator>();
+builder.Services.AddTransient<IUserEntryValidator, UserEntryValidator>();
 
 //logic services
 builder.Services.AddTransient<ISessionService, SessionService>();

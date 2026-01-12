@@ -14,5 +14,6 @@
     <Project Path="SpoofSettingsServiceTests/SpoofSettingsServiceTests.csproj" Id="48948a50-5a09-4512-9e20-08706cee14d2" />
   </Folder>
   <Project Path="SpoofEntranceService/SpoofEntranceService.csproj" />
+  <Project Path="SpoofMessageService/SpoofMessageService.csproj" Id="06d0894e-1f39-4b27-bd7b-071cf005af37" />
   <Project Path="SpoofSettingsService/SpoofSettingsService.csproj" Id="82a51fca-9b95-4d7f-b4db-19c383428826" />
 </Solution>

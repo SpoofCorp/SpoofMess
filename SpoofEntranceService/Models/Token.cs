@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofEntranceService.Models;
 
-public partial class Token : IdentifiedEntity<string>, ISoftDeletable
+public partial class Token : IdentifiedSoftDeletableEntity<string>
 {
     [Column("RefreshTokenHash")]
     public new string Id { get; set; } = default!;

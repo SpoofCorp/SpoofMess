@@ -61,7 +61,7 @@ create table "Chat"
 (
     "Id" uuid constraint "PK_Chat_Id" primary key,
     "ChatTypeId" int not null not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
-	"OwnerId" uuid not null constraint "FK_Chat_OwnerId" references "User"("Id") on delete cascade,
+	"OwnerId" uuid constraint "FK_Chat_OwnerId" references "User"("Id") on delete cascade,
     "ChatUniqueName" varchar(100) unique not null,
     "ChatName" varchar(100) not null,
     "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
@@ -80,6 +80,7 @@ create table "Extension"
 create table "FileMetadata" (
     "Id" uuid constraint "PK_FileMetadata_Id" primary key,
 	"IsDeleted" boolean not null default false,
+    "Size" bigint not null,
 	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
 );
 
@@ -123,7 +124,7 @@ create table "Sticker"
 	"Id" uuid constraint "PK_Sticker_Id" primary key default uuidv7(),
 	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
 	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
-	"Title" varchar(50),
+	"Title" not null varchar(50),
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );

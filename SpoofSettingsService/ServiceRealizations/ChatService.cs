@@ -1,9 +1,8 @@
 ﻿using CommonObjects.Requests;
+using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
-using DataHelpers.ServiceRealizations;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.Interfaces;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
@@ -44,7 +43,7 @@ public class ChatService(IChatRepository chatRepository, IUserValidator userVali
         if (!result.Success) return result;
 
         DateTime now = DateTime.UtcNow;
-        Chat newChat = new(request.ChatTypeId, user!.Id, request.ChatName, request.IsPublic, request.UniqueName, now, now);
+        Chat newChat = new(request.ChatTypeId, user!.Id, request.ChatName, request.UniqueName, now, now);
 
         await _chatRepository.Change(newChat, repetition);
 

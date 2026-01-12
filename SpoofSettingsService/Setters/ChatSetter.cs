@@ -1,4 +1,4 @@
-﻿using CommonObjects.Requests;
+﻿using CommonObjects.Requests.Changes;
 using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Setters;
@@ -10,7 +10,6 @@ public static class ChatSetter
         chat.OwnerId = request.OwnerId ?? chat.OwnerId;
         chat.ChatTypeId = request.ChatTypeId ?? chat.ChatTypeId;
         chat.ChatName = request.ChatName ?? chat.ChatName;
-        chat.IsPublic = request.IsPublic ?? chat.IsPublic;
-        chat.UniqueName = request.UniqueName ?? chat.UniqueName;
+        chat.ChatUniqueName = request.UniqueName ?? chat.ChatUniqueName;
     }
 }

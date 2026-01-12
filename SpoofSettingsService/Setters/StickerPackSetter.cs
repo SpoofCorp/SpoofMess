@@ -8,7 +8,7 @@ public static class StickerPackSetter
     public static GetStickerPackResponse Response(this StickerPack stickerPack) =>
         new()
         {
-            FileId = stickerPack.PreviewId ?? Guid.Empty,
+            FileId = stickerPack.PreviewId,
             Stickers = [.. stickerPack.Stickers.Select(x => x.Set())]
         };
 }

@@ -4,7 +4,7 @@ using CommonObjects.Results;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 

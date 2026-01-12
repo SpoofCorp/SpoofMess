@@ -3,17 +3,17 @@ using CommonObjects.Requests;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.Interfaces;
+using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserService(ILoggerService loggerService, IChatService chatService, IBaseValidator baseValidator, IRoleTypeService roleTypeService, IUserRepository userRepository, IChatUserRepository chatUserRepository) : IChatUserService
+public class ChatUserService(ILoggerService loggerService, IChatService chatService, IBaseValidator baseValidator, IRoleService roleTypeService, IUserRepository userRepository, IChatUserRepository chatUserRepository) : IChatUserService
 {
     private readonly IBaseValidator _baseValidator = baseValidator;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatService _chatService = chatService;
-    private readonly IRoleTypeService _roleTypeService = roleTypeService;
+    private readonly IRoleService _roleTypeService = roleTypeService;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IChatUserRepository _chatUserRepository = chatUserRepository;
     public async Task<Result> AddMember(AddMemberRequest request, Guid userId)
@@ -28,15 +28,15 @@ public class ChatUserService(ILoggerService loggerService, IChatService chatServ
             Result validateResult = _baseValidator.ValidateExist(member);
             if (!validateResult.Success) return validateResult;
 
-            RoleType? roleType = await _roleTypeService.GetRoleById(request.RoleId); 
-            validateResult = _baseValidator.ValidateExist(roleType);
+            Role? role = await _roleTypeService.GetRoleById(request.RoleId); 
+            validateResult = _baseValidator.ValidateExist(role);
             if (!validateResult.Success) return validateResult;
 
             ChatUser newMember = new()
             {
                 ChatId = result.User!.Id,
                 UserId = member!.Id,
-                RoleTypeId = roleType!.Id,
+                RoleId = role!.Id,
                 JoinedAt = DateTime.UtcNow,
             };
 

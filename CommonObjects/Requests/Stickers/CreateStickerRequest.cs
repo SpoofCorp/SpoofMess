@@ -4,7 +4,7 @@ namespace CommonObjects.Requests.Stickers;
 
 public class CreateStickerRequest
 {
-    public Guid StickerPackId { get; set; }
+    public long StickerPackId { get; set; }
 
     public required FileMetadata FileMetadata { get; set; }
 

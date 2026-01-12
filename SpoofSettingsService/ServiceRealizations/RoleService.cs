@@ -3,9 +3,9 @@ using SpoofSettingsService.Services;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class RoleTypeService : IRoleTypeService
+public class RoleService : IRoleService
 {
-    public Task<RoleType?> GetRoleById(long roleId)
+    public Task<Role?> GetRoleById(long roleId)
     {
         throw new NotImplementedException();
     }

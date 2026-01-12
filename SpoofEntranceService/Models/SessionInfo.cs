@@ -2,7 +2,7 @@
 
 namespace SpoofEntranceService.Models;
 
-public partial class SessionInfo : IdentifiedEntity<Guid>, IIdentifiedEntity
+public partial class SessionInfo : IdentifiedSoftDeletableEntity<Guid>, IIdentifiedEntity
 {
     public Guid UserEntryId { get; set; }
 

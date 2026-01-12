@@ -14,7 +14,6 @@ using SpoofSettingsService.ServiceRealizations.Repositories;
 using SpoofSettingsService.ServiceRealizations.Validators;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Consumers;
-using SpoofSettingsService.Services.Interfaces;
 using SpoofSettingsService.Services.Publisher;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
@@ -59,7 +58,7 @@ builder.Services.AddTransient<IStickerPackService, StickerPackService>();
 builder.Services.AddTransient<IStickerService, StickerService>();
 builder.Services.AddTransient<IUserAvatarService, UserAvatarService>();
 builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
-builder.Services.AddTransient<IRoleTypeService, RoleTypeService>();
+builder.Services.AddTransient<IRoleService, RoleService>();
 
 builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 builder.Services.AddTransient<IUserConsumerService, UserConsumerService>();
@@ -81,7 +80,7 @@ builder.Services.AddTransient<IUserAvatarRepository, UserAvatarRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IChatTypeRepository, ChatTypeRepository>();
 
-builder.Services.AddTransient<ProcessQueueTasksService>();
+builder.Services.AddTransient<IProcessQueueTasksService, ProcessQueueTasksService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();

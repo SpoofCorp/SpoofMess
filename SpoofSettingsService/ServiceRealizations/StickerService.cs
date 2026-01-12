@@ -80,7 +80,7 @@ public class StickerService(ILoggerService loggerService, IStickerRepository sti
             if (!result.Success)
                 return Result<GetStickerResponse>.From(result);
 
-            return Result<GetStickerResponse>.OkResult(new() { FileId = sticker!.FileId!.Value });
+            return Result<GetStickerResponse>.OkResult(new() { FileId = sticker!.FileId });
         }
         catch (Exception ex)
         {

@@ -27,7 +27,7 @@ public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublishe
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
-            return Result<AvatarResponse>.SuccessResult(new() { FileId = avatar!.FileId!.Value, FileMetadata = avatar.File!.Set() });
+            return Result<AvatarResponse>.SuccessResult(new() { FileId = avatar!.FileId, FileMetadata = avatar.File!.Set() });
         }
         catch (Exception ex)
         {
@@ -51,7 +51,7 @@ public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublishe
             for (int i = 0; i < avatars!.Count; i++)
             {
                 avatar = avatars[i];
-                response.Body!.Add(new() { FileId = avatars[i].FileId!.Value, FileMetadata = avatars[i].File!.Set() });
+                response.Body!.Add(new() { FileId = avatars[i].FileId, FileMetadata = avatars[i].File!.Set() });
             }
 
             return response;
