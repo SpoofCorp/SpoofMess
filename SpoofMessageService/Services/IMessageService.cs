@@ -5,9 +5,9 @@ namespace SpoofMessageService.Services;
 
 public interface IMessageService
 {
-    public Task<Result> SendMessage(CreateMessageRequest request);
+    public Task<Result> SendMessage(CreateMessageRequest request, Guid userId);
 
-    public Task<Result> DeleteMessage(DeleteMessageRequest request);
+    public Task<Result> DeleteMessage(DeleteMessageRequest request, Guid userId);
 
-    public Task<Result> EditMessage(EditMessageRequest request);
+    public Task<Result> EditMessage(EditMessageRequest request, Guid userId);
 }
