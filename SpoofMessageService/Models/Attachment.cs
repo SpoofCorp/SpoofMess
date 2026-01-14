@@ -13,6 +13,8 @@ public partial class Attachment
 
     public DateTime LastModified { get; set; }
 
+    public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = new List<AttachmentOperationStatus>();
+
     public virtual FileMetadatum FileMetadata { get; set; } = null!;
 
     public virtual Message Message { get; set; } = null!;

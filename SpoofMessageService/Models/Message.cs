@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataHelpers;
 
 namespace SpoofMessageService.Models;
 
-public partial class Message
+public partial class Message : IdentifiedSoftDeletableEntity<Guid>
 {
-    public Guid Id { get; set; }
-
     public string Text { get; set; } = null!;
 
     public Guid ChatId { get; set; }
@@ -17,9 +14,9 @@ public partial class Message
 
     public DateTime LastModified { get; set; }
 
-    public bool IsDeleted { get; set; }
-
     public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+
+    public virtual ICollection<MessageOperationStatus> MessageOperationStatuses { get; set; } = new List<MessageOperationStatus>();
 
     public virtual ICollection<ViewMessage> ViewMessages { get; set; } = new List<ViewMessage>();
 }
