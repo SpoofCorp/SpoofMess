@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdditionalHelpers\AdditionalHelpers.csproj" />
+    <ProjectReference Include="..\CommonObjects\CommonObjects.csproj" />
     <ProjectReference Include="..\DataHelpers\DataHelpers.csproj" />
   </ItemGroup>
 

@@ -42,7 +42,9 @@ public class MessageService(ILoggerService loggerService, IMessageRepository mes
             if (!result.Success)
                 return result;
 
-            return result;
+            message!.Set(request, OperationsStatus.Pending);
+
+            return Result.OkResult();
         }
         catch (Exception ex)
         {
@@ -55,7 +57,7 @@ public class MessageService(ILoggerService loggerService, IMessageRepository mes
     {
         try
         {
-            Message message = request.Set(userId);
+            Message message = request.Set(userId, OperationsStatus.Pending);
             await _messageRepository.AddAsync(message);
 
             return Result.OkResult();

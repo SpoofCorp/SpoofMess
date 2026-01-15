@@ -13,3 +13,11 @@ public partial class OperationStatus
 
     public virtual ICollection<MessageOperationStatus> MessageOperationStatuses { get; set; } = new List<MessageOperationStatus>();
 }
+
+public enum OperationsStatus
+{
+    Pending,
+    Error,
+    Success,
+    Rejected
+}
