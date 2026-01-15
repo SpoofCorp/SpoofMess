@@ -1,8 +1,8 @@
 ﻿using CommonObjects.Results;
 using DataSaveHelpers;
-using SpoofSettingsService.ServiceRealizations.Validators;
+using SpoofMessageService.ServiceRealizations.Validators;
 
-namespace SpoofSettingsServiceTests.ValidatorsTests;
+namespace SpoofMessageServiceTests.ValidatorsTests;
 
 public class SoftDeletableValidatorTests
 {
