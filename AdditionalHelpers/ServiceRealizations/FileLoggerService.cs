@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AdditionalHelpers.ServiceRealizations;
@@ -26,7 +27,7 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
 
     public bool IsEnabled(LogLevel level) => _minLevel >= level;
 
-    public void Log(LogLevel level, string message, Exception? exception = null)
+    public void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
     {
         if (!IsEnabled(level))
             return;
@@ -34,6 +35,7 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
         LogEntry logEntry = new()
         {
             Message = $"{message}\n{((int)_minLevel < 2 ? exception?.Message ?? "Nullable exception" : "")}",
+            Caller = IsEnabled(LogLevel.Debug) ? $" File: {callerFile}\nMethod: {caller}\nLine: {callerLineNumber}" : null,
             Level = level,
             Date = DateTime.UtcNow,
         };
@@ -104,21 +106,21 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
         _bytesInBuffer = 0;
     }
 
-    public void Info(string message) =>
-        Log(LogLevel.Info, message);
+    public void Info(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
+        Log(LogLevel.Info, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 
-    public void Error(string message, Exception? exception = null) =>
-        Log(LogLevel.Error, message, exception);
+    public void Error(string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
+        Log(LogLevel.Error, message, exception, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 
-    public void Fatal(string message, Exception? exception = null) =>
-        Log(LogLevel.Fatal, message, exception);
+    public void Fatal(string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
+        Log(LogLevel.Fatal, message, exception, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 
-    public void Debug(string message) =>
-        Log(LogLevel.Debug, message);
+    public void Debug(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
+        Log(LogLevel.Debug, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 
-    public void Trace(string message) =>
-        Log(LogLevel.Trace, message);
+    public void Trace(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
+        Log(LogLevel.Trace, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 
-    public void Warning(string message) =>
-        Log(LogLevel.Warning, message);
+    public void Warning(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
+        Log(LogLevel.Warning, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 }
