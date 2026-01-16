@@ -44,6 +44,29 @@ services:
             timeout: 5s
             retries: 5
 
+    sfssql:
+        image: postgres:18.1
+        container_name: spoof-file-service-db
+        environment:
+            POSTGRES_DB: SpoofFileService
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres123
+            PGDATA: /var/lib/postgresql/data/pgdata
+        command: ["postgres", "-c", "port=5435"]
+        ports:
+            - "5435:5435"
+        volumes:
+            - postgres_sfs_data:/var/lib/postgresql/data
+            - ./SpoofFileService/SpoofFileService.sql:/docker-entrypoint-initdb.d/init.sql
+        restart: unless-stopped
+        networks:
+            - spoof-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -p 5435"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
     smssql:
         image: postgres:18.1
         container_name: spoof-message-service-db
@@ -83,6 +106,7 @@ services:
             retries: 3
         networks:
             - spoof-network
+
     spoofentranceservice:
         build:
             context: .
@@ -102,6 +126,7 @@ services:
             - ./src:/app/src
         networks:
             - spoof-network
+
     spoofsettingsservice:
         build:
             context: .
@@ -109,7 +134,7 @@ services:
         container_name: spoof-settings-service
         depends_on:
             - redis
-            - sessql
+            - ssssql
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
@@ -121,19 +146,40 @@ services:
             - ./src:/app/src
         networks:
             - spoof-network
+
     spoofmessageservice:
         build:
             context: .
-            dockerfile: SpoofMessageSpoofMessageServiceService/Dockerfile
+            dockerfile: SpoofMessageService/Dockerfile
         container_name: spoof-message-service
         depends_on:
             - redis
-            - sessql
+            - smssql
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__DefaultConnection=Host=smssql;Port=5433;Database=SpoofMessageService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+        ports:
+            - "5002:8082"
+        volumes:
+            - ./src:/app/src
+        networks:
+            - spoof-network
+
+    spooffileservice:
+        build:
+            context: .
+            dockerfile: SpoofFileService/Dockerfile
+        container_name: spoof-message-service
+        depends_on:
+            - redis
+            - sfssql
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
+            - Redis__Password=redis123
+            - ConnectionStrings__DefaultConnection=Host=sfssql;Port=5435;Database=SpoofFileService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
         ports:
             - "5002:8082"
         volumes:
@@ -149,6 +195,8 @@ volumes:
     postgres_sss_data:
         driver: local
     postgres_sms_data:
+        driver: local
+    postgres_sfs_data:
         driver: local
 
 networks:

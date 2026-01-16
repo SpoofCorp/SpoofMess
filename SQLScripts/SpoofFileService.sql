@@ -1,12 +1,7 @@
-CREATE DATABASE SFSDB;
-GO
-USE SFSDB;
-CREATE TABLE FileObject
+create table "FileObject"
 (
-	Id BIGINT PRIMARY KEY NOT NULL,
-	FileType NVARCHAR(50),
-	IsDeleted BIT NOT NULL DEFAULT 0,
-	FilePath NVARCHAR(1000) NOT NULL,
-	LastModified DATETIME NOT NULL DEFAULT GETUTCDATE(),
+	"Id" uuid not null constraint "PK_FileObject_Id" primary key default uuidv7(),
+	"IsDeleted" boolean not null default false,
+	"FilePath" text not null,
+	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
 );
-CREATE INDEX IX_FileObject_FileType ON FileObject(FileType) WHERE FileType IS NOT NULL AND IsDeleted = 0;

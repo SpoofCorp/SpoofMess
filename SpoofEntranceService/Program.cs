@@ -1,10 +1,10 @@
 using AdditionalHelpers.ServiceRealizations;
 using AdditionalHelpers.Services;
-using DataHelpers.ServiceRealizations;
-using DataHelpers.ServiceRealizations.Cache;
-using DataHelpers.ServiceRealizations.Cache.Memory;
-using DataHelpers.ServiceRealizations.Cache.Redis;
-using DataHelpers.Services;
+using DataSaveHelpers.ServiceRealizations;
+using DataSaveHelpers.ServiceRealizations.Cache;
+using DataSaveHelpers.ServiceRealizations.Cache.Memory;
+using DataSaveHelpers.ServiceRealizations.Cache.Redis;
+using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
 using SpoofEntranceService.ServiceRealizations;
@@ -26,7 +26,6 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 //"Server=.;Database=SpoofEntranceService;Trusted_Connection=True;TrustServerCertificate=True"
 //data services
-Console.WriteLine(builder.Configuration.GetConnectionString("Redis"));
 builder.Services.AddDbContext<SpoofEntranceServiceDbContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>

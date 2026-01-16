@@ -1,6 +1,6 @@
 ﻿using CommonObjects.Results;
 using DataSaveHelpers;
-using SpoofSettingsService.ServiceRealizations.Validators;
+using DataSaveHelpers.ServiceRealizations;
 
 namespace SpoofSettingsServiceTests.ValidatorsTests;
 

@@ -1,4 +1,5 @@
 ﻿using CommonObjects.Results;
+using DataSaveHelpers.ServiceRealizations;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services.Validators;
 
@@ -11,6 +12,8 @@ public class ChatAvatarValidator : SoftDeletableValidator<ChatAvatar>, IChatAvat
         Result result = IsAvailable(chatAvatar);
         if (!result.Success)
             return result;
+        if (chatAvatar!.File is null)
+            return Result.BadRequest("File was broken");
 
         return Result.SuccessResult();
     }
