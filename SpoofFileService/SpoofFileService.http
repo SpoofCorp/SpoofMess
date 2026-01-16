@@ -1,0 +1,6 @@
+@SpoofFileService_HostAddress = http://localhost:5225
+
+GET {{SpoofFileService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
