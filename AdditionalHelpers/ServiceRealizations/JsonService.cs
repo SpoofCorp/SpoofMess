@@ -1,10 +1,12 @@
-﻿using System.Text.Encodings.Web;
+﻿using AdditionalHelpers.Services;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AdditionalHelpers.ServiceRealizations;
 
-public class JsonService
+public class JsonService : ISerializer
 {
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -13,19 +15,30 @@ public class JsonService
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    public static string Serialize<T>(T obj) =>
+    public string Serialize<T>(T obj) =>
         JsonSerializer.Serialize(obj, Options);
 
-    public static T? Deserialize<T>(string json)
+    public T? Deserialize<T>(string text)
     {
         try
         {
-            Console.WriteLine($"json: {json}");
-            return JsonSerializer.Deserialize<T>(json, Options);
+            return JsonSerializer.Deserialize<T>(text, Options);
         }
         catch
         {
-            throw new InvalidDataException($"Invalid json for type: {typeof(T).Name} json: {json}");
+            throw new InvalidDataException($"Invalid json for type: {typeof(T).Name} json: {text}");
+        }
+    }
+
+    public T? Deserialize<T>(byte[] body)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(body, Options);
+        }
+        catch
+        {
+            throw new InvalidDataException($"Invalid json for type: {typeof(T).Name} body: {body}");
         }
     }
 }

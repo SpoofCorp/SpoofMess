@@ -6,5 +6,5 @@ namespace SpoofFileService.ServiceRealizatoionss.Validators;
 
 public interface IFileValidator : ISoftDeletableValidator<FileObject>
 {
-    public Result IsAvailableAndFileExists(FileObject? fileObject)
+    public Result IsAvailableAndFileExists(FileObject? fileObject);
 }

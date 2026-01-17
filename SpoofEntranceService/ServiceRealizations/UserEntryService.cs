@@ -10,14 +10,13 @@ using SpoofEntranceService.Services.Validators;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
-public class UserEntryService(IUserEntryRepository repository, IUserEntryValidator validator, ILoggerService logService, ITokenService tokenService, ISessionService sessionService, IUserPublisherService userPublisher) : IUserEntryService
+public class UserEntryService(IUserEntryRepository repository, IUserEntryValidator validator, ILoggerService logService, ITokenService tokenService, ISessionService sessionService) : IUserEntryService
 {
     private readonly IUserEntryRepository _repository = repository;
     private readonly ISessionService _sessionService = sessionService;
     private readonly ITokenService _tokenService = tokenService;
     private readonly IUserEntryValidator _validator = validator;
     private readonly ILoggerService _logService = logService;
-    private readonly IUserPublisherService _userPublisher = userPublisher;
 
     public async Task<Result<UserAuthorizeResponse>> Authorization(
         UserAuthorizeRequest request,
@@ -64,7 +63,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserEntryValidat
 
             await _sessionService.StartSession(newUser, sessionInfo);
 
-            _ = Task.Run(async () => await _userPublisher.PublishUser(newUser));
+            //_ = Task.Run(async () => await _userPublisher.PublishUser(newUser));
 
             return await _tokenService.Create(sessionInfo);
         }

@@ -5,10 +5,11 @@ using StackExchange.Redis;
 
 namespace DataSaveHelpers.ServiceRealizations.Cache.Redis;
 
-public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerService) : IRedisService
+public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerService, ISerializer serializer) : IRedisService
 {
     private readonly IDatabase _database = redis.GetDatabase();
     private readonly ILoggerService _loggerService = loggerService;
+    private readonly ISerializer _serializer = serializer;
     public TimeSpan Expiration { get; set; } = TimeSpan.FromMinutes(10);
 
     public async Task Delete(string key)
@@ -28,7 +29,7 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
     {
         try
         {
-            string json = JsonService.Serialize(value);
+            string json = _serializer.Serialize(value);
             await _database.StringSetAsync(key, json, Expiration, When.Always);
             _loggerService.Trace($"Save by {key} to redis");
         }
@@ -47,7 +48,7 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
                 return default;
 
             _loggerService.Trace($"Get by {key} from redis");
-            return JsonService.Deserialize<T>(redisValue.Value.ToString());
+            return _serializer.Deserialize<T>(redisValue.Value.ToString());
         }
         catch (InvalidDataException ex)
         {
