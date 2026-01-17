@@ -1,20 +1,18 @@
 ﻿using DataSaveHelpers;
+using System;
+using System.Collections.Generic;
 
 namespace SpoofSettingsService.Models;
 
 public partial class FileMetadatum : IdentifiedSoftDeletableEntity<Guid>
 {
-    public short ExtensionId { get; set; }
-
     public long Size { get; set; }
 
-    public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = [];
+    public short ExtensionId { get; set; }
 
     public virtual Extension Extension { get; set; } = null!;
 
-    public virtual ICollection<StickerPack> StickerPacks { get; set; } = [];
+    public virtual ICollection<FileMetadataOperationStatus> FileMetadataOperationStatuses { get; set; } = new List<FileMetadataOperationStatus>();
 
-    public virtual ICollection<Sticker> Stickers { get; set; } = [];
-
-    public virtual ICollection<UserAvatar> UserAvatars { get; set; } = [];
+    public virtual ICollection<StickerPack> StickerPacks { get; set; } = new List<StickerPack>();
 }

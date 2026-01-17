@@ -4,19 +4,17 @@ using CommonObjects.Responses;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.Publisher;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IUserAvatarRepository userAvatarRepository, IUserAvatarValidator userAvatarValidator) : IUserAvatarService
+public class UserAvatarService(ILoggerService loggerService, IUserAvatarRepository userAvatarRepository, IUserAvatarValidator userAvatarValidator) : IUserAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAvatarRepository _userAvatarRepository = userAvatarRepository;
     private readonly IUserAvatarValidator _userAvatarValidator = userAvatarValidator;
-    private readonly IChatAvatarPublisherService _chatAvatarPublisher = chatAvatarPublisher;
 
     public async Task<Result<AvatarResponse>> GetAvatar(GetUserAvatarRequest request)
     {
@@ -90,7 +88,7 @@ public class UserAvatarService(ILoggerService loggerService, IChatAvatarPublishe
 
             await _userAvatarRepository.AddAsync(avatar);
 
-            _ = Task.Run(async () => await _chatAvatarPublisher.Publish(avatar));
+            //_ = Task.Run(async () => await _chatAvatarPublisher.Publish(avatar));
 
             return Result.OkResult();
         }

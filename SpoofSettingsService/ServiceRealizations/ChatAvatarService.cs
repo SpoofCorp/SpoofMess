@@ -4,7 +4,6 @@ using CommonObjects.Responses;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.Publisher;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
@@ -21,12 +20,11 @@ namespace SpoofSettingsService.ServiceRealizations;
         CreatedAt = createdAt;
         LastModified = lastModified;
     }*/
-public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisher, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
+public class ChatAvatarService(ILoggerService loggerService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
-    private readonly IChatAvatarPublisherService _chatAvatarPublisher = chatAvatarPublisher;
 
     public async Task<Result<AvatarResponse>> GetAvatar(GetChatAvatarRequest request)
     {
@@ -101,8 +99,8 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
             chatAvatar.File.Id = request.FileId;
 
             await _chatAvatarRepository.AddAsync(chatAvatar);
-
-            _ = Task.Run(async () => await _chatAvatarPublisher.Publish(chatAvatar));
+            
+            //_ = Task.Run(async () => await _chatAvatarPublisher.Publish(chatAvatar));
 
             return Result.OkResult();
         }
