@@ -8,13 +8,9 @@ using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
-using SpoofSettingsService.ServiceRealizations.Consumers;
-using SpoofSettingsService.ServiceRealizations.Publishers;
 using SpoofSettingsService.ServiceRealizations.Repositories;
 using SpoofSettingsService.ServiceRealizations.Validators;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.Consumers;
-using SpoofSettingsService.Services.Publisher;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using StackExchange.Redis;
@@ -59,9 +55,6 @@ builder.Services.AddTransient<IStickerService, StickerService>();
 builder.Services.AddTransient<IUserAvatarService, UserAvatarService>();
 builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
-
-builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
-builder.Services.AddTransient<IUserConsumerService, UserConsumerService>();
 
 builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
 builder.Services.AddTransient<IChatValidator, ChatValidator>();

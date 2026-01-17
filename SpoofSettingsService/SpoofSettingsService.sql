@@ -84,6 +84,22 @@ create table "FileMetadata" (
 	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
 );
 
+create table "OperationStatus"
+(
+	"Id" smallint constraint "PK_OperationStatus_Id" primary key,
+	"Name" varchar(50) not null
+);
+
+create table "FileMetadataOperationStatus"
+(
+	"Id" bigserial constraint "PK_FileMetadataOperationStatus_Id" primary key,
+	"FileMetadataId" uuid not null constraint "FK_FileMetadataOperationStatus_MessageId" references "FileMetadata"("Id") on delete cascade,
+	"OperationStatusId" smallint not null constraint "FK_FileMetadataOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
+	"Description" text,
+	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"IsActual" boolean not null default true
+);
+
 create TABLE "ChatUser"
 (
     "ChatId" uuid not null constraint "FK_ChatUser_ChatId" references "Chat"("Id") on delete cascade,
