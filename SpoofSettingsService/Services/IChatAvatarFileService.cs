@@ -4,6 +4,6 @@ namespace SpoofSettingsService.Services;
 
 public interface IChatAvatarFileService
 {
-    public Task DeleteAvatar(FileMetadata fileMetadata);
+    public Task DeleteAvatar(Guid fileId);
     public Task CreateAvatar(FileMetadata fileMetadata);
 }

@@ -11,3 +11,11 @@ public partial class OperationStatus
 
     public virtual ICollection<FileMetadataOperationStatus> FileMetadataOperationStatuses { get; set; } = new List<FileMetadataOperationStatus>();
 }
+
+public enum OperationsStatus
+{
+    Pending,
+    Error,
+    Success,
+    Rejected
+}

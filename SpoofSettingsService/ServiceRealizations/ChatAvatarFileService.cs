@@ -2,7 +2,6 @@
 using CommonObjects.DTO;
 using CommunicationLibrary.ServiceRealizations;
 using SpoofSettingsService.Models;
-using SpoofSettingsService.ServiceRealizations.Repositories;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
 using System.Text;
@@ -15,8 +14,10 @@ public class ChatAvatarFileService : RabbitMQService, IChatAvatarFileService
     private readonly IFileMetadatumRepository _fileMetadatumRepository;
     public ChatAvatarFileService(string hostName, int port, ISerializer serializer, IFileMetadatumRepository fileMetadatumRepository) : base(hostName, port, serializer)
     {
-        StartExchange(_exchange).Wait();
         _fileMetadatumRepository = fileMetadatumRepository;
+        StartExchange(_exchange).Wait();
+        ConfirmAdded().Wait();
+        ConfirmDeleted().Wait();
     }
 
     public async Task CreateAvatar(FileMetadata fileMetadata)
@@ -25,9 +26,9 @@ public class ChatAvatarFileService : RabbitMQService, IChatAvatarFileService
         await Publish(_exchange, "chatAvatar.added", body);
     }
 
-    public async Task DeleteAvatar(FileMetadata fileMetadata)
+    public async Task DeleteAvatar(Guid fileId)
     {
-        byte[] body = Encoding.UTF8.GetBytes(_serializer.Serialize(fileMetadata));
+        byte[] body = Encoding.UTF8.GetBytes(_serializer.Serialize(fileId));
         await Publish(_exchange, "chatAvatar.deleted", body);
     }
 
@@ -41,8 +42,28 @@ public class ChatAvatarFileService : RabbitMQService, IChatAvatarFileService
             fileMetadatum.FileMetadataOperationStatuses.Add(new()
             {
                 IsActual = true,
-                OperationStatusId = 1
+                OperationStatusId = (short)OperationsStatus.Success,
+                TimeSet = DateTime.UtcNow
             });
+            await _fileMetadatumRepository.UpdateAsync(fileMetadatum);
+        });
+    }
+
+    private async Task ConfirmDeleted()
+    {
+        await ConsumeFromQueueAsync<FileMetadata>(_exchange, "chatAvatar.success", "chatAvatar.success.deleted", async (file) =>
+        {
+            FileMetadatum? fileMetadatum = await _fileMetadatumRepository.GetByIdAsync(file.Id);
+            if (fileMetadatum is null)
+                return;
+            fileMetadatum.FileMetadataOperationStatuses.Add(new()
+            {
+                IsActual = true,
+                OperationStatusId = (short)OperationsStatus.Success,
+                TimeSet = DateTime.UtcNow
+            });
+            fileMetadatum.IsDeleted = true;
+            await _fileMetadatumRepository.UpdateAsync(fileMetadatum);
         });
     }
 }

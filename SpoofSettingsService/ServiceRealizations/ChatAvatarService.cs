@@ -9,20 +9,10 @@ using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
-/*
-    public Chat(long chatTypeId, Guid? ownerId, string? chatName, bool? isPublic, string? uniqueName, DateTime createdAt, DateTime lastModified)
-    {
-        ChatTypeId = chatTypeId;
-        OwnerId = ownerId;
-        ChatName = chatName;
-        IsPublic = isPublic;
-        UniqueName = uniqueName;
-        CreatedAt = createdAt;
-        LastModified = lastModified;
-    }*/
-public class ChatAvatarService(ILoggerService loggerService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
+public class ChatAvatarService(ILoggerService loggerService, IChatAvatarFileService chatAvatarFileService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
+    private readonly IChatAvatarFileService _chatAvatarFileService = chatAvatarFileService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
 
@@ -77,7 +67,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarReposito
         try
         {
             bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
-
+            await _chatAvatarFileService.DeleteAvatar(request.FileId);
             return result ? Result.OkResult() : Result.BadRequest("Invalid id");
         }
         catch (Exception ex)
@@ -100,7 +90,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarReposito
 
             await _chatAvatarRepository.AddAsync(chatAvatar);
             
-            //_ = Task.Run(async () => await _chatAvatarPublisher.Publish(chatAvatar));
+            await _chatAvatarFileService.CreateAvatar(chatAvatar.File.Set());
 
             return Result.OkResult();
         }
