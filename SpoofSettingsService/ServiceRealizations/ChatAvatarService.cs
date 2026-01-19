@@ -4,6 +4,7 @@ using CommonObjects.Responses;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
@@ -67,7 +68,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarFileServ
         try
         {
             bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
-            await _chatAvatarFileService.DeleteAvatar(request.FileId);
+            await _chatAvatarFileService.Delete(new() { FileId = request.FileId });
             return result ? Result.OkResult() : Result.BadRequest("Invalid id");
         }
         catch (Exception ex)
@@ -90,7 +91,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarFileServ
 
             await _chatAvatarRepository.AddAsync(chatAvatar);
             
-            await _chatAvatarFileService.CreateAvatar(chatAvatar.File.Set());
+            await _chatAvatarFileService.Create(new() { FileId = chatAvatar.File.Id });
 
             return Result.OkResult();
         }
