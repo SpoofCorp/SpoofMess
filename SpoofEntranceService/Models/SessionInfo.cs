@@ -1,8 +1,10 @@
 ﻿using DataSaveHelpers;
+using System;
+using System.Collections.Generic;
 
 namespace SpoofEntranceService.Models;
 
-public partial class SessionInfo : IdentifiedSoftDeletableEntity<Guid>, IIdentifiedEntity
+public partial class SessionInfo : IdentifiedSoftDeletableEntity<Guid>
 {
     public Guid UserEntryId { get; set; }
 
@@ -22,7 +24,7 @@ public partial class SessionInfo : IdentifiedSoftDeletableEntity<Guid>, IIdentif
 
     public bool IsActive { get; set; }
 
-    public virtual ICollection<Token> Tokens { get; set; } = [];
+    public virtual ICollection<Token> Tokens { get; set; } = new List<Token>();
 
     public virtual UserEntry UserEntry { get; set; } = null!;
 }

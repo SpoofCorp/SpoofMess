@@ -10,8 +10,9 @@ using SpoofEntranceService.Services.Validators;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
-public class UserEntryService(IUserEntryRepository repository, IUserEntryValidator validator, ILoggerService logService, ITokenService tokenService, ISessionService sessionService) : IUserEntryService
+public class UserEntryService(IUserEntryRepository repository, IUserPublisherService userPublisherService, IUserEntryValidator validator, ILoggerService logService, ITokenService tokenService, ISessionService sessionService) : IUserEntryService
 {
+    private readonly IUserPublisherService _userPublisherService = userPublisherService;
     private readonly IUserEntryRepository _repository = repository;
     private readonly ISessionService _sessionService = sessionService;
     private readonly ITokenService _tokenService = tokenService;
@@ -64,7 +65,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserEntryValidat
             await _sessionService.StartSession(newUser, sessionInfo);
 
             //_ = Task.Run(async () => await _userPublisher.PublishUser(newUser));
-
+            await _userPublisherService.Create(new() { UserId = newUser.Id });
             return await _tokenService.Create(sessionInfo);
         }
         catch (Exception ex)
@@ -92,6 +93,37 @@ public class UserEntryService(IUserEntryRepository repository, IUserEntryValidat
         {
             _logService.Error("Error", ex);
             return Result.ErrorResult(ex.Message);
+        }
+    }
+    public async Task Confirm(Guid userId) =>
+        await ChangeStatus(userId, false);
+
+    public async Task Error(Guid userId) =>
+        await ChangeStatus(userId, true);
+    public async Task Delete(Guid userId) =>
+        await ChangeStatus(userId, true);
+
+    public async Task ChangeStatus(Guid userId, bool isDeleted)
+    {
+        try
+        {
+            UserEntry? user = await _repository.GetByIdAsync(userId);
+
+            Result result = _validator.IsActive(user);
+            if (!result.Success)
+                return;
+            user.IsDeleted = isDeleted;
+            user!.UserEntryOperationStatuses.Add(new()
+            {
+                IsActual = true,
+                OperationStatusId = (short)OperationsStatus.Success,
+                TimeSet = DateTime.UtcNow
+            });
+            await _repository.UpdateAsync(user);
+        }
+        catch (Exception ex)
+        {
+            _logService.Error("Error", ex);
         }
     }
 }
