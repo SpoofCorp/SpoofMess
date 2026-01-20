@@ -10,6 +10,22 @@ create table "UserEntry"
 
 create index "IX_UserEntry_UniqueName" on "UserEntry"("UniqueName");
 
+create table "OperationStatus"
+(
+	"Id" smallint constraint "PK_OperationStatus_Id" primary key,
+	"Name" varchar(50) not null
+);
+
+create table "UserEntryOperationStatus"
+(
+	"Id" bigserial constraint "PK_UserEntryOperationStatus_Id" primary key,
+	"UserEntryId" uuid not null constraint "FK_UserEntryOperationStatus_UserEntryId" references "UserEntry"("Id") on delete cascade,
+	"OperationStatusId" smallint not null constraint "FK_UserEntryOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
+	"Description" text,
+	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"IsActual" boolean not null default true
+);
+
 create table "SessionInfo"
 (
     "Id" uuid primary key,
