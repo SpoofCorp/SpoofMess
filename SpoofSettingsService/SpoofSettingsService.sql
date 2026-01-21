@@ -140,7 +140,7 @@ create table "Sticker"
 	"Id" uuid constraint "PK_Sticker_Id" primary key default uuidv7(),
 	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
 	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
-	"Title" not null varchar(50),
+	"Title" varchar(50) not null,
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );

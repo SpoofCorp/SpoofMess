@@ -1,4 +1,15 @@
 services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        environment:
+            RABBITMQ_DEFAULT_USER: admin
+            RABBITMQ_DEFAULT_PASS: secret
+        volumes:
+            - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+            - ./definitions.json:/etc/rabbitmq/definitions.json
     sessql:
         image: postgres:18.1
         container_name: spoof-entrance-service-db
@@ -120,6 +131,8 @@ services:
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__DefaultConnection=Host=sessql;Port=5432;Database=SpoofEntranceService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - RabbitMQSettings__HostName=rabbitmq
+            - RabbitMQSettings__Port=5672
         ports:
             - "5000:8080"
         volumes:
@@ -140,6 +153,8 @@ services:
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__DefaultConnection=Host=ssssql;Port=5434;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - RabbitMQSettings__HostName=rabbitmq
+            - RabbitMQSettings__Port=5672
         ports:
             - "5001:8081"
         volumes:

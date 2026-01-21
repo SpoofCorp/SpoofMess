@@ -12,9 +12,9 @@ public class RabbitMQService
     private readonly IConnection _connection;
     protected readonly ISerializer _serializer;
 
-    public RabbitMQService(string hostName, int port, ISerializer serializer)
+    public RabbitMQService(RabbitMQSettings settings, ISerializer serializer)
     {
-        _factory = new ConnectionFactory { HostName = hostName, Port = port };
+        _factory = new ConnectionFactory { HostName = settings.HostName, Port = settings.Port };
         _connection = _factory.CreateConnectionAsync().Result;
         _serializer = serializer;
     }

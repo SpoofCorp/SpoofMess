@@ -1,5 +1,6 @@
-using AdditionalHelpers.ServiceRealizations;
+﻿using AdditionalHelpers.ServiceRealizations;
 using AdditionalHelpers.Services;
+using CommunicationLibrary;
 using DataSaveHelpers.ServiceRealizations;
 using DataSaveHelpers.ServiceRealizations.Cache;
 using DataSaveHelpers.ServiceRealizations.Cache.Memory;
@@ -8,9 +9,11 @@ using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
+using SpoofSettingsService.ServiceRealizations.MessageBrokers;
 using SpoofSettingsService.ServiceRealizations.Repositories;
 using SpoofSettingsService.ServiceRealizations.Validators;
 using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using StackExchange.Redis;
@@ -21,7 +24,17 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+
+builder.Services.AddTransient<IProcessQueueTasksService, ProcessQueueTasksService>();
+builder.Services.AddTransient<ISerializer, JsonService>();
+builder.Services.AddTransient(sp =>
+{
+    var settings = new RabbitMQSettings();
+    builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
+    return settings;
+});
+
+builder.Services.AddTransient<IConnectionMultiplexer>(sp =>
 {
     var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
     configuration.AbortOnConnectFail = false;
@@ -44,6 +57,8 @@ builder.Services.AddTransient<IMemoryCacheService, LocalCacheService>();
 //redis
 builder.Services.AddTransient<IRedisService, BaseRedisCache>();
 
+builder.Services.AddTransient<IUserMessageBrokerService, UserMessageService>();
+builder.Services.AddTransient<IChatAvatarFileService, ChatAvatarFileService>();
 //multi cache(in-memory + redis)
 builder.Services.AddTransient<ICacheService, MultiCache>();
 
@@ -53,7 +68,7 @@ builder.Services.AddTransient<IChatUserService, ChatUserService>();
 builder.Services.AddTransient<IStickerPackService, StickerPackService>();
 builder.Services.AddTransient<IStickerService, StickerService>();
 builder.Services.AddTransient<IUserAvatarService, UserAvatarService>();
-builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 
 builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
@@ -64,6 +79,7 @@ builder.Services.AddTransient<IStickerPackValidator, StickerPackValidator>();
 builder.Services.AddTransient<IStickerValidator, StickerValidator>();
 builder.Services.AddTransient<IUserValidator, UserValidator>();
 
+builder.Services.AddTransient<IFileMetadatumRepository, FileMetadatumRepository>();
 builder.Services.AddTransient<IChatAvatarRepository, ChatAvatarRepository>();
 builder.Services.AddTransient<IChatRepository, ChatRepository>();
 builder.Services.AddTransient<IChatUserRepository, ChatUserRepository>();
@@ -73,7 +89,6 @@ builder.Services.AddTransient<IUserAvatarRepository, UserAvatarRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IChatTypeRepository, ChatTypeRepository>();
 
-builder.Services.AddTransient<IProcessQueueTasksService, ProcessQueueTasksService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();

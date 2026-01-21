@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using CommunicationLibrary;
 using CommunicationLibrary.Communication;
 using CommunicationLibrary.ServiceRealizations;
 using SpoofEntranceService.Services;
@@ -10,12 +11,9 @@ public class UserPublisherService : RabbitMQService, IUserPublisherService
 {
     private readonly IUserEntryService _userEntryService;
     private readonly string _exchange = "settings-service";
-    public UserPublisherService(string hostName, int port, ISerializer serializer, IUserEntryService userEntryService) : base(hostName, port, serializer)
+    public UserPublisherService(RabbitMQSettings settings, ISerializer serializer, IUserEntryService userEntryService) : base(settings, serializer)
     {
         _userEntryService = userEntryService;
-        _ = ConfirmAdded();
-        _ = ErrorAdded();
-        _ = ConfirmDelete();
     }
 
     public async Task Create(CreateUser createUser)
