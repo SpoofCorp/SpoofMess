@@ -58,23 +58,14 @@ builder.Services.AddTransient<IMemoryCacheService, LocalCacheService>();
 builder.Services.AddTransient<IRedisService, BaseRedisCache>();
 
 builder.Services.AddTransient<IUserMessageBrokerService, UserMessageService>();
-builder.Services.AddTransient<IChatAvatarFileService, ChatAvatarFileService>();
+builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 //multi cache(in-memory + redis)
 builder.Services.AddTransient<ICacheService, MultiCache>();
 
-builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
-builder.Services.AddTransient<IChatService, ChatService>();
-builder.Services.AddTransient<IChatUserService, ChatUserService>();
-builder.Services.AddTransient<IStickerPackService, StickerPackService>();
-builder.Services.AddTransient<IStickerService, StickerService>();
-builder.Services.AddTransient<IUserAvatarService, UserAvatarService>();
-builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<IRoleService, RoleService>();
-
 builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
+builder.Services.AddTransient<IRoleValidator, RoleValidator>();
 builder.Services.AddTransient<IChatValidator, ChatValidator>();
 builder.Services.AddTransient<IUserAvatarValidator, UserAvatarValidator>();
-builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
 builder.Services.AddTransient<IStickerPackValidator, StickerPackValidator>();
 builder.Services.AddTransient<IStickerValidator, StickerValidator>();
 builder.Services.AddTransient<IUserValidator, UserValidator>();
@@ -89,6 +80,14 @@ builder.Services.AddTransient<IUserAvatarRepository, UserAvatarRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IChatTypeRepository, ChatTypeRepository>();
 
+builder.Services.AddTransient<IChatAvatarService, ChatAvatarService>();
+builder.Services.AddTransient<IChatService, ChatService>();
+builder.Services.AddTransient<IChatUserService, ChatUserService>();
+builder.Services.AddTransient<IStickerPackService, StickerPackService>();
+builder.Services.AddTransient<IStickerService, StickerService>();
+builder.Services.AddTransient<IUserAvatarService, UserAvatarService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IRoleService, RoleService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
