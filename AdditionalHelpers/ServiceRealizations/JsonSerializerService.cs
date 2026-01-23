@@ -6,7 +6,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace AdditionalHelpers.ServiceRealizations;
 
-public class JsonService : ISerializer
+public class JsonSerializerService : ISerializer
 {
     private static readonly JsonSerializerOptions Options = new()
     {

@@ -8,9 +8,10 @@ using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserService(ILoggerService loggerService, IChatService chatService, IBaseValidator baseValidator, IRoleService roleTypeService, IUserRepository userRepository, IChatUserRepository chatUserRepository) : IChatUserService
+public class ChatUserService(ILoggerService loggerService, IChatService chatService, IUserValidator userValidator, IRoleValidator roleValidator, IRoleService roleTypeService, IUserRepository userRepository, IChatUserRepository chatUserRepository) : IChatUserService
 {
-    private readonly IBaseValidator _baseValidator = baseValidator;
+    private readonly IUserValidator _userValidator = userValidator;
+    private readonly IRoleValidator _roleValidator = roleValidator;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatService _chatService = chatService;
     private readonly IRoleService _roleTypeService = roleTypeService;
@@ -25,11 +26,11 @@ public class ChatUserService(ILoggerService loggerService, IChatService chatServ
                 return result.Result;
 
             User? member = await _userRepository.GetByIdAsync(request.MemberId);
-            Result validateResult = _baseValidator.ValidateExist(member);
+            Result validateResult = _userValidator.IsAvailable(member);
             if (!validateResult.Success) return validateResult;
 
             Role? role = await _roleTypeService.GetRoleById(request.RoleId); 
-            validateResult = _baseValidator.ValidateExist(role);
+            validateResult = _roleValidator.IsAvailable(role);
             if (!validateResult.Success) return validateResult;
 
             ChatUser newMember = new()

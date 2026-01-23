@@ -2,7 +2,7 @@
 
 namespace CommunicationLibrary.Services;
 
-public interface IFileMessageBroker
+public interface IFileMessagePublisherService
 {
     public Task Create(CreateFile createFile);
 

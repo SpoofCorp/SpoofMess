@@ -10,10 +10,10 @@ using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
-public class ChatAvatarService(ILoggerService loggerService, IChatAvatarFileService chatAvatarFileService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
+public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarFileService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
-    private readonly IChatAvatarFileService _chatAvatarFileService = chatAvatarFileService;
+    private readonly IChatAvatarPublisherService _chatAvatarFileService = chatAvatarFileService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
 

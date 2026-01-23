@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CommunicationLibrary.ServiceRealizations;
 
-public abstract class FileMessageBroker<T>(RabbitMQSettings settings, ISerializer serializer) : RabbitMQService(settings, serializer), IFileMessageBroker
+public abstract class FileMessagePublisherService<T>(RabbitMQSettings settings, ISerializer serializer) : RabbitMQService(settings, serializer), IFileMessagePublisherService
 {
     private readonly string _fileExchange = "file-service";
 
