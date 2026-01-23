@@ -26,7 +26,7 @@ builder.Services.AddDbContext<SpoofSettingsServiceContext>(x => x.UseNpgsql(buil
 
 
 builder.Services.AddTransient<IProcessQueueTasksService, ProcessQueueTasksService>();
-builder.Services.AddTransient<ISerializer, JsonService>();
+builder.Services.AddTransient<ISerializer, JsonSerializerService>();
 builder.Services.AddTransient(sp =>
 {
     var settings = new RabbitMQSettings();

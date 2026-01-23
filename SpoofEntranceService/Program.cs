@@ -1,5 +1,6 @@
 using AdditionalHelpers.ServiceRealizations;
 using AdditionalHelpers.Services;
+using CommunicationLibrary;
 using DataSaveHelpers.ServiceRealizations;
 using DataSaveHelpers.ServiceRealizations.Cache;
 using DataSaveHelpers.ServiceRealizations.Cache.Memory;
@@ -27,6 +28,13 @@ builder.Services.AddSwaggerGen();
 //"Server=.;Database=SpoofEntranceService;Trusted_Connection=True;TrustServerCertificate=True"
 //data services
 builder.Services.AddDbContext<SpoofEntranceServiceDbContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton(sp =>
+{
+    var settings = new RabbitMQSettings();
+    builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
+    return settings;
+});
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
@@ -63,6 +71,10 @@ builder.Services.AddTransient<IUserEntryValidator, UserEntryValidator>();
 builder.Services.AddTransient<ISessionService, SessionService>();
 builder.Services.AddTransient<IUserEntryService, UserEntryService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
+
+builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
+builder.Services.AddTransient<IUserConsumerService, UserConsumerService>();
+builder.Services.AddTransient<ISerializer, JsonSerializerService>();
 
 builder.Services.AddTransient<ILoggerService>(provider =>
     new ConsoleLoggerService(
