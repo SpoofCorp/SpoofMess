@@ -11,6 +11,7 @@ using SpoofFileService.ServiceRealizations.Validators;
 using SpoofFileService.ServiceRealizatoionss;
 using SpoofFileService.ServiceRealizatoionss.Repositories;
 using SpoofFileService.ServiceRealizatoionss.Validators;
+using SpoofFileService.Services;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +53,7 @@ builder.Services.AddTransient<ICacheService, MultiCache>();
 builder.Services.AddTransient<IFileValidator, FileValidator>();
 builder.Services.AddTransient<IFileRepository, FileRepository>();
 builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IFileWorkerService, LocalFileWorkerService>();
 
 var app = builder.Build();
 
