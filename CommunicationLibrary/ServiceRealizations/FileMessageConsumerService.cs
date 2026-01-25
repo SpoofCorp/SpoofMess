@@ -8,17 +8,28 @@ public abstract class FileMessageConsumerService<T>(RabbitMQSettings settings, I
     private readonly string _fileExchange = "file-service";
     protected abstract string FileNomination { get; }
 
-    protected async Task ConfirmDeleted(Func<T, Task> func) =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.success", $"{FileNomination}.success.deleted", func);
+    protected abstract Func<T, Task> ConfirmDeletedFunc { get; }
+    protected abstract Func<T, Task> ConfirmAddedFunc { get; }
+    protected abstract Func<T, Task> ErrorDeletedFunc { get; }
+    protected abstract Func<T, Task> ErrorAddedFunc { get; }
 
-    protected async Task ConfirmAdded(Func<T, Task> func) =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.success", $"{FileNomination}.success.added", func);
+    protected async Task ConfirmDeleted() =>
+        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.success", $"{FileNomination}.success.deleted", ConfirmDeletedFunc);
 
-    protected async Task ErrorDeleted(Func<T, Task> func) =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", func);
+    protected async Task ConfirmAdded() =>
+        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.success", $"{FileNomination}.success.added", ConfirmAddedFunc);
 
-    protected async Task ErrorAdded(Func<T, Task> func) =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", func);
+    protected async Task ErrorDeleted() =>
+        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorDeletedFunc);
 
-    public abstract Task Initialize();
+    protected async Task ErrorAdded() =>
+        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorAddedFunc);
+
+    public virtual async Task Initialize()
+    {
+        await ConfirmDeleted();
+        await ErrorDeleted();
+        await ConfirmAdded();
+        await ErrorAdded();
+    }
 }

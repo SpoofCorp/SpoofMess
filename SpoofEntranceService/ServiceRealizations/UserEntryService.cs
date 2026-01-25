@@ -112,8 +112,8 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
             Result result = _validator.IsActive(user);
             if (!result.Success)
                 return;
-            user.IsDeleted = isDeleted;
-            user!.UserEntryOperationStatuses.Add(new()
+            user!.IsDeleted = isDeleted;
+            user.UserEntryOperationStatuses.Add(new()
             {
                 IsActual = true,
                 OperationStatusId = (short)OperationsStatus.Success,

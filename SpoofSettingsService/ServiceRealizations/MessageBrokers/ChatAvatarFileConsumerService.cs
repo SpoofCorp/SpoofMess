@@ -12,32 +12,21 @@ public class ChatAvatarFileConsumerService : FileMessageConsumerService<FileMeta
 {
     private readonly string _exchange = "chatAvatar";
     private readonly IFileMetadatumRepository _fileMetadatumRepository;
+
     protected override string FileNomination => "chatAvatar";
+
+    protected override Func<FileMetadata, Task> ConfirmDeletedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Success, true);
+
+    protected override Func<FileMetadata, Task> ConfirmAddedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Success, false);
+
+    protected override Func<FileMetadata, Task> ErrorDeletedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, false);
+
+    protected override Func<FileMetadata, Task> ErrorAddedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, true); 
 
     public ChatAvatarFileConsumerService(RabbitMQSettings settings, ISerializer serializer, IFileMetadatumRepository fileMetadatumRepository) : base(settings, serializer)
     {
         _fileMetadatumRepository = fileMetadatumRepository;
         StartExchange(_exchange).Wait();
-    }
-
-    public override async Task Initialize()
-    {
-        await ConfirmAdded(async (fileMetadata) =>
-        {
-            await ChangeStatus(fileMetadata.Id, OperationsStatus.Success, false);
-        });
-        await ConfirmDeleted(async (fileMetadata) =>
-        {
-            await ChangeStatus(fileMetadata.Id, OperationsStatus.Success, true);
-        });
-        await ErrorAdded(async (fileMetadata) =>
-        {
-            await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, true);
-        }); 
-        await ErrorDeleted(async (fileMetadata) =>
-        {
-            await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, false);
-        });
     }
 
     private async Task ChangeStatus(Guid fileId, OperationsStatus status, bool isDeleted)
