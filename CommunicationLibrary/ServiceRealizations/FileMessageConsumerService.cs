@@ -3,7 +3,7 @@ using CommunicationLibrary.Services;
 
 namespace CommunicationLibrary.ServiceRealizations;
 
-public abstract class FileMessageConsumerService<T>(RabbitMQSettings settings, ISerializer serializer) : RabbitMQService(settings, serializer), IConsumerService
+public abstract class FileMessageConsumerService<T>(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService) : ConsumerService(settings, serializer, loggerService), IConsumerService
 {
     private readonly string _fileExchange = "file-service";
     protected abstract string FileNomination { get; }
@@ -25,7 +25,7 @@ public abstract class FileMessageConsumerService<T>(RabbitMQSettings settings, I
     protected async Task ErrorAdded() =>
         await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorAddedFunc);
 
-    public virtual async Task Initialize()
+    public override async Task Initialize()
     {
         await ConfirmDeleted();
         await ErrorDeleted();

@@ -8,10 +8,9 @@ using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations.MessageBrokers;
 
-public class ChatAvatarFileConsumerService : FileMessageConsumerService<FileMetadata>, IChatAvatarFileConsumerService
+public class ChatAvatarFileConsumerService(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService, IFileMetadatumRepository fileMetadatumRepository) : FileMessageConsumerService<FileMetadata>(settings, serializer, loggerService), IChatAvatarFileConsumerService
 {
-    private readonly string _exchange = "chatAvatar";
-    private readonly IFileMetadatumRepository _fileMetadatumRepository;
+    private readonly IFileMetadatumRepository _fileMetadatumRepository = fileMetadatumRepository;
 
     protected override string FileNomination => "chatAvatar";
 
@@ -21,13 +20,7 @@ public class ChatAvatarFileConsumerService : FileMessageConsumerService<FileMeta
 
     protected override Func<FileMetadata, Task> ErrorDeletedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, false);
 
-    protected override Func<FileMetadata, Task> ErrorAddedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, true); 
-
-    public ChatAvatarFileConsumerService(RabbitMQSettings settings, ISerializer serializer, IFileMetadatumRepository fileMetadatumRepository) : base(settings, serializer)
-    {
-        _fileMetadatumRepository = fileMetadatumRepository;
-        StartExchange(_exchange).Wait();
-    }
+    protected override Func<FileMetadata, Task> ErrorAddedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, true);
 
     private async Task ChangeStatus(Guid fileId, OperationsStatus status, bool isDeleted)
     {

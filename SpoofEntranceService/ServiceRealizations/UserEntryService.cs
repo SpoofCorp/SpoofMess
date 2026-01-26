@@ -57,7 +57,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
             {
                 Id = Guid.CreateVersion7(),
                 UniqueName = request.Login,
-                PasswordHash = Hasher.HashPassword(request.Password)
+                PasswordHash = Hasher.HashPassword(request.Password),
             };
 
             await _repository.Change(newUser, user);

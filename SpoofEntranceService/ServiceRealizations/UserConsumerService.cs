@@ -6,12 +6,12 @@ using SpoofEntranceService.Services;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
-public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, IUserEntryService userEntryService) : RabbitMQService(settings, serializer), IUserConsumerService
+public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, IUserEntryService userEntryService, ILoggerService loggerService) : ConsumerService(settings, serializer, loggerService), IUserConsumerService
 {
     private readonly IUserEntryService _userEntryService = userEntryService;
     private readonly string _exchange = "settings-service";
 
-    public async Task Initialize()
+    public override async Task Initialize()
     {
         await ConfirmAdded();
         await ErrorAdded();
@@ -22,6 +22,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.created", async (createUser) =>
         {
+            _loggerService.Info($"{createUser.UserId} was created");
             await _userEntryService.Confirm(createUser.UserId);
         });
     }

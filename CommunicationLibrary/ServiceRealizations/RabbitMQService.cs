@@ -11,10 +11,15 @@ public class RabbitMQService
     private readonly ConcurrentDictionary<string, IChannel> _channels = [];
     private readonly IConnection _connection;
     protected readonly ISerializer _serializer;
-
     public RabbitMQService(RabbitMQSettings settings, ISerializer serializer)
     {
-        _factory = new ConnectionFactory { HostName = settings.HostName, Port = settings.Port };
+        _factory = new ConnectionFactory
+        {
+            HostName = settings.HostName,
+            Port = settings.Port,
+            UserName = settings.UserName,
+            Password = settings.Password,
+        };
         _connection = _factory.CreateConnectionAsync().Result;
         _serializer = serializer;
     }
@@ -45,45 +50,5 @@ public class RabbitMQService
         await channel.ExchangeDeclareAsync(exchange: exchange, type: type, autoDelete: false, durable: true);
         if (!_channels.TryAdd(exchange, channel))
             throw new InvalidOperationException($"Exchange already exists {exchange}");
-    }
-
-    public async Task<string> ConsumeFromQueueAsync<T>(
-       string exchange,
-       string queueName,
-       string routingKey,
-       Func<T, Task> handler)
-    {
-        var channel = await _connection.CreateChannelAsync();
-
-        await channel.QueueDeclareAsync(
-            queue: queueName,
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            arguments: null);
-
-        await channel.QueueBindAsync(
-            queue: queueName,
-            exchange: exchange,
-            routingKey: routingKey);
-
-        var consumer = new AsyncEventingBasicConsumer(channel);
-        consumer.ReceivedAsync += async (sender, args) =>
-        {
-            try
-            {
-                await handler(_serializer.Deserialize<T>(args.Body.ToArray())!);
-                await channel.BasicAckAsync(args.DeliveryTag, multiple: false);
-            }
-            catch
-            {
-                await channel.BasicNackAsync(args.DeliveryTag, multiple: false, requeue: true);
-            }
-        };
-
-        return await channel.BasicConsumeAsync(
-            queue: queueName,
-            autoAck: false,
-            consumer: consumer);
     }
 }

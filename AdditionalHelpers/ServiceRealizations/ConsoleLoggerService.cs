@@ -16,7 +16,7 @@ public class ConsoleLoggerService(LogLevel minLogLevel) : ILoggerService
             new(LogLevel.Debug, ConsoleColor.DarkGray),
             new(LogLevel.Trace, ConsoleColor.Gray),
         ];
-    public bool IsEnabled(LogLevel level) => _minLogLevel >= level;
+    public bool IsEnabled(LogLevel level) => _minLogLevel <= level;
 
     public void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
     {

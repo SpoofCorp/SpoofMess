@@ -73,7 +73,7 @@ builder.Services.AddTransient<IUserEntryService, UserEntryService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 
 builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
-builder.Services.AddTransient<IUserConsumerService, UserConsumerService>();
+builder.Services.AddHostedService<UserConsumerService>();
 builder.Services.AddTransient<ISerializer, JsonSerializerService>();
 
 builder.Services.AddTransient<ILoggerService>(provider =>

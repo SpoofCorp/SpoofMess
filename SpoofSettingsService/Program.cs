@@ -7,6 +7,7 @@ using DataSaveHelpers.ServiceRealizations.Cache.Memory;
 using DataSaveHelpers.ServiceRealizations.Cache.Redis;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers;
@@ -57,8 +58,11 @@ builder.Services.AddTransient<IMemoryCacheService, LocalCacheService>();
 //redis
 builder.Services.AddTransient<IRedisService, BaseRedisCache>();
 
+
 builder.Services.AddTransient<IUserMessageBrokerService, UserMessageService>();
 builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
+
+builder.Services.AddHostedService<UserConsumerService>();
 //multi cache(in-memory + redis)
 builder.Services.AddTransient<ICacheService, MultiCache>();
 

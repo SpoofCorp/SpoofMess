@@ -13,6 +13,7 @@ public class UserPublisherService(RabbitMQSettings settings, ISerializer seriali
 
     public async Task Create(CreateUser createUser)
     {
+        Console.WriteLine($"{createUser.UserId} was created");
         byte[] body = Encoding.UTF8.GetBytes(_serializer.Serialize(createUser));
         await Publish(_exchange, "user.created", body);
     }

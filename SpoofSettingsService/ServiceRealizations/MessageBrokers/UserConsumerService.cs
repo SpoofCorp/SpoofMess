@@ -8,18 +8,19 @@ using SpoofSettingsService.Services.MessageBrokers;
 
 namespace SpoofSettingsService.ServiceRealizations.MessageBrokers;
 
-public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, IUserService userService) : FileMessageConsumerService<CreateUser>(settings, serializer), IUserConsumerService
+public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService) : ConsumerService(settings, serializer, loggerService), IUserConsumerService
 {
-    private readonly IUserService _userService = userService;
     private readonly string _exchange = "settings-service";
+    //private readonly IUserService _userService;
 
-    protected override string FileNomination => throw new NotImplementedException();
+    protected async Task ConfirmAdded() =>
+        await ConsumeFromQueueAsync<CreateUser>(_exchange, $"user.success", $"user.success.added", async (createUser)  => {
+            _loggerService.Info($"{createUser.UserId} was created");
+            //await _userService.Create(createUser.UserId);
+        });
 
-    protected override Func<CreateUser, Task> ConfirmDeletedFunc => throw new NotImplementedException();
-
-    protected override Func<CreateUser, Task> ConfirmAddedFunc => async (createUser) => await _userService.Create(createUser.UserId);
-
-    protected override Func<CreateUser, Task> ErrorDeletedFunc => throw new NotImplementedException();
-
-    protected override Func<CreateUser, Task> ErrorAddedFunc => throw new NotImplementedException();
+    public override async Task Initialize()
+    {
+        await ConfirmAdded();
+    }
 }
