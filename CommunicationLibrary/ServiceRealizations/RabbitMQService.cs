@@ -26,8 +26,12 @@ public class RabbitMQService
 
     protected async Task Publish(string exchange, string routingKey, byte[] body, string type = ExchangeType.Direct)
     {
-        if (!_channels.TryGetValue(exchange, out var channel))
-            throw new KeyNotFoundException($"Exchange doesn't exists {exchange}");
+        if (!_channels.TryGetValue(exchange, out IChannel? channel))
+        {
+            await StartExchange(exchange, type);
+            if (!_channels.TryGetValue(exchange, out channel))
+                throw new KeyNotFoundException($"Exchange doesn't exists {exchange}");
+        }
 
         BasicProperties props = new()
         {

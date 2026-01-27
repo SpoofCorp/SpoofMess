@@ -35,6 +35,7 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
     {
         try
         {
+            Console.WriteLine("Start consuming");
             await Initialize();
             while (stoppingToken.IsCancellationRequested)
             {
