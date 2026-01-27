@@ -2,13 +2,14 @@
 using CommunicationLibrary;
 using CommunicationLibrary.Communication;
 using CommunicationLibrary.ServiceRealizations;
+using CommunicationLibrary.Services;
 using SpoofEntranceService.Services;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
-public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, IUserEntryService userEntryService, ILoggerService loggerService) : ConsumerService(settings, serializer, loggerService), IUserConsumerService
+public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService, IInjectionService injectionService) : ConsumerService(settings, serializer, loggerService), IUserConsumerService
 {
-    private readonly IUserEntryService _userEntryService = userEntryService;
+    protected readonly IInjectionService _injectionService = injectionService;
     private readonly string _exchange = "settings-service";
 
     public override async Task Initialize()
@@ -22,8 +23,9 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.created", async (createUser) =>
         {
+            IUserEntryService userEntryService = _injectionService.GetService<IUserEntryService>();
             _loggerService.Info($"{createUser.UserId} was created");
-            await _userEntryService.Confirm(createUser.UserId);
+            await userEntryService.Confirm(createUser.UserId);
         });
     }
 
@@ -31,7 +33,8 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.error", "user.error.created", async (createUser) =>
         {
-            await _userEntryService.Error(createUser.UserId);
+            IUserEntryService userEntryService = _injectionService.GetService<IUserEntryService>();
+            await userEntryService.Error(createUser.UserId);
         });
     }
 
@@ -39,7 +42,8 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.deleted", async (createUser) =>
         {
-            await _userEntryService.Delete(createUser.UserId);
+            IUserEntryService userEntryService = _injectionService.GetService<IUserEntryService>();
+            await userEntryService.Delete(createUser.UserId);
         });
     }
 }

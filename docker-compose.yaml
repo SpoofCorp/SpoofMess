@@ -10,6 +10,8 @@ services:
         volumes:
             - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
             - ./definitions.json:/etc/rabbitmq/definitions.json
+        networks:
+            - spoof-network
     sessql:
         image: postgres:18.1
         container_name: spoof-entrance-service-db
@@ -155,7 +157,7 @@ services:
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__DefaultConnection=Host=ssssql;Port=5434;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
-            - RabbitMQSettings__HostName=rabbitmq-1
+            - RabbitMQSettings__HostName=rabbitmq
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
             - RabbitMQSettings__Password=secret

@@ -17,7 +17,7 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
         try
         {
             await _database.StringDeleteAsync(key, When.Always);
-            _loggerService.Trace($"Delete by {key} in redis value");
+            _loggerService.Debug($"Delete by {key} in redis value");
         }
         catch (Exception ex)
         {
@@ -31,7 +31,7 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
         {
             string json = _serializer.Serialize(value);
             await _database.StringSetAsync(key, json, Expiration, When.Always);
-            _loggerService.Trace($"Save by {key} to redis");
+            _loggerService.Debug($"Save by {key} to redis");
         }
         catch (Exception ex)
         {
@@ -47,7 +47,7 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
             if (string.IsNullOrEmpty(redisValue.Value))
                 return default;
 
-            _loggerService.Trace($"Get by {key} from redis");
+            _loggerService.Debug($"Get by {key} from redis");
             return _serializer.Deserialize<T>(redisValue.Value.ToString());
         }
         catch (InvalidDataException ex)

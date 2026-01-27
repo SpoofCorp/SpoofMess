@@ -9,7 +9,6 @@ public interface IUserEntryService
 {
     public Task<Result<UserAuthorizeResponse>> Authorization(UserAuthorizeRequest request, SessionInfo sessionInfo);
 
-    [Obsolete("This method does not have the ability to correctly create an account in the entire system.", true)]
     public Task<Result<UserAuthorizeResponse>> Registration(RegistrationRequest request, SessionInfo sessionInfo);
 
     public Task<Result> Delete(SessionInfo sessionInfo);

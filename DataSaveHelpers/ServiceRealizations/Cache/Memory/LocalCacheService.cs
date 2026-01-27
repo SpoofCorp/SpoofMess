@@ -18,7 +18,7 @@ public class LocalCacheService(IMemoryCache cache, ILoggerService loggerService)
     public Task Delete(string key)
     {
         _cache.Remove(key);
-        _loggerService.Trace($"Delete by {key} in cache");
+        _loggerService.Debug($"Delete by {key} in cache");
         return Task.CompletedTask;
     }
 
@@ -31,14 +31,14 @@ public class LocalCacheService(IMemoryCache cache, ILoggerService loggerService)
     public Task<T?> Get<T>(string key)
     {
         _cache.TryGetValue(key, out T? value);
-        _loggerService.Trace($"Get by {key} from cache");
+        _loggerService.Debug($"Get by {key} from cache");
         return Task.FromResult(value);
     }
 
     public Task Save<T>(string key, T value)
     {
         _cache.Set(key, value);
-        _loggerService.Trace($"Save by {key} to cache");
+        _loggerService.Debug($"Save by {key} to cache");
         return Task.CompletedTask;
     }
 

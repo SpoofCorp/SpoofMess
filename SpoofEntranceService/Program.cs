@@ -1,6 +1,8 @@
 using AdditionalHelpers.ServiceRealizations;
 using AdditionalHelpers.Services;
 using CommunicationLibrary;
+using CommunicationLibrary.ServiceRealizations;
+using CommunicationLibrary.Services;
 using DataSaveHelpers.ServiceRealizations;
 using DataSaveHelpers.ServiceRealizations.Cache;
 using DataSaveHelpers.ServiceRealizations.Cache.Memory;
@@ -27,16 +29,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 //"Server=.;Database=SpoofEntranceService;Trusted_Connection=True;TrustServerCertificate=True"
 //data services
-builder.Services.AddDbContext<SpoofEntranceServiceDbContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<SpoofEntranceServiceDbContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
 
-builder.Services.AddSingleton(sp =>
+builder.Services.AddTransient(sp =>
 {
     var settings = new RabbitMQSettings();
     builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
     return settings;
 });
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+builder.Services.AddTransient<IConnectionMultiplexer>(sp =>
 {
     var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
     configuration.AbortOnConnectFail = false;
@@ -72,11 +74,13 @@ builder.Services.AddTransient<ISessionService, SessionService>();
 builder.Services.AddTransient<IUserEntryService, UserEntryService>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 
+builder.Services.AddSingleton<ISerializer, JsonSerializerService>();
+
 builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
 builder.Services.AddHostedService<UserConsumerService>();
-builder.Services.AddTransient<ISerializer, JsonSerializerService>();
+builder.Services.AddSingleton<IInjectionService, InjectionService>();
 
-builder.Services.AddTransient<ILoggerService>(provider =>
+builder.Services.AddSingleton<ILoggerService>(provider =>
     new ConsoleLoggerService(
         minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
     )

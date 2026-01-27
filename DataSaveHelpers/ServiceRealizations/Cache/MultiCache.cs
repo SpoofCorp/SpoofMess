@@ -13,17 +13,17 @@ public class MultiCache(IMemoryCacheService localCache, IRedisService cache, ILo
     public async Task Save<T>(string key, T value)
     {
         await _localCache.Save(key, value);
-        _loggerService.Trace($"Save by {key} to in-memory cache");
+        _loggerService.Debug($"Save by {key} to in-memory cache");
         await _cache.Save(key, value);
-        _loggerService.Trace($"Save by {key} to redis");
+        _loggerService.Debug($"Save by {key} to redis");
     }
 
     public async Task Delete(string key)
     {
         await _localCache.Delete(key);
-        _loggerService.Trace($"Delete by {key} to in-memory cache");
+        _loggerService.Debug($"Delete by {key} to in-memory cache");
         await _cache.Delete(key);
-        _loggerService.Trace($"Delete by {key} to redis");
+        _loggerService.Debug($"Delete by {key} to redis");
     }
 
     public async Task<T?> Get<T>(string key)
@@ -31,14 +31,14 @@ public class MultiCache(IMemoryCacheService localCache, IRedisService cache, ILo
         T? entity = await _localCache.Get<T?>(key);
         if (entity is not null)
         {
-            _loggerService.Trace($"Received by {key} from in-memory cache");
+            _loggerService.Debug($"Received by {key} from in-memory cache");
             return entity;
         }
 
         entity = await _cache.Get<T?>(key);
         if (entity is not null)
         {
-            _loggerService.Trace($"Received by {key} from redis");
+            _loggerService.Debug($"Received by {key} from redis");
             await _localCache.Save(key, entity);
         }
 
@@ -48,8 +48,8 @@ public class MultiCache(IMemoryCacheService localCache, IRedisService cache, ILo
     public async Task SaveRange<T>(Func<T, string> getKey, List<T> values)
     {
         await _localCache.SaveRange(getKey, values);
-        _loggerService.Trace($"Save collection {values.GetType().Name} to in-memory cache");
+        _loggerService.Debug($"Save collection {values.GetType().Name} to in-memory cache");
         await _cache.SaveRange(getKey, values);
-        _loggerService.Trace($"Save by {values.GetType().Name} to redis");
+        _loggerService.Debug($"Save by {values.GetType().Name} to redis");
     }
 }
