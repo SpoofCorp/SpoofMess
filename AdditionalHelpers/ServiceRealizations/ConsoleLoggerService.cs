@@ -3,10 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace AdditionalHelpers.ServiceRealizations;
 
-public class ConsoleLoggerService(LogLevel minLogLevel) : ILoggerService
+public class ConsoleLoggerService(LogLevel minLogLevel) : BaseLogService(minLogLevel), ILoggerService
 {
-    private readonly LogLevel _minLogLevel = minLogLevel;
-
     private readonly List<LogColor> colors = [
             new(LogLevel.Fatal, ConsoleColor.DarkYellow),
             new(LogLevel.Critical, ConsoleColor.Red),
@@ -16,14 +14,13 @@ public class ConsoleLoggerService(LogLevel minLogLevel) : ILoggerService
             new(LogLevel.Debug, ConsoleColor.DarkGray),
             new(LogLevel.Trace, ConsoleColor.Gray),
         ];
-    public bool IsEnabled(LogLevel level) => _minLogLevel <= level;
 
-    public void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
+    public override void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
     {
         ConsoleColor color = colors.FirstOrDefault(x => x.LogLevel == level)?.Color ?? ConsoleColor.Blue;
-        ColorPrint(IsEnabled(LogLevel.Debug) ? $"File: {callerFile} Method: {caller} Line: {callerLineNumber} " : "", color, true);
+        ColorPrint(CheckFile(LogLevel.Debug) ? $"File: {callerFile} Method: {caller} Line: {callerLineNumber} " : "", color, true);
         ColorPrint(level.ToString(), color, false);
-        Console.WriteLine($": {message} \nException: {((int)_minLogLevel < 2 ? (exception is null ? "" : $"{exception.Message}\n{exception.InnerException}") : "")}");
+        Console.WriteLine($": {message} {((int)_minLogLevel < 2 ? (exception is null ? "" : $"\nException: {exception.Message}\n{exception.InnerException}") : "")}");
     }
 
     private static void ColorPrint(string message, ConsoleColor color, bool newLine = false)
@@ -36,21 +33,4 @@ public class ConsoleLoggerService(LogLevel minLogLevel) : ILoggerService
             Console.Write(message);
         Console.ForegroundColor = lastColor;
     }
-    public void Info(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-    Log(LogLevel.Info, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Error(string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Error, message, exception, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Fatal(string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Fatal, message, exception, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Debug(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Debug, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Trace(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Trace, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Warning(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Warning, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 }

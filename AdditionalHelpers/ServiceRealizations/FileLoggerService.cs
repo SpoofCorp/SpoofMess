@@ -4,10 +4,8 @@ using System.Text;
 
 namespace AdditionalHelpers.ServiceRealizations;
 
-public class FileLoggerService(LogLevel minLevel, string directoryPath, long maxSize = 1024 * 50, int maxFiles = 10, int bufferSize = 1024 * 4) : ILoggerService
+public class FileLoggerService(LogLevel minLevel, string directoryPath, long maxSize = 1024 * 50, int maxFiles = 10, int bufferSize = 1024 * 4) : BaseLogService(minLevel), ILoggerService
 {
-    private readonly LogLevel _minLevel = minLevel;
-    
     private readonly long _maxSize = maxSize;
     private readonly int _maxFiles = maxFiles;
     private readonly int _bufferSize = bufferSize;
@@ -25,16 +23,14 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
 
     private static string ObjectName => DateTime.UtcNow.ToString("dd.M.yyyy HH:mm:ss:fffffff").Replace(':', '-').Replace(' ', '_') + ".txt";
 
-    public bool IsEnabled(LogLevel level) => _minLevel >= level;
-
-    public void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
+    public override void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
     {
         if (!IsEnabled(level))
             return;
 
         LogEntry logEntry = new()
         {
-            Message = $"{message}\n{((int)_minLevel < 2 ? exception?.Message ?? "Nullable exception" : "")}",
+            Message = $"{message}\n{((int)_minLogLevel < 2 ? exception?.Message ?? "Nullable exception" : "")}",
             Caller = IsEnabled(LogLevel.Debug) ? $" File: {callerFile}\nMethod: {caller}\nLine: {callerLineNumber}" : null,
             Level = level,
             Date = DateTime.UtcNow,
@@ -97,7 +93,7 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
     {
         _writer?.Dispose();
 
-        _writer =  new(currentFile!, true, Encoding.UTF8, _bufferSize)
+        _writer = new(currentFile!, true, Encoding.UTF8, _bufferSize)
         {
             AutoFlush = false,
             NewLine = Environment.NewLine
@@ -105,22 +101,4 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
 
         _bytesInBuffer = 0;
     }
-
-    public void Info(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Info, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Error(string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Error, message, exception, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Fatal(string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Fatal, message, exception, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Debug(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Debug, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Trace(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Trace, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
-
-    public void Warning(string message, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "") =>
-        Log(LogLevel.Warning, message, caller: caller, callerLineNumber: callerLineNumber, callerFile: callerFile);
 }
