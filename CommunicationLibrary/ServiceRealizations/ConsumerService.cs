@@ -10,8 +10,9 @@ namespace CommunicationLibrary.ServiceRealizations;
 public abstract class ConsumerService : BackgroundService, IConsumerService
 {
     private readonly ConnectionFactory _factory;
-    private readonly IConnection _connection;
+    private IConnection _connection = null!;
     private readonly ConcurrentDictionary<string, IChannel> _channels = [];
+    private readonly ConcurrentDictionary<string, AsyncEventingBasicConsumer> _consumers = [];
     protected readonly ISerializer _serializer;
     protected readonly ILoggerService _loggerService;
 
@@ -23,28 +24,40 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
             Port = settings.Port,
             UserName = settings.UserName,
             Password = settings.Password,
+            AutomaticRecoveryEnabled = true,
+            NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };
-        _connection = _factory.CreateConnectionAsync().Result;
         _serializer = serializer;
         _loggerService = loggerService;
     }
 
     public abstract Task Initialize();
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public override async Task StartAsync(CancellationToken cancellationToken)
     {
         try
         {
-            Console.WriteLine("Start consuming");
-            await Initialize();
-            while (stoppingToken.IsCancellationRequested)
+            _connection = await _factory.CreateConnectionAsync(cancellationToken);
+            _connection.ConnectionShutdownAsync += (sender, args) =>
             {
-                await Task.Delay(1000, stoppingToken);
-            }
+                _loggerService.Warning($"RabbitMQ connection shutdown: {args.ReplyText}");
+                return Task.CompletedTask;
+            };
+            await Initialize();
+            _loggerService.Info("Consumer service was initialized");
+            await base.StartAsync(cancellationToken);
         }
         catch (Exception ex)
         {
             _loggerService.Error("Error", ex);
+        }
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await Task.Delay(1000, stoppingToken);
         }
     }
 
@@ -55,15 +68,16 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         _channels.TryAdd(exchange, channel);
     }
 
-    public async Task<string> ConsumeFromQueueAsync<T>(
+    public async Task ConsumeFromQueueAsync<T>(
        string exchange,
        string queueName,
        string routingKey,
        Func<T, Task> handler)
     {
         await StartExchange(exchange);
-        var channel = await _connection.CreateChannelAsync();
-
+        if (!_channels.TryGetValue(exchange, out var channel))
+            throw new ApplicationException($"Channel is null {routingKey}");
+        
         await channel.QueueDeclareAsync(
             queue: queueName,
             durable: true,
@@ -81,18 +95,19 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         {
             try
             {
+                _loggerService.Error("Can't handle message");
                 await handler(_serializer.Deserialize<T>(args.Body.ToArray())!);
                 await channel.BasicAckAsync(args.DeliveryTag, multiple: false);
             }
             catch
             {
+                _loggerService.Error("Can't handle message");
                 await channel.BasicNackAsync(args.DeliveryTag, multiple: false, requeue: true);
             }
         };
-
-        return await channel.BasicConsumeAsync(
+        _consumers.TryAdd(await channel.BasicConsumeAsync(
             queue: queueName,
             autoAck: false,
-            consumer: consumer);
+            consumer: consumer), consumer);
     }
 }

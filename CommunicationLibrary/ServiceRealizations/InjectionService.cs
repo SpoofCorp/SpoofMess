@@ -8,12 +8,12 @@ public class InjectionService(IServiceScopeFactory serviceFactory) : IInjectionS
     private readonly IServiceScopeFactory _serviceFactory = serviceFactory;
     public T GetService<T>() where T : notnull
     {
-        using IServiceScope scope = _serviceFactory.CreateScope();
+        using var scope = _serviceFactory.CreateScope();
         return scope.ServiceProvider.GetRequiredService<T>() ?? throw new ApplicationException($"Not such injection {typeof(T)}");
     }
-
-    public void CheckForNullAndFill<T>(ref T? service) where T : notnull
+    public async Task Invoke<T, TResult>(Func<T, TResult> func) where T : notnull where TResult : Task
     {
-        service ??= GetService<T>();
+        using var scope = _serviceFactory.CreateScope();
+        await func(scope.ServiceProvider.GetRequiredService<T>() ?? throw new ApplicationException($"Not such injection {typeof(T)}"));
     }
 }
