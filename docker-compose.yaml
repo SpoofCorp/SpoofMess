@@ -20,6 +20,7 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres123
             PGDATA: /var/lib/postgresql/data/pgdata
+        command: ["postgres", "-c", "port=5432", "-c", "timezone=UTC"]    
         ports:
             - "5432:5432"
         volumes:
@@ -42,7 +43,7 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres123
             PGDATA: /var/lib/postgresql/data/pgdata
-        command: ["postgres", "-c", "port=5433"]
+        command: ["postgres", "-c", "port=5433", "-c", "timezone=UTC"]
         ports:
             - "5433:5433"
         volumes:
@@ -65,7 +66,7 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres123
             PGDATA: /var/lib/postgresql/data/pgdata
-        command: ["postgres", "-c", "port=5435"]
+        command: ["postgres", "-c", "port=5435", "-c", "timezone=UTC"]
         ports:
             - "5435:5435"
         volumes:
@@ -88,7 +89,7 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres123
             PGDATA: /var/lib/postgresql/data/pgdata
-        command: ["postgres", "-c", "port=5434"]
+        command: ["postgres", "-c", "port=5434", "-c", "timezone=UTC"]
         ports:
             - "5434:5434"
         volumes:

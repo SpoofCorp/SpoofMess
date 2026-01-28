@@ -2,6 +2,7 @@
 using CommonObjects.Requests;
 using CommonObjects.Responses;
 using CommonObjects.Results;
+using CommunicationLibrary.Communication;
 using SecurityLibrary;
 using SpoofEntranceService.Models;
 using SpoofEntranceService.Services;
@@ -60,11 +61,16 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
                 PasswordHash = Hasher.HashPassword(request.Password),
             };
 
+            newUser.UserEntryOperationStatuses.Add(new()
+            {
+                IsActual = true,
+                OperationStatusId = (short)OperationsStatus.Pending,
+            });
+
             await _repository.Change(newUser, user);
 
             await _sessionService.StartSession(newUser, sessionInfo);
 
-            //_ = Task.Run(async () => await _userPublisher.PublishUser(newUser));
             await _userPublisherService.Create(new() { UserId = newUser.Id });
             return await _tokenService.Create(sessionInfo);
         }

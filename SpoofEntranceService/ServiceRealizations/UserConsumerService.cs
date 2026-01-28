@@ -23,9 +23,8 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.created", async (createUser) =>
         {
-            IUserEntryService userEntryService = _injectionService.GetService<IUserEntryService>();
             _loggerService.Info($"{createUser.UserId} was created");
-            await userEntryService.Confirm(createUser.UserId);
+            await _injectionService.Invoke<IUserEntryService, Task>(async (userEntryService) => await userEntryService.Confirm(createUser.UserId));
         });
     }
 
@@ -33,8 +32,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.error", "user.error.created", async (createUser) =>
         {
-            IUserEntryService userEntryService = _injectionService.GetService<IUserEntryService>();
-            await userEntryService.Error(createUser.UserId);
+            await _injectionService.Invoke<IUserEntryService, Task>(async (userEntryService) => await userEntryService.Error(createUser.UserId));
         });
     }
 
@@ -42,8 +40,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     {
         await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.deleted", async (createUser) =>
         {
-            IUserEntryService userEntryService = _injectionService.GetService<IUserEntryService>();
-            await userEntryService.Delete(createUser.UserId);
+            await _injectionService.Invoke<IUserEntryService, Task>(async (userEntryService) => await userEntryService.Delete(createUser.UserId));
         });
     }
 }

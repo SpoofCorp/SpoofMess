@@ -22,7 +22,7 @@ create table "UserEntryOperationStatus"
 	"UserEntryId" uuid not null constraint "FK_UserEntryOperationStatus_UserEntryId" references "UserEntry"("Id") on delete cascade,
 	"OperationStatusId" smallint not null constraint "FK_UserEntryOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
 	"Description" text,
-	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsActual" boolean not null default true
 );
 
@@ -35,8 +35,8 @@ create table "SessionInfo"
     "Platform" varchar(50),
     "UserAgent" varchar(500),
     "IpAddress" varchar(45),
-    "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
-    "LastActivityAt" timestamp not null default CURRENT_TIMESTAMP,
+    "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
+    "LastActivityAt" timestamptz not null default CURRENT_TIMESTAMP,
     "IsActive" boolean not null default TRUE,
     "IsDeleted" boolean not null default false,
     
@@ -55,7 +55,7 @@ create table "Token"
 (
     "RefreshTokenHash" varchar(100) primary key,
     "SessionInfoId" uuid not null,
-    "ValidTo" timestamp not null,
+    "ValidTo" timestamptz not null,
     "IsDeleted" boolean not null default false,
     
     constraint "FK_Token_SessionInfoId" 

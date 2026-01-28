@@ -17,8 +17,8 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     protected async Task ConfirmAdded() =>
         await ConsumeFromQueueAsync<CreateUser>(_exchange, $"user.success", $"user.success.added", async (createUser)  => {
             _loggerService.Info($"{createUser.UserId} was created");
-            IUserService userService = _injectionService.GetService<IUserService>();
-            await userService.Create(createUser.UserId);
+
+            await _injectionService.Invoke<IUserService, Task>(async (userService) => await userService.Create(createUser.UserId));
             //await _userService.Create(createUser.UserId);
         });
 

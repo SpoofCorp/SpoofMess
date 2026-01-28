@@ -91,9 +91,10 @@ public class SessionService(
         {
             sessionInfo.Id = Guid.CreateVersion7();
             sessionInfo.IsActive = true;
-            sessionInfo.UserEntry = userEntry;
+            sessionInfo.UserEntryId = userEntry.Id;
             sessionInfo.DeviceId = Guid.CreateVersion7().ToString();
             await _sessionRepository.AddAsync(sessionInfo);
+            sessionInfo.UserEntry = userEntry;
 
             return Result.OkResult("Ok");
         }

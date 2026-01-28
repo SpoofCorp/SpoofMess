@@ -42,6 +42,7 @@ public abstract class CachedBaseRepository<T>(ICacheService cache, DbContext con
     {
         try
         {
+            Console.WriteLine(_context is null);
             await _cache.Save(GetKey(entity), entity);
             _set.Update(entity);
             await _context.SaveChangesAsync();

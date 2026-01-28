@@ -6,7 +6,7 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class SessionRepository(ICacheService cache, SpoofEntranceServiceDbContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<SessionInfo, Guid>(cache, context, tasksService), ISessionRepository
+public class SessionRepository(ICacheService cache, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<SessionInfo, Guid>(cache, context, tasksService), ISessionRepository
 {
     public async ValueTask<List<SessionInfo>?> GetSessionsByUserId(Guid userId) =>
         await context.SessionInfos

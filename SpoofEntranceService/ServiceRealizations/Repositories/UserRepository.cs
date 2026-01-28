@@ -6,7 +6,7 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class UserRepository(ICacheService cache, SpoofEntranceServiceDbContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
+public class UserRepository(ICacheService cache, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
 {
     public async Task Change(UserEntry newUser, UserEntry? oldUser)
     {

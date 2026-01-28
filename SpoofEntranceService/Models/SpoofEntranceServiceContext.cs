@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace SpoofEntranceService.Models;
+
 
 public partial class SpoofEntranceServiceContext : DbContext
 {
@@ -50,16 +49,12 @@ public partial class SpoofEntranceServiceContext : DbContext
             entity.HasIndex(e => e.UserEntryId, "IX_SessionInfo_UserId_Active").HasFilter("((\"IsActive\" = true) AND (\"IsDeleted\" = false))");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.DeviceId).HasMaxLength(100);
             entity.Property(e => e.DeviceName).HasMaxLength(255);
             entity.Property(e => e.IpAddress).HasMaxLength(45);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.LastActivityAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.LastActivityAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Platform).HasMaxLength(50);
             entity.Property(e => e.UserAgent).HasMaxLength(500);
 
@@ -79,7 +74,6 @@ public partial class SpoofEntranceServiceContext : DbContext
             entity.HasIndex(e => e.Id, "IX_Token_ValidTo").HasFilter("(\"IsDeleted\" = false)");
 
             entity.Property(e => e.Id).HasMaxLength(100);
-            entity.Property(e => e.ValidTo).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.SessionInfo).WithMany(p => p.Tokens)
                 .HasForeignKey(d => d.SessionInfoId)
@@ -108,9 +102,7 @@ public partial class SpoofEntranceServiceContext : DbContext
             entity.ToTable("UserEntryOperationStatus");
 
             entity.Property(e => e.IsActual).HasDefaultValue(true);
-            entity.Property(e => e.TimeSet)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.TimeSet).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.OperationStatus).WithMany(p => p.UserEntryOperationStatuses)
                 .HasForeignKey(d => d.OperationStatusId)

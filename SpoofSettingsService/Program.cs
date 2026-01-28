@@ -37,7 +37,7 @@ builder.Services.AddSingleton(sp =>
     return settings;
 });
 
-builder.Services.AddScoped<IConnectionMultiplexer>(sp =>
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
     configuration.AbortOnConnectFail = false;
@@ -61,8 +61,8 @@ builder.Services.AddSingleton<IMemoryCacheService, LocalCacheService>();
 builder.Services.AddSingleton<IRedisService, BaseRedisCache>();
 
 
-builder.Services.AddTransient<IUserMessageBrokerService, UserMessageService>();
-builder.Services.AddTransient<IChatAvatarPublisherService, ChatAvatarPublisherService>();
+builder.Services.AddSingleton<IUserMessageBrokerService, UserMessageService>();
+builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 
 builder.Services.AddHostedService<UserConsumerService>();
 builder.Services.AddSingleton<IInjectionService, InjectionService>();

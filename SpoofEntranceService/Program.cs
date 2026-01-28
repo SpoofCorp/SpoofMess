@@ -29,16 +29,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 //"Server=.;Database=SpoofEntranceService;Trusted_Connection=True;TrustServerCertificate=True"
 //data services
-builder.Services.AddDbContext<SpoofEntranceServiceDbContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
+builder.Services.AddDbContext<SpoofEntranceServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddTransient(sp =>
+builder.Services.AddSingleton(sp =>
 {
     var settings = new RabbitMQSettings();
     builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
     return settings;
 });
 
-builder.Services.AddTransient<IConnectionMultiplexer>(sp =>
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
     configuration.AbortOnConnectFail = false;
@@ -49,17 +49,17 @@ builder.Services.AddTransient<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(configuration);
 });
 
-builder.Services.AddTransient<IProcessQueueTasksService, ProcessQueueTasksService>();
+builder.Services.AddSingleton<IProcessQueueTasksService, ProcessQueueTasksService>();
 
 //in-memory cache
-builder.Services.AddTransient<Microsoft.Extensions.Caching.Memory.IMemoryCache, Microsoft.Extensions.Caching.Memory.MemoryCache>();
-builder.Services.AddTransient<IMemoryCacheService, LocalCacheService>();
+builder.Services.AddSingleton<Microsoft.Extensions.Caching.Memory.IMemoryCache, Microsoft.Extensions.Caching.Memory.MemoryCache>();
+builder.Services.AddSingleton<IMemoryCacheService, LocalCacheService>();
 
 //redis
-builder.Services.AddTransient<IRedisService, BaseRedisCache>();
+builder.Services.AddSingleton<IRedisService, BaseRedisCache>();
 
 //multi cache(in-memory + redis)
-builder.Services.AddTransient<ICacheService, MultiCache>();
+builder.Services.AddSingleton<ICacheService, MultiCache>();
 
 builder.Services.AddTransient<ISessionRepository, SessionRepository>();
 builder.Services.AddTransient<ITokenRepository, TokenRepository>();
@@ -85,16 +85,6 @@ builder.Services.AddSingleton<ILoggerService>(provider =>
         minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
     )
 );
-//additional services
-/*builder.Services.AddTransient<ILoggerService>(provider =>
-    new FileLoggerService(
-        minLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information"),
-        directoryPath: builder.Configuration["Logging:DirectoryPath"] ?? "logs",
-        maxSize: long.Parse(builder.Configuration["Logging:MaxSize"] ?? "51200"),
-        maxFiles: int.Parse(builder.Configuration["Logging:MaxFiles"] ?? "10"),
-        bufferSize: int.Parse(builder.Configuration["Logging:BufferSize"] ?? "4096")
-    )
-);*/
 
 var app = builder.Build();
 app.UseSwagger();
