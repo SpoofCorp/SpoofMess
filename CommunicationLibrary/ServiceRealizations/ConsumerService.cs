@@ -95,13 +95,12 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         {
             try
             {
-                _loggerService.Error("Can't handle message");
                 await handler(_serializer.Deserialize<T>(args.Body.ToArray())!);
                 await channel.BasicAckAsync(args.DeliveryTag, multiple: false);
             }
-            catch
+            catch(Exception ex)
             {
-                _loggerService.Error("Can't handle message");
+                _loggerService.Error("Can't handle message", ex);
                 await channel.BasicNackAsync(args.DeliveryTag, multiple: false, requeue: true);
             }
         };
