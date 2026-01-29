@@ -12,8 +12,9 @@ public partial class SpoofSettingsServiceContext : DbContext
         : base(options)
     {
     }
-
     public virtual DbSet<Chat> Chats { get; set; }
+
+    public virtual DbSet<ChatAvatar> ChatAvatars { get; set; }
 
     public virtual DbSet<ChatProperty> ChatProperties { get; set; }
 
@@ -39,9 +40,13 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
+    public virtual DbSet<Sticker> Stickers { get; set; }
+
     public virtual DbSet<StickerPack> StickerPacks { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserAvatar> UserAvatars { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,6 +76,26 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasForeignKey(d => d.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Chat_OwnerId");
+        });
+
+        modelBuilder.Entity<ChatAvatar>(entity =>
+        {
+            entity.HasKey(e => new { e.ChatId, e.FileId }).HasName("PK_ChatAvatar_Id");
+
+            entity.ToTable("ChatAvatar");
+
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LastModified)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+
+            entity.HasOne(d => d.Chat).WithMany(p => p.ChatAvatars)
+                .HasForeignKey(d => d.ChatId)
+                .HasConstraintName("FK_ChatAvatar_ChatId");
+
+            entity.HasOne(d => d.File).WithMany(p => p.ChatAvatars)
+                .HasForeignKey(d => d.FileId)
+                .HasConstraintName("FK_ChatAvatar_FileId");
         });
 
         modelBuilder.Entity<ChatProperty>(entity =>
@@ -243,6 +268,27 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasConstraintName("FK_RolePermission_RoleId");
         });
 
+        modelBuilder.Entity<Sticker>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Sticker_Id");
+
+            entity.ToTable("Sticker");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.LastModified)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.Title).HasMaxLength(50);
+
+            entity.HasOne(d => d.File).WithMany(p => p.Stickers)
+                .HasForeignKey(d => d.FileId)
+                .HasConstraintName("FK_Sticker_FileId");
+
+            entity.HasOne(d => d.StickerPack).WithMany(p => p.Stickers)
+                .HasForeignKey(d => d.StickerPackId)
+                .HasConstraintName("FK_Sticker_StickerPackId");
+        });
+
         modelBuilder.Entity<StickerPack>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_StickerPack_Id");
@@ -281,6 +327,26 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.WasOnline)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone");
+        });
+
+        modelBuilder.Entity<UserAvatar>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.FileId }).HasName("PK_UserAvatar_Id");
+
+            entity.ToTable("UserAvatar");
+
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LastModified)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+
+            entity.HasOne(d => d.File).WithMany(p => p.UserAvatars)
+                .HasForeignKey(d => d.FileId)
+                .HasConstraintName("FK_UserAvatar_FileId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserAvatars)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserAvatar_UserId");
         });
 
         OnModelCreatingPartial(modelBuilder);

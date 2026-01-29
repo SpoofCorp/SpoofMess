@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers;
 
 namespace SpoofSettingsService.Models;
 
-public partial class FileMetadataOperationStatus
+public partial class FileMetadataOperationStatus : IdentifiedEntity<long>
 {
-    public long Id { get; set; }
-
     public Guid FileMetadataId { get; set; }
 
     public short OperationStatusId { get; set; }

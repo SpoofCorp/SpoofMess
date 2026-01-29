@@ -15,12 +15,20 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
     protected readonly IInjectionService _injectionService = injectionService;
 
     protected async Task ConfirmAdded() =>
-        await ConsumeFromQueueAsync<CreateUser>(_exchange, $"user.success", $"user.success.added", async (createUser)  => {
-            _loggerService.Info($"{createUser.UserId} was created");
+        await ConsumeFromQueueAsync<CreateUser>(
+            _exchange,
+            $"settings.user.success.added",
+            $"user.success.added",
+            async (createUser)  =>
+                {
+                    _loggerService.Info($"{createUser.UserId} was created");
 
-            await _injectionService.Invoke<IUserService, Task>(async (userService) => await userService.Create(createUser.UserId));
-            //await _userService.Create(createUser.UserId);
-        });
+                    await _injectionService.Invoke<IUserService, Task>(
+                        async (userService) =>
+                            await userService.Create(createUser.UserId)
+                        );
+                }
+            );
 
     public override async Task Initialize()
     {

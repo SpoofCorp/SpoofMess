@@ -66,6 +66,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             User user = new()
             {
                 Id = userId,
+                Name = string.Empty
             };
             await _userRepository.AddAsync(user);
             await _userMessageBrokerService.ConfirmCreate(new() { UserId = userId });

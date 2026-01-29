@@ -10,7 +10,7 @@ namespace SpoofEntranceService.ServiceRealizations;
 public class UserConsumerService(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService, IInjectionService injectionService) : ConsumerService(settings, serializer, loggerService), IUserConsumerService
 {
     protected readonly IInjectionService _injectionService = injectionService;
-    private readonly string _exchange = "settings-service";
+    private readonly string _exchange = "entrance-service";
 
     public override async Task Initialize()
     {
@@ -21,7 +21,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
 
     private async Task ConfirmAdded()
     {
-        await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.created", async (createUser) =>
+        await ConsumeFromQueueAsync<CreateUser>(_exchange, "entrance.user.success.created", "user.success.created", async (createUser) =>
         {
             _loggerService.Info($"{createUser.UserId} was created");
             await _injectionService.Invoke<IUserEntryService, Task>(async (userEntryService) => await userEntryService.Confirm(createUser.UserId));
@@ -30,7 +30,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
 
     private async Task ErrorAdded()
     {
-        await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.error", "user.error.created", async (createUser) =>
+        await ConsumeFromQueueAsync<CreateUser>(_exchange, "entrance.user.error.created", "user.error.created", async (createUser) =>
         {
             await _injectionService.Invoke<IUserEntryService, Task>(async (userEntryService) => await userEntryService.Error(createUser.UserId));
         });
@@ -38,7 +38,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
 
     private async Task ConfirmDelete()
     {
-        await ConsumeFromQueueAsync<CreateUser>(_exchange, "user.success", "user.success.deleted", async (createUser) =>
+        await ConsumeFromQueueAsync<CreateUser>(_exchange, "entrance.user.success.deleted", "user.success.deleted", async (createUser) =>
         {
             await _injectionService.Invoke<IUserEntryService, Task>(async (userEntryService) => await userEntryService.Delete(createUser.UserId));
         });

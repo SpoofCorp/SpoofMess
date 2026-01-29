@@ -2,7 +2,6 @@
 using CommonObjects.Requests;
 using CommonObjects.Responses;
 using CommonObjects.Results;
-using CommunicationLibrary.Communication;
 using SecurityLibrary;
 using SpoofEntranceService.Models;
 using SpoofEntranceService.Services;
