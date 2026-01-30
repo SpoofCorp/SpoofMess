@@ -30,6 +30,22 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
                 }
             );
 
+    protected async Task ConfirmDeleted() =>
+    await ConsumeFromQueueAsync<CreateUser>(
+        _exchange,
+        $"settings.user.success.deleted",
+        $"user.success.deleted",
+        async (createUser) =>
+        {
+            _loggerService.Info($"{createUser.UserId} was deleted");
+
+            await _injectionService.Invoke<IUserService, Task>(
+                    async (userService) =>
+                        await userService.Delete(createUser.UserId)
+                    );
+        }
+        );
+
     public override async Task Initialize()
     {
         await ConfirmAdded();

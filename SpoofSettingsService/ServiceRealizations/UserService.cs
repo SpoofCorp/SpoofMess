@@ -1,7 +1,6 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests;
 using CommonObjects.Results;
-using CommunicationLibrary.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
@@ -46,10 +45,11 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             Result result = _userValidator.IsAvailable(user);
 
             if (!result.Success) return result;
-
             user!.IsDeleted = true;
+
             await _userRepository.SoftDeleteAsync(user);
-            await _userMessageBrokerService.ConfirmDelete(new() { UserId = userId });
+            await _userMessageBrokerService.ConfirmDelete(new(userId));
+
             return Result.SuccessResult();
         }
         catch (Exception ex)
@@ -69,7 +69,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
                 Name = string.Empty
             };
             await _userRepository.AddAsync(user);
-            await _userMessageBrokerService.ConfirmCreate(new() { UserId = userId });
+            await _userMessageBrokerService.ConfirmCreate(new(userId));
             return Result.SuccessResult();
         }
         catch (Exception ex)
