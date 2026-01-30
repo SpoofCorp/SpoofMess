@@ -3,7 +3,6 @@ using CommunicationLibrary;
 using CommunicationLibrary.Communication;
 using CommunicationLibrary.ServiceRealizations;
 using SpoofEntranceService.Services;
-using System.Text;
 
 namespace SpoofEntranceService.ServiceRealizations;
 
@@ -13,8 +12,13 @@ public class UserPublisherService(RabbitMQSettings settings, ISerializer seriali
 
     public async Task Create(CreateUser createUser)
     {
-        byte[] body = Encoding.UTF8.GetBytes(_serializer.Serialize(createUser));
-        await Publish(_exchange, "user.success.added", body);
+        await Publish(_exchange, "user.success.added", createUser);
         Console.WriteLine($"{createUser.UserId} publish");
+    }
+
+    public async Task Delete(CreateUser deleteUser)
+    {
+        await Publish(_exchange, "user.success.deleted", deleteUser);
+        Console.WriteLine($"{deleteUser.UserId} deleted");
     }
 }

@@ -105,8 +105,11 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
 
     public async Task Error(Guid userId) =>
         await ChangeStatus(userId, true);
-    public async Task Delete(Guid userId) =>
+    public async Task Delete(Guid userId)
+    {
         await ChangeStatus(userId, true);
+        await _userPublisherService.Delete(new(userId));
+    }
 
     public async Task ChangeStatus(Guid userId, bool isDeleted)
     {
