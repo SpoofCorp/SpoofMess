@@ -71,3 +71,16 @@ create index "IX_Token_SessionInfoId"
 create index "IX_Token_ValidTo" 
     on "Token"("RefreshTokenHash") 
     where "IsDeleted" = false;
+
+create or replace function "UserEntryOperationStatus_Update_Trigger_Fnc"()
+returns trigger as
+$$
+begin
+	update "UserEntryOperationStatus" set "IsActual" = false where "UserEntryId" = new."UserEntryId" and "Id" != new."Id";
+    RETURN NEW;
+end;
+$$ language plpgsql;
+
+create trigger "UserEntryOperationStatus_After_Insert" after insert on "UserEntryOperationStatus"
+for each row
+execute function "UserEntryOperationStatus_Update_Trigger_Fnc"();
