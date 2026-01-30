@@ -8,8 +8,8 @@ using DataSaveHelpers.ServiceRealizations.Cache;
 using DataSaveHelpers.ServiceRealizations.Cache.Memory;
 using DataSaveHelpers.ServiceRealizations.Cache.Redis;
 using DataSaveHelpers.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers;
@@ -22,11 +22,11 @@ using SpoofSettingsService.Services.Validators;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 
 builder.Services.AddSingleton<IProcessQueueTasksService, ProcessQueueTasksService>();
 builder.Services.AddSingleton<ISerializer, JsonSerializerService>();
@@ -36,6 +36,12 @@ builder.Services.AddSingleton(sp =>
     builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
     return settings;
 });
+builder.Services.AddSingleton<ILoggerService>(provider =>
+    new ConsoleLoggerService(
+        minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
+    )
+);
+builder.Services.AddSingleton<IInjectionService, InjectionService>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
@@ -48,24 +54,16 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(configuration);
 });
 
-builder.Services.AddSingleton<ILoggerService>(provider =>
-    new ConsoleLoggerService(
-        minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
-    )
-);
-
 builder.Services.AddSingleton<Microsoft.Extensions.Caching.Memory.IMemoryCache, Microsoft.Extensions.Caching.Memory.MemoryCache>();
 builder.Services.AddSingleton<IMemoryCacheService, LocalCacheService>();
 
 //redis
 builder.Services.AddSingleton<IRedisService, BaseRedisCache>();
 
-
-builder.Services.AddSingleton<IUserMessageBrokerService, UserMessageService>();
+builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
 builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 
 builder.Services.AddHostedService<UserConsumerService>();
-builder.Services.AddSingleton<IInjectionService, InjectionService>();
 //multi cache(in-memory + redis)
 builder.Services.AddSingleton<ICacheService, MultiCache>();
 
@@ -98,6 +96,20 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new()
+    {
+        ValidateAudience = true,
+        ValidateIssuer = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidAudience = SecurityLibrary.AuthOptions.AUDIENCE,
+        ValidIssuer = SecurityLibrary.AuthOptions.ISSUER,
+        IssuerSigningKey = SecurityLibrary.AuthOptions.GetSecurityKey()
+    };
+});
 
 var app = builder.Build();
 
