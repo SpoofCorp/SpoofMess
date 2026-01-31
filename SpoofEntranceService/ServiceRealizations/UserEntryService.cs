@@ -19,7 +19,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
     private readonly IUserEntryValidator _validator = validator;
     private readonly ILoggerService _logService = logService;
 
-    public async Task<Result<UserAuthorizeResponse>> Authorization(
+    public async Task<Result<UserAuthorizeResponse>> Authorization(HttpContext context,
         UserAuthorizeRequest request,
         SessionInfo sessionInfo)
     {
@@ -34,9 +34,11 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
             if (!Hasher.VerifyPassword(request.Password, user!.PasswordHash))
                 return Result<UserAuthorizeResponse>.ErrorResult("Invalid password", 403);
 
-            await _sessionService.StartSession(user, sessionInfo);
+            await _sessionService.StartSession(context, user, sessionInfo);
 
-            return await _tokenService.Create(sessionInfo);
+            Result<UserAuthorizeResponse> response = await _tokenService.Create(sessionInfo);
+            sessionInfo.UserEntry = user;
+            return response;
         }
         catch (Exception ex)
         {
@@ -44,7 +46,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
             return Result<UserAuthorizeResponse>.ErrorResult(ex.Message);
         }
     }
-    public async Task<Result<UserAuthorizeResponse>> Registration(RegistrationRequest request, SessionInfo sessionInfo)
+    public async Task<Result<UserAuthorizeResponse>> Registration(HttpContext context, RegistrationRequest request, SessionInfo sessionInfo)
     {
         try
         {
@@ -68,7 +70,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
 
             await _repository.Change(newUser, user);
 
-            await _sessionService.StartSession(newUser, sessionInfo);
+            await _sessionService.StartSession(context, newUser, sessionInfo);
 
             await _userPublisherService.Create(new() { UserId = newUser.Id });
             return await _tokenService.Create(sessionInfo);

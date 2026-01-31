@@ -7,9 +7,9 @@ namespace SpoofEntranceService.Services;
 
 public interface IUserEntryService
 {
-    public Task<Result<UserAuthorizeResponse>> Authorization(UserAuthorizeRequest request, SessionInfo sessionInfo);
+    public Task<Result<UserAuthorizeResponse>> Authorization(HttpContext context, UserAuthorizeRequest request, SessionInfo sessionInfo);
 
-    public Task<Result<UserAuthorizeResponse>> Registration(RegistrationRequest request, SessionInfo sessionInfo);
+    public Task<Result<UserAuthorizeResponse>> Registration(HttpContext context, RegistrationRequest request, SessionInfo sessionInfo);
 
     public Task<Result> Delete(SessionInfo sessionInfo);
     public Task Confirm(Guid userId);

@@ -18,7 +18,7 @@ public interface ISessionService
     /// <returns></returns>
     public Task<Result> Exit(ExitRequest request, Guid sessionInfoId);
 
-    public Task<Result> StartSession(UserEntry userEntry, SessionInfo sessionInfo);
+    public Task<Result> StartSession(HttpContext context, UserEntry userEntry, SessionInfo sessionInfo);
 
     /// <summary>
     /// End current session

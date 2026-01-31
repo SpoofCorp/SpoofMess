@@ -8,9 +8,6 @@ namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
 public class TokenRepository(ICacheService cache, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<Token, string>(cache, context, tasksService), ITokenRepository
 {
-    public async ValueTask Add(Token token) =>
-        await AddAsync(token);
-
     public async ValueTask<Token?> GetByRefreshHash(string refreshHash) =>
         await GetAsync(GetKey(refreshHash),
             async () => await _set

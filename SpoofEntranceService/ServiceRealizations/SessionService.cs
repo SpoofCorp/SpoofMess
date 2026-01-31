@@ -85,7 +85,7 @@ public class SessionService(
         }
     }
 
-    public async Task<Result> StartSession(UserEntry userEntry, SessionInfo sessionInfo)
+    public async Task<Result> StartSession(HttpContext context, UserEntry userEntry, SessionInfo sessionInfo)
     {
         try
         {
@@ -93,6 +93,8 @@ public class SessionService(
             sessionInfo.IsActive = true;
             sessionInfo.UserEntryId = userEntry.Id;
             sessionInfo.DeviceId = Guid.CreateVersion7().ToString();
+            sessionInfo.IpAddress = context.Connection.RemoteIpAddress?.ToString() ?? "";
+            sessionInfo.UserEntry = null!;
             await _sessionRepository.AddAsync(sessionInfo);
             sessionInfo.UserEntry = userEntry;
 
