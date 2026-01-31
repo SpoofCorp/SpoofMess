@@ -84,3 +84,16 @@ $$ language plpgsql;
 create trigger "UserEntryOperationStatus_After_Insert" after insert on "UserEntryOperationStatus"
 for each row
 execute function "UserEntryOperationStatus_Update_Trigger_Fnc"();
+
+create or replace function "TokenOnceInsert_Trigger_Fnc"()
+returns trigger as
+$$
+begin
+	update "Token" set "IsDeleted" = true where "SessionInfoId" = new."SessionInfoId" and "RefreshTokenHash" != new."RefreshTokenHash";
+	return new;
+end;
+$$ language plpgsql;
+
+create trigger "Token_After_Insert" after insert on "Token"
+for each row
+execute function "TokenOnceInsert_Trigger_Fnc"();
