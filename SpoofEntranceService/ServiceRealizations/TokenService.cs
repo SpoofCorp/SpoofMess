@@ -21,10 +21,12 @@ public class TokenService(ITokenRepository repository, ITokenValidator tokenVali
     public async Task<Result<UserAuthorizeResponse>> Create(SessionInfo sessionInfo)
     {
         TokenResponse response = CreateResponse(sessionInfo);
-
         try
         {
-            await _repository.Add(response.Token);
+            UserEntry user = response.Token.SessionInfo.UserEntry;
+            response.Token.SessionInfo.UserEntry = null!;
+            await _repository.AddAsync(response.Token);
+            response.Token.SessionInfo.UserEntry = user;
         }
         catch (Exception ex)
         {
@@ -75,7 +77,7 @@ public class TokenService(ITokenRepository repository, ITokenValidator tokenVali
             sessionInfo.Id);
 
         return new TokenResponse(
-            new(refresh.TokenHash, sessionInfo.Id, GetLifeTime()),
+            new(refresh.TokenHash, sessionInfo, GetLifeTime()),
             new(access, refresh.Token, sessionInfo.ToDTO())
             );
     }

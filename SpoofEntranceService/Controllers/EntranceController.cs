@@ -17,7 +17,7 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
     [HttpPost("Enter")]
     public async ValueTask<IActionResult> Enter(UserAuthorizeRequest request)
     {
-        Result<UserAuthorizeResponse> result = await _userEntryService.Authorization(request, new());
+        Result<UserAuthorizeResponse> result = await _userEntryService.Authorization(HttpContext, request, new());
 
         return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
     }
@@ -25,7 +25,7 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
     [HttpPost("Registration")]
     public async ValueTask<IActionResult> Enter(RegistrationRequest request)
     {
-        Result<UserAuthorizeResponse> result = await _userEntryService.Registration(request, new());
+        Result<UserAuthorizeResponse> result = await _userEntryService.Registration(HttpContext, request, new());
 
         return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
     }
