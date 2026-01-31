@@ -16,10 +16,10 @@ public partial class Token : IdentifiedSoftDeletableEntity<string>
 
     public Token() { }
 
-    public Token(string tokenHash, Guid sessionInfoId, DateTime validTo)
+    public Token(string tokenHash, SessionInfo sessionInfo, DateTime validTo)
     {
         Id = tokenHash;
-        SessionInfoId = sessionInfoId;
+        SessionInfo = sessionInfo;
         ValidTo = validTo;
     }
 }

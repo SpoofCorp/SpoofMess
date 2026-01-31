@@ -75,7 +75,7 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
        Func<T, Task> handler)
     {
         await StartExchange(exchange);
-        if (!_channels.TryGetValue(exchange, out var channel))
+        if (!_channels.TryGetValue(exchange, out IChannel? channel))
             throw new ApplicationException($"Channel is null {routingKey}");
         
         await channel.QueueDeclareAsync(
@@ -90,7 +90,7 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
             exchange: exchange,
             routingKey: routingKey);
 
-        var consumer = new AsyncEventingBasicConsumer(channel);
+        AsyncEventingBasicConsumer consumer = new(channel);
         consumer.ReceivedAsync += async (sender, args) =>
         {
             try

@@ -1,6 +1,7 @@
 ﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services.Repositories;
 
@@ -14,7 +15,7 @@ public class ChatRepository(ICacheService cache, SpoofSettingsServiceContext con
 
     public async Task Change(Chat newChat, Chat? oldChat)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        using IDbContextTransaction transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             if (oldChat is null)

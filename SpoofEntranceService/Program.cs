@@ -19,7 +19,7 @@ using SpoofEntranceService.Services.Repositories;
 using SpoofEntranceService.Services.Validators;
 using StackExchange.Redis;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton(sp =>
 {
-    var settings = new RabbitMQSettings();
+    RabbitMQSettings settings = new();
     builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
     return settings;
 });
@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
+    ConfigurationOptions configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
     configuration.AbortOnConnectFail = false;
     configuration.ConnectTimeout = 5000;
     configuration.SyncTimeout = 5000;
@@ -99,7 +99,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
 builder.Services.AddHostedService<UserConsumerService>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

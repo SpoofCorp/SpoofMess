@@ -21,7 +21,7 @@ using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using StackExchange.Redis;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -32,7 +32,7 @@ builder.Services.AddSingleton<IProcessQueueTasksService, ProcessQueueTasksServic
 builder.Services.AddSingleton<ISerializer, JsonSerializerService>();
 builder.Services.AddSingleton(sp =>
 {
-    var settings = new RabbitMQSettings();
+    RabbitMQSettings settings = new RabbitMQSettings();
     builder.Configuration.GetSection("RabbitMQSettings").Bind(settings);
     return settings;
 });
@@ -45,7 +45,7 @@ builder.Services.AddSingleton<IInjectionService, InjectionService>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
+    ConfigurationOptions configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
     configuration.AbortOnConnectFail = false;
     configuration.ConnectTimeout = 5000;
     configuration.SyncTimeout = 5000;
@@ -111,7 +111,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

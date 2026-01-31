@@ -26,7 +26,7 @@ public class LocalFileWorkerService : IFileWorkerService
         string filePath = GetFilePath(file.FileName, $@"{Directory.GetCurrentDirectory()}\Storage\");
         
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        using (FileStream stream = new(filePath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }

@@ -1,7 +1,9 @@
 ﻿using AdditionalHelpers.Services;
+using CommunicationLibrary.Communication;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace CommunicationLibrary.ServiceRealizations;
 
@@ -22,6 +24,12 @@ public class RabbitMQService
         };
         _connection = _factory.CreateConnectionAsync().Result;
         _serializer = serializer;
+    }
+
+    protected async Task Publish<T>(string exchange, string routingKey, T body, string type = ExchangeType.Direct)
+    {
+        byte[] bodyArray = Encoding.UTF8.GetBytes(_serializer.Serialize(body));
+        await Publish(exchange, routingKey, bodyArray, type);
     }
 
     protected async Task Publish(string exchange, string routingKey, byte[] body, string type = ExchangeType.Direct)
