@@ -25,7 +25,7 @@ public class UserConsumerService(RabbitMQSettings settings, ISerializer serializ
 
                     await _injectionService.Invoke<IUserService, Task>(
                         async (userService) =>
-                            await userService.Create(createUser.UserId)
+                            await userService.Create(createUser)
                         );
                 }
             );
