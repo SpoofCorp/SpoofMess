@@ -1,6 +1,7 @@
 ﻿using AdditionalHelpers.Services;
 using DataSaveHelpers.Services;
 using Microsoft.Extensions.Caching.Memory;
+using StackExchange.Redis;
 
 namespace DataSaveHelpers.ServiceRealizations.Cache.Memory;
 
@@ -33,6 +34,16 @@ public class LocalCacheService(IMemoryCache cache, ILoggerService loggerService)
         _cache.TryGetValue(key, out T? value);
         _loggerService.Debug($"Get by {key} from cache");
         return Task.FromResult(value);
+    }
+
+    public Task MultiSave(KeyValuePair<RedisKey, RedisValue>[] values)
+    {
+        for(int i = 0; i < values.Length; i++)
+        {
+            var value = values[i];
+            Save(value.Key!, value.Value);
+        }
+        return Task.CompletedTask;
     }
 
     public Task Save<T>(string key, T value)

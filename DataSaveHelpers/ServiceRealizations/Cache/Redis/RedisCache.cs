@@ -1,4 +1,5 @@
 ﻿using DataSaveHelpers.Services;
+using StackExchange.Redis;
 
 namespace DataSaveHelpers.ServiceRealizations.Cache.Redis;
 
@@ -19,5 +20,8 @@ public class RedisCache(IRedisService cache) : ICacheService
         await _cache.Get<List<T>?>(key);
 
     public async Task SaveRange<T>(Func<T, string> getKey, List<T> values) =>
-        await _cache.SaveRange(getKey, values); 
+        await _cache.SaveRange(getKey, values);
+
+    public Task MultiSave(KeyValuePair<RedisKey, RedisValue>[] values) =>
+        _cache.MultiSave(values);
 }

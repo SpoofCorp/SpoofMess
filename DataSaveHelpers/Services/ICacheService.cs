@@ -1,4 +1,6 @@
-﻿namespace DataSaveHelpers.Services;
+﻿using StackExchange.Redis;
+
+namespace DataSaveHelpers.Services;
 
 public interface ICacheService
 {
@@ -9,4 +11,6 @@ public interface ICacheService
     public Task Delete(string key);
 
     public Task<T?> Get<T>(string key);
+
+    public Task MultiSave(KeyValuePair<RedisKey, RedisValue>[] values);
 }

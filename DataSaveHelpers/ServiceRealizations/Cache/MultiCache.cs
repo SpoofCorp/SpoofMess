@@ -1,6 +1,7 @@
 ﻿using AdditionalHelpers.Services;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using StackExchange.Redis;
 
 namespace DataSaveHelpers.ServiceRealizations.Cache;
 
@@ -51,5 +52,11 @@ public class MultiCache(IMemoryCacheService localCache, IRedisService cache, ILo
         _loggerService.Debug($"Save collection {values.GetType().Name} to in-memory cache");
         await _cache.SaveRange(getKey, values);
         _loggerService.Debug($"Save by {values.GetType().Name} to redis");
+    }
+
+    public async Task MultiSave(KeyValuePair<RedisKey, RedisValue>[] values)
+    {
+        await _localCache.MultiSave(values);
+        await _cache.MultiSave(values);
     }
 }

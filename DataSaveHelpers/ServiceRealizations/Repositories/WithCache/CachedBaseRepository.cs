@@ -96,6 +96,9 @@ public abstract class CachedBaseRepository<T>(ICacheService cache, DbContext con
     protected override void SaveToCache(string key, T entity) =>
         _processQueueTasks.AddTask(async () => await _cache.Save(key, entity));
 
+    protected void SaveEntityToCache<TEntity>(string key, TEntity entity) =>
+        _processQueueTasks.AddTask(async () => await _cache.Save(key, entity));
+
     protected override void SaveRangeToCache(List<T> entities) =>
         _processQueueTasks.AddTask(async () => await _cache.SaveRange(GetKey, entities));
 

@@ -76,4 +76,17 @@ public class BaseRedisCache(IConnectionMultiplexer redis, ILoggerService loggerS
             throw new Exception(ex.Message);
         }
     }
+
+    public async Task MultiSave(KeyValuePair<RedisKey, RedisValue>[] valuePairs)
+    {
+        try
+        {
+            await _database.StringSetAsync(valuePairs);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+
+    }
 }
