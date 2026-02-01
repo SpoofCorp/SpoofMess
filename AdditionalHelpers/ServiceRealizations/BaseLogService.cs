@@ -13,6 +13,15 @@ public abstract class BaseLogService(LogLevel minLogLevel) : ILoggerService
     public bool CheckFile(LogLevel level) =>
         (short)level <= (short)LogLevel.Warning;
 
+    protected static LogEntry Format(
+        LogLevel level,
+        string message,
+        Exception? exception = null,
+        [CallerMemberName] string caller = "",
+        [CallerLineNumber] int callerLineNumber = 0,
+        [CallerFilePath] string callerFile = "") =>
+        new(message, $"File: {callerFile} Method: {caller} Line: {callerLineNumber}", level, DateTime.UtcNow, exception is null ? null : $"\nException: {exception.Message}\n{exception.InnerException}");
+
     public abstract void Log(LogLevel level,
         string message,
         Exception? exception = null,

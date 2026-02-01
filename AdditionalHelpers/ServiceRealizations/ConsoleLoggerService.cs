@@ -18,9 +18,10 @@ public class ConsoleLoggerService(LogLevel minLogLevel) : BaseLogService(minLogL
     public override void Log(LogLevel level, string message, Exception? exception = null, [CallerMemberName] string caller = "", [CallerLineNumber] int callerLineNumber = 0, [CallerFilePath] string callerFile = "")
     {
         ConsoleColor color = colors.FirstOrDefault(x => x.LogLevel == level)?.Color ?? ConsoleColor.Blue;
-        ColorPrint(CheckFile(LogLevel.Debug) ? $"File: {callerFile} Method: {caller} Line: {callerLineNumber} " : "", color, true);
-        ColorPrint(level.ToString(), color, false);
-        Console.WriteLine($": {message} {((int)_minLogLevel < 2 ? (exception is null ? "" : $"\nException: {exception.Message}\n{exception.InnerException}") : "")}");
+        LogEntry logEntry = Format(level, message, exception, caller, callerLineNumber, callerFile);
+        ColorPrint(CheckFile(LogLevel.Debug) ? logEntry.Caller : "", color, true);
+        ColorPrint(logEntry.PrintInfo(), color, false);
+        Console.WriteLine(logEntry.PrintMessage((int)_minLogLevel < 2));
     }
 
     private static void ColorPrint(string message, ConsoleColor color, bool newLine = false)

@@ -28,14 +28,7 @@ public class FileLoggerService(LogLevel minLevel, string directoryPath, long max
         if (!IsEnabled(level))
             return;
 
-        LogEntry logEntry = new()
-        {
-            Message = $"{message}\n{((int)_minLogLevel < 2 ? exception?.Message ?? "Nullable exception" : "")}",
-            Caller = IsEnabled(LogLevel.Debug) ? $" File: {callerFile}\nMethod: {caller}\nLine: {callerLineNumber}" : null,
-            Level = level,
-            Date = DateTime.UtcNow,
-        };
-
+        LogEntry logEntry = Format(level, message, exception, caller, callerLineNumber, callerFile);
         WriteToFile(logEntry);
     }
 
