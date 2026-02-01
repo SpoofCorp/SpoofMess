@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests;
+﻿using AdditionalHelpers.Services;
+using CommonObjects.Requests;
 using CommonObjects.Responses;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -18,15 +19,13 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
     public async ValueTask<IActionResult> Enter(UserAuthorizeRequest request)
     {
         Result<UserAuthorizeResponse> result = await _userEntryService.Authorization(HttpContext, request, new());
-
         return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
     }
 
     [HttpPost("Registration")]
-    public async ValueTask<IActionResult> Enter(RegistrationRequest request)
+    public async ValueTask<IActionResult> Registration(RegistrationRequest request)
     {
         Result<UserAuthorizeResponse> result = await _userEntryService.Registration(HttpContext, request, new());
-
         return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
     }
 

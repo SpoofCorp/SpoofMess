@@ -35,10 +35,10 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
                 return Result<UserAuthorizeResponse>.ErrorResult("Invalid password", 403);
 
             await _sessionService.StartSession(context, user, sessionInfo);
+            Result<TokenResponse> response = await _tokenService.CreateAndSave(sessionInfo);
 
-            Result<UserAuthorizeResponse> response = await _tokenService.Create(sessionInfo);
             sessionInfo.UserEntry = user;
-            return response;
+            return Result<UserAuthorizeResponse>.OkResult(response.Body.Response);
         }
         catch (Exception ex)
         {
@@ -51,15 +51,19 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
         try
         {
             UserEntry? user = await _repository.GetByLogin(request.Login);
-
             if (user is { IsDeleted: false })
                 return Result<UserAuthorizeResponse>.ErrorResult("Login is busy");
 
+            Task<Guid> id = Task.Run(Guid.CreateVersion7);
+            Task<string> password = Task.Run(() => Hasher.HashPassword(request.Password));
+
+            await Task.WhenAll(id, password);
+
             UserEntry newUser = new()
             {
-                Id = Guid.CreateVersion7(),
+                Id = id.Result,
                 UniqueName = request.Login,
-                PasswordHash = Hasher.HashPassword(request.Password),
+                PasswordHash = password.Result,
             };
 
             newUser.UserEntryOperationStatuses.Add(new()
@@ -68,12 +72,13 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
                 OperationStatusId = (short)OperationsStatus.Pending,
             });
 
-            await _repository.Change(newUser, user);
-
+            await _repository.Change(user);
             await _sessionService.StartSession(context, newUser, sessionInfo);
+            _ = Task.Run(() => _userPublisherService.Create(new(newUser.Id, request.Name)));
 
-            await _userPublisherService.Create(new() { UserId = newUser.Id });
-            return await _tokenService.Create(sessionInfo);
+            Result<TokenResponse> result = await _tokenService.Create(sessionInfo);
+            await _repository.Create(newUser, sessionInfo, result.Body.Token);
+            return Result<UserAuthorizeResponse>.OkResult(result.Body.Response);
         }
         catch (Exception ex)
         {
@@ -96,7 +101,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
             await _repository.SoftDeleteAsync(user!);
             return Result.OkResult("Ok");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logService.Error("Error", ex);
             return Result.ErrorResult(ex.Message);
@@ -110,7 +115,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
     public async Task Delete(Guid userId)
     {
         await ChangeStatus(userId, true);
-        await _userPublisherService.Delete(new(userId));
+        await _userPublisherService.Delete(new(userId, ""));
     }
 
     public async Task ChangeStatus(Guid userId, bool isDeleted)

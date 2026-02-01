@@ -18,25 +18,31 @@ public class TokenService(ITokenRepository repository, ITokenValidator tokenVali
     private readonly ILoggerService _logService = loger;
     private readonly ITokenValidator _tokenValidator = tokenValidator;
 
-    public async Task<Result<UserAuthorizeResponse>> Create(SessionInfo sessionInfo)
+    public async Task<Result<TokenResponse>> Create(SessionInfo sessionInfo)
+    {
+        return Result<TokenResponse>.OkResult(CreateResponse(sessionInfo));
+    }
+
+
+    public async Task<Result<TokenResponse>> CreateAndSave(SessionInfo sessionInfo)
     {
         TokenResponse response = CreateResponse(sessionInfo);
         try
         {
-            UserEntry user = response.Token.SessionInfo.UserEntry;
+            UserEntry userEntry = sessionInfo.UserEntry;
             response.Token.SessionInfo.UserEntry = null!;
-            await _repository.AddAsync(response.Token);
-            response.Token.SessionInfo.UserEntry = user;
+            await _repository.SaveTokenAndSession(response.Token);
+            response.Token.SessionInfo.UserEntry = userEntry;
+            response.Token.SessionInfo = sessionInfo;
         }
         catch (Exception ex)
         {
             _logService.Error("Error", ex);
-            return Result<UserAuthorizeResponse>.ErrorResult("Internal server error", 500);
+            return Result<TokenResponse>.ErrorResult("Internal server error", 500);
         }
 
-        return Result<UserAuthorizeResponse>.OkResult(response.Response);
+        return Result<TokenResponse>.OkResult(response);
     }
-
 
     public async Task<Result<UserAuthorizeResponse>> UpdateToken(UpdateTokenRequest tokenRequest)
     {

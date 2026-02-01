@@ -93,11 +93,9 @@ public class SessionService(
             sessionInfo.IsActive = true;
             sessionInfo.UserEntryId = userEntry.Id;
             sessionInfo.DeviceId = Guid.CreateVersion7().ToString();
-            sessionInfo.IpAddress = context.Connection.RemoteIpAddress?.ToString() ?? "";
-            sessionInfo.UserEntry = null!;
-            await _sessionRepository.AddAsync(sessionInfo);
             sessionInfo.UserEntry = userEntry;
-
+            sessionInfo.IpAddress = context.Connection.RemoteIpAddress?.ToString() ?? "";
+            
             return Result.OkResult("Ok");
         }
         catch (Exception ex)

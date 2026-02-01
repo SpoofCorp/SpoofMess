@@ -1,4 +1,5 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using AdditionalHelpers.Services;
+using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
@@ -6,25 +7,42 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class UserRepository(ICacheService cache, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
+public class UserRepository(ICacheService cache, ISerializer serializer, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
 {
-    public async Task Change(UserEntry newUser, UserEntry? oldUser)
+    private readonly ISerializer _serializer = serializer;
+    public async Task Create(UserEntry entry, SessionInfo session, Token token)
     {
-        if (oldUser is null)
-            await AddAsync(newUser);
-        else
+        await context.UserEntries.AddAsync(entry);
+        await context.SessionInfos.AddAsync(session);
+        await context.Tokens.AddAsync(token);
+        await context.SaveChangesAsync();
+        _processQueueTasks.AddTask(async () => await _cache.MultiSave(
+                [
+                new(GetKey(entry), _serializer.Serialize(entry)),
+                new(GetKey(entry.Id), _serializer.Serialize(entry)),
+                new(GetEntityKey<SessionInfo, Guid>(session), _serializer.Serialize(session)),
+                new(GetEntityKey<Token, string>(token), _serializer.Serialize(token)),
+            ]
+            ));
+    }
+
+    public async Task Change( UserEntry? oldUser)
+    {
+        if (oldUser is not null)
         {
             oldUser.IsDeleted = true;
             oldUser.UniqueName = Guid.CreateVersion7().ToString();
             _context.Entry(oldUser).State = EntityState.Modified;
-            await _set.AddAsync(newUser);
             await _context.SaveChangesAsync();
         }
     }
 
-    public async ValueTask<UserEntry?> GetByLogin(string login) =>
+    protected override string GetKey(UserEntry entity) =>
+        $"{typeof(UserEntry).Name}:{entity.UniqueName}".ToLower();
+
+    public async Task<UserEntry?> GetByLogin(string login) =>
         await GetAsync(GetKeyByLogin(login), async () => await context.UserEntries.FirstOrDefaultAsync(x => x.UniqueName == login));
 
     private static string GetKeyByLogin(string login) =>
-        $"{typeof(UserEntry).Name}:login:{login}".ToLower();
+        $"{typeof(UserEntry).Name}:{login}".ToLower();
 }

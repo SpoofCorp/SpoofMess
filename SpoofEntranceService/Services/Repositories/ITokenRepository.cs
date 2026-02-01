@@ -8,4 +8,6 @@ public interface ITokenRepository : ISoftDeletableIdentifiedRepository<Token, st
     public ValueTask<Token?> GetByRefreshHash(string refreshHash);
 
     public Task Replace(Token replaced, Token replacing);
+
+    public Task SaveTokenAndSession(Token token);
 }
