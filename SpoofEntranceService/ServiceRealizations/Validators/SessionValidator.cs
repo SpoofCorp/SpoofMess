@@ -14,7 +14,7 @@ public class SessionValidator : ISessionValidator
         if (sessionInfo.IsDeleted || !sessionInfo.IsActive)
             return Result.BadRequest("Session is disabled or is deleted");
 
-        return Result.SuccessResult();
+        return Result.OkResult();
     }
 
     public bool IsSessionTooNew(SessionInfo sessionInfo, DateTime now) =>
@@ -25,7 +25,7 @@ public class SessionValidator : ISessionValidator
     {
         Result result = IsInvalidSession(sessionInfo);
         if (result.Success)
-            result = IsSessionTooNew(sessionInfo!, DateTime.UtcNow) ? Result.ErrorResult("No trust", 403) : Result.SuccessResult();
+            result = IsSessionTooNew(sessionInfo!, DateTime.UtcNow) ? Result.ErrorResult("No trust", 403) : Result.OkResult();
 
         return result;
     }

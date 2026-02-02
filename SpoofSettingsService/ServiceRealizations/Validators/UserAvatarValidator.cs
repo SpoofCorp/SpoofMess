@@ -13,6 +13,6 @@ public class UserAvatarValidator : SoftDeletableValidator<UserAvatar>, IUserAvat
         if (!result.Success)
             return result;
 
-        return Result.SuccessResult();
+        return Result.OkResult();
     }
 }

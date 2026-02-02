@@ -17,6 +17,6 @@ public class TokenValidator : ITokenValidator
         if (token.ValidTo < DateTime.UtcNow)
             return Result.BadRequest("Refresh token expired");
 
-        return Result.SuccessResult();
+        return Result.OkResult();
     }
 }

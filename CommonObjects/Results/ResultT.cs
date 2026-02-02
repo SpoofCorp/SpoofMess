@@ -1,4 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.ComponentModel;
 
 namespace CommonObjects.Results;
 
@@ -25,12 +25,15 @@ public class Result<T>
          Body = body,
      };
 
+    [Obsolete("Используйте специализированные методы.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Result<T> SuccessResult(T body, string? message = "OK", int statusCode = 200) =>
         GetResult(success: true, message: message, statusCode: statusCode, body: body);
 
+    #pragma warning disable CS0618
     public static Result<T> OkResult(T body) =>
         SuccessResult(body);
-
+    #pragma warning restore CS0618
     public static Result<T> NotFoundResult(string error) =>
         ErrorResult(error, 404);
 

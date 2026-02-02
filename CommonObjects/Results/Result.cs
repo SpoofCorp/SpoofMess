@@ -1,4 +1,6 @@
-﻿namespace CommonObjects.Results;
+﻿using System.ComponentModel;
+
+namespace CommonObjects.Results;
 
 public class Result
 {
@@ -19,14 +21,18 @@ public class Result
             Message = message,
         };
 
+    [Obsolete("Используйте специализированные методы.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Result SuccessResult(string message = "Ok", int statusCode = 200) =>
         GetResult(message: message, statusCode: statusCode);
 
+    #pragma warning disable CS0618
     public static Result OkResult(string message = "Ok") =>
         SuccessResult(message);
 
     public static Result DeletedResult(string message = "Deleted") =>
         SuccessResult(message, 204);
+    #pragma warning restore CS0618
 
     public static Result Forbidden(string error = "Forbidden") =>
         ErrorResult(error, 403);

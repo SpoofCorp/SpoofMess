@@ -15,6 +15,6 @@ public class ChatAvatarValidator : SoftDeletableValidator<ChatAvatar>, IChatAvat
         if (chatAvatar!.File is null)
             return Result.BadRequest("File was broken");
 
-        return Result.SuccessResult();
+        return Result.OkResult();
     }
 }
