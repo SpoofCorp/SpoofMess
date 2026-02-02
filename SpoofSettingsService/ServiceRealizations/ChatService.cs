@@ -9,13 +9,12 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatService(IChatRepository chatRepository, IUserValidator userValidator, IUserRepository userRepository, IChatTypeRepository chatTypeRepository, IChatValidator chatValidator) : IChatService
+public class ChatService(IChatRepository chatRepository, IChatTypeService chatTypeService, IChatValidator chatValidator, IUserService userService) : IChatService
 {
     private readonly IChatValidator _chatValidator = chatValidator;
-    private readonly IUserValidator _userValidator = userValidator;
+    private readonly IUserService _userService = userService;
     private readonly IChatRepository _chatRepository = chatRepository;
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IChatTypeRepository _chatTypeRepository = chatTypeRepository;
+    private readonly IChatTypeService _chatTypeService = chatTypeService;
 
     public async ValueTask<Result> ChangeSettings(ChangeChatSettingsRequest request, Guid userId)
     {
@@ -30,20 +29,24 @@ public class ChatService(IChatRepository chatRepository, IUserValidator userVali
 
     public async ValueTask<Result> CreateChat(CreateChatRequest request, Guid userId)
     {
-        User? user = await _userRepository.GetByIdAsync(userId);
-        Result result = _userValidator.IsAvailable(user);
-        if (!result.Success) return result;
+        Result<User> userResult = await _userService.Get(userId);
+        if (!userResult.Success) return Result.From(userResult);
 
-        ChatType? chatType = await _chatTypeRepository.GetByIdAsync(request.ChatTypeId);
-        result = _chatValidator.ValidateChatType(chatType);
-        if (!result.Success) return result;
+        Result<ChatType> chatTypeResult = await _chatTypeService.Get(request.ChatTypeId);
+        if (!chatTypeResult.Success) return Result.From(chatTypeResult);
 
         Chat? repetition = await _chatRepository.GetByUniqueName(request.UniqueName);
-        result = _chatValidator.ValidateHasChatUniqueName(repetition);
+        Result result = _chatValidator.ValidateHasChatUniqueName(repetition);
         if (!result.Success) return result;
 
         DateTime now = DateTime.UtcNow;
-        Chat newChat = new(request.ChatTypeId, user!.Id, request.ChatName, request.UniqueName, now, now);
+        Chat newChat = new(
+            request.ChatTypeId,
+            userResult.Body!.Id,
+            request.ChatName,
+            request.UniqueName,
+            now,
+            now);
 
         await _chatRepository.Change(newChat, repetition);
 
@@ -62,16 +65,17 @@ public class ChatService(IChatRepository chatRepository, IUserValidator userVali
 
     public async Task<UserChatResult> GetUserAndChat(Guid userId, Guid chatId)
     {
-        User? user = await _userRepository.GetByIdAsync(userId);
+        Task<Result<User>> userResult = _userService.Get(userId);
+        Task<Chat?> chatResult = _chatRepository.GetByIdAsync(chatId);
+        await Task.WhenAll(userResult, chatResult);
 
-        Result result = _userValidator.IsAvailable(user);
-        if (!result.Success) return new(null, null, result);
+        Result result = _chatValidator.ValidateChatAndOwner(chatResult.Result, userId);
+        if (!userResult.Result.Success)
+            return new(null, null, Result.From(userResult.Result));
 
-        Chat? chat = await _chatRepository.GetByIdAsync(chatId);
+        if (!result.Success)
+            return new(null, null, result);
 
-        result = _chatValidator.ValidateChatAndOwner(chat, userId);
-        if (!result.Success) return new(null, null, result);
-
-        return new(user, chat, Result.OkResult());
+        return new(userResult.Result.Body, chatResult.Result, Result.OkResult());
     }
 }

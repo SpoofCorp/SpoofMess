@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofSettingsService.Models;
 

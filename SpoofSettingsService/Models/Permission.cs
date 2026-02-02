@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofSettingsService.Models;
 
@@ -8,7 +8,7 @@ public partial class Permission : IdentifiedSoftDeletableEntity<short>
 
     public string? Description { get; set; }
 
-    public virtual ICollection<ChatUserPermission> ChatUserPermissions { get; set; } = [];
+    public virtual ICollection<ChatUserRule> ChatUserRules { get; set; } = [];
 
     public virtual ICollection<RolePermission> RolePermissions { get; set; } = [];
 }

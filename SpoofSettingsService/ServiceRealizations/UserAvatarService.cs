@@ -25,7 +25,7 @@ public class UserAvatarService(ILoggerService loggerService, IUserAvatarReposito
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
-            return Result<AvatarResponse>.SuccessResult(new() { FileId = avatar!.FileId, FileMetadata = avatar.File!.Set() });
+            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.FileId, FileMetadata = avatar.File!.Set() });
         }
         catch (Exception ex)
         {
@@ -87,9 +87,6 @@ public class UserAvatarService(ILoggerService loggerService, IUserAvatarReposito
             };
 
             await _userAvatarRepository.AddAsync(avatar);
-
-            //_ = Task.Run(async () => await _chatAvatarPublisher.Publish(avatar));
-
             return Result.OkResult();
         }
         catch (Exception ex)

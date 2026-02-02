@@ -1,5 +1,5 @@
 ﻿using AdditionalHelpers.Services;
-using CommonObjects.Requests;
+using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using CommunicationLibrary.Communication;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,25 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
     private readonly IUserValidator _userValidator = userValidator;
     private readonly IUserMessageBrokerService _userMessageBrokerService = userMessageBrokerService;
 
-    public async ValueTask<Result> ChangeSettings(ChangeUserSettingsRequest request, Guid userId)
+    public async Task<Result<User>> Get(Guid id)
+    {
+        try
+        {
+            User? user = await _userRepository.GetByIdAsync(id);
+            Result result = _userValidator.IsAvailable(user);
+
+            if (!result.Success) return Result<User>.From(result);
+
+            return Result<User>.OkResult(user!);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Database error", ex);
+            return Result<User>.ErrorResult("Database error");
+        }
+    }
+
+    public async Task<Result> ChangeSettings(ChangeUserSettingsRequest request, Guid userId)
     {
         try
         {
@@ -29,7 +47,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             if (!result.Success) return result;
 
             user!.Set(request);
-            return Result.SuccessResult();
+            return Result.OkResult();
         }
         catch (Exception ex)
         {
@@ -38,7 +56,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
         }
     }
 
-    public async ValueTask<Result> Delete(Guid userId)
+    public async Task<Result> Delete(Guid userId)
     {
         try
         {
@@ -51,7 +69,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             await _userRepository.SoftDeleteAsync(user);
             await _userMessageBrokerService.ConfirmDelete(new(userId, ""));
 
-            return Result.SuccessResult();
+            return Result.OkResult();
         }
         catch (Exception ex)
         {
@@ -60,7 +78,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
         }
     }
 
-    public async ValueTask<Result> Create(CreateUser createUser)
+    public async Task<Result> Create(CreateUser createUser)
     {
         try
         {
@@ -71,7 +89,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             };
             await _userRepository.AddAsync(user);
             await _userMessageBrokerService.ConfirmCreate(createUser);
-            return Result.SuccessResult();
+            return Result.OkResult();
         }
         catch (Exception ex)
         {

@@ -3,7 +3,7 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services;
 
-public interface IRoleService
+public interface IChatTypeService
 {
-    public Task<Result<Role>> GetRoleById(int roleId);
+    public Task<Result<ChatType>> Get(int Id);
 }

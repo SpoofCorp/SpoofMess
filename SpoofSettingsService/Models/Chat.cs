@@ -1,8 +1,8 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofSettingsService.Models;
 
-public partial class Chat : IdentifiedSoftDeletableEntity<Guid>, IChangeable
+public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public int ChatTypeId { get; set; }
 
@@ -14,13 +14,11 @@ public partial class Chat : IdentifiedSoftDeletableEntity<Guid>, IChangeable
 
     public DateTime CreatedAt { get; set; }
 
-    public DateTime LastModified { get; set; }
-
-    public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = new List<ChatAvatar>();
+    public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = [];
 
     public virtual ChatType ChatType { get; set; } = null!;
 
-    public virtual ICollection<ChatUser> ChatUsers { get; set; } = new List<ChatUser>();
+    public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 
     public virtual User Owner { get; set; } = null!;
 

@@ -1,12 +1,15 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofSettingsService.Models;
 
-public partial class ChatUser : SoftDeletableEntity
+public partial class ChatUser : DoubleIdentifiedSoftDeletable<Guid, Guid>
 {
-    public Guid ChatId { get; set; }
+    [Column("ChatId")]
+    public new Guid Key1 { get; set; }
 
-    public Guid UserId { get; set; }
+    [Column("UserId")]
+    public new Guid Key2 { get; set; }
 
     public int RoleId { get; set; }
 
@@ -14,7 +17,7 @@ public partial class ChatUser : SoftDeletableEntity
 
     public virtual Chat Chat { get; set; } = null!;
 
-    public virtual ICollection<ChatUserPermission> ChatUserPermissions { get; set; } = [];
+    public virtual ICollection<ChatUserRule> ChatUserRules { get; set; } = [];
 
     public virtual Role Role { get; set; } = null!;
 

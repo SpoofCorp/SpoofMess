@@ -3,7 +3,6 @@ using CommunicationLibrary;
 using CommunicationLibrary.Communication;
 using CommunicationLibrary.ServiceRealizations;
 using CommunicationLibrary.Services;
-using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.MessageBrokers;
 

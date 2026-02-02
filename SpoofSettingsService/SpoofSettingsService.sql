@@ -113,10 +113,11 @@ create unique index "UX_ChatUser_ChatId_UserId" on "ChatUser"("ChatId", "UserId"
 create index "IX_ChatUser_UserChat" on "ChatUser"("UserId", "ChatId") where "IsDeleted" = false;
 create index "IX_ChatUser_ChatId" on "ChatUser"("ChatId") where "IsDeleted" = false;
 
-create table "ChatUserPermission"
+create table "ChatUserRules"
 (
     "ChatId" uuid not null,
     "UserId" uuid not null,
+	"IsPermission" boolean not null default true,
     "PermissionId" smallint not null constraint "FK_ChatUserPermission_PermissionId" references "Permission"("Id"),
 	"IsDeleted" boolean not null default false,
     constraint "FK_ChatUserPermission_ChatUser" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade,

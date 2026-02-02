@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.SoftDeletable;
 
 namespace SpoofSettingsService.Models;
 

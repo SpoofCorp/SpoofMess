@@ -12,6 +12,7 @@ public partial class SpoofSettingsServiceContext : DbContext
         : base(options)
     {
     }
+
     public virtual DbSet<Chat> Chats { get; set; }
 
     public virtual DbSet<ChatAvatar> ChatAvatars { get; set; }
@@ -24,7 +25,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<ChatUser> ChatUsers { get; set; }
 
-    public virtual DbSet<ChatUserPermission> ChatUserPermissions { get; set; }
+    public virtual DbSet<ChatUserRule> ChatUserRules { get; set; }
 
     public virtual DbSet<Extension> Extensions { get; set; }
 
@@ -136,15 +137,15 @@ public partial class SpoofSettingsServiceContext : DbContext
 
         modelBuilder.Entity<ChatUser>(entity =>
         {
-            entity.HasKey(e => new { e.ChatId, e.UserId }).HasName("PK_ChatUser_Id");
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_ChatUser_Id");
 
             entity.ToTable("ChatUser");
 
-            entity.HasIndex(e => e.ChatId, "IX_ChatUser_ChatId").HasFilter("(\"IsDeleted\" = false)");
+            entity.HasIndex(e => e.Key1, "IX_ChatUser_ChatId").HasFilter("(\"IsDeleted\" = false)");
 
-            entity.HasIndex(e => new { e.UserId, e.ChatId }, "IX_ChatUser_UserChat").HasFilter("(\"IsDeleted\" = false)");
+            entity.HasIndex(e => new { e.Key2, e.Key1 }, "IX_ChatUser_UserChat").HasFilter("(\"IsDeleted\" = false)");
 
-            entity.HasIndex(e => new { e.ChatId, e.UserId }, "UX_ChatUser_ChatId_UserId")
+            entity.HasIndex(e => new { e.Key1, e.Key2 }, "UX_ChatUser_ChatId_UserId")
                 .IsUnique()
                 .HasFilter("(\"IsDeleted\" = false)");
 
@@ -153,7 +154,7 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatUsers)
-                .HasForeignKey(d => d.ChatId)
+                .HasForeignKey(d => d.Key1)
                 .HasConstraintName("FK_ChatUser_ChatId");
 
             entity.HasOne(d => d.Role).WithMany(p => p.ChatUsers)
@@ -162,23 +163,23 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasConstraintName("FK_ChatUser_RoleId");
 
             entity.HasOne(d => d.User).WithMany(p => p.ChatUsers)
-                .HasForeignKey(d => d.UserId)
+                .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_ChatUser_UserId");
         });
 
-        modelBuilder.Entity<ChatUserPermission>(entity =>
+        modelBuilder.Entity<ChatUserRule>(entity =>
         {
-            entity.HasKey(e => new { e.ChatId, e.UserId, e.PermissionId }).HasName("PK_ChatUserPermission_Id");
+            entity.HasKey(e => new { e.Key1, e.Key2, e.PermissionId }).HasName("PK_ChatUserPermission_Id");
 
-            entity.ToTable("ChatUserPermission");
+            entity.Property(e => e.IsPermission).HasDefaultValue(true);
 
-            entity.HasOne(d => d.Permission).WithMany(p => p.ChatUserPermissions)
+            entity.HasOne(d => d.Permission).WithMany(p => p.ChatUserRules)
                 .HasForeignKey(d => d.PermissionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ChatUserPermission_PermissionId");
 
-            entity.HasOne(d => d.ChatUser).WithMany(p => p.ChatUserPermissions)
-                .HasForeignKey(d => new { d.ChatId, d.UserId })
+            entity.HasOne(d => d.ChatUser).WithMany(p => p.ChatUserRules)
+                .HasForeignKey(d => new { d.Key1, d.Key2 })
                 .HasConstraintName("FK_ChatUserPermission_ChatUser");
         });
 

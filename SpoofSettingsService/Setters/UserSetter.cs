@@ -1,4 +1,4 @@
-﻿using CommonObjects.Requests;
+﻿using CommonObjects.Requests.Changes;
 using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Setters;

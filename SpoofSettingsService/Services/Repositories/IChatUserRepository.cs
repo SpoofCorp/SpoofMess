@@ -3,7 +3,7 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Repositories;
 
-public interface IChatUserRepository : ISoftDeletableRepository<ChatUser>
+public interface IChatUserRepository : ISoftDeletableDoubleIdentifiedRepository<ChatUser, Guid, Guid>
 {
-    public Task<bool> DeleteMemberById(Guid memberId, Guid chatId);
+    public Task<ChatUser?> GetWithRules(Guid chatId, Guid userId);
 }

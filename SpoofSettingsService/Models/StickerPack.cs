@@ -1,16 +1,14 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofSettingsService.Models;
 
-public partial class StickerPack : IdentifiedSoftDeletableEntity<long>
+public partial class StickerPack : IdentifiedSoftDeletableChangeableEntity<long>
 {
     public Guid AuthorId { get; set; }
 
     public Guid PreviewId { get; set; }
 
     public string? Title { get; set; }
-
-    public DateTime LastModified { get; set; }
 
     public virtual User Author { get; set; } = null!;
 
