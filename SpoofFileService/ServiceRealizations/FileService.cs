@@ -1,10 +1,9 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Results;
 using SpoofFileService.Models;
-using SpoofFileService.ServiceRealizatoionss;
-using SpoofFileService.ServiceRealizatoionss.Repositories;
-using SpoofFileService.ServiceRealizatoionss.Validators;
 using SpoofFileService.Services;
+using SpoofFileService.Services.Repositories;
+using SpoofFileService.Services.Validators;
 
 namespace SpoofFileService.ServiceRealizations;
 

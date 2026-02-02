@@ -1,10 +1,8 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofFileService.Models;
 
-public partial class FileObject : IdentifiedSoftDeletableEntity<Guid>
+public partial class FileObject : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public string FilePath { get; set; } = null!;
-
-    public DateTime LastModified { get; set; }
 }

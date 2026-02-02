@@ -1,5 +1,5 @@
 ﻿using AdditionalHelpers.Services;
-using CommonObjects.Requests;
+using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
 using SpoofMessageService.Models;
 using SpoofMessageService.Services;

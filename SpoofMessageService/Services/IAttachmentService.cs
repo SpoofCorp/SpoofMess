@@ -1,4 +1,4 @@
-﻿using CommonObjects.Requests;
+﻿using CommonObjects.Requests.Attachments;
 using CommonObjects.Results;
 
 namespace SpoofMessageService.Services;

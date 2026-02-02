@@ -7,11 +7,11 @@ using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofFileService.Models;
 using SpoofFileService.ServiceRealizations;
+using SpoofFileService.ServiceRealizations.Repositories;
 using SpoofFileService.ServiceRealizations.Validators;
-using SpoofFileService.ServiceRealizatoionss;
-using SpoofFileService.ServiceRealizatoionss.Repositories;
-using SpoofFileService.ServiceRealizatoionss.Validators;
 using SpoofFileService.Services;
+using SpoofFileService.Services.Repositories;
+using SpoofFileService.Services.Validators;
 using StackExchange.Redis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);

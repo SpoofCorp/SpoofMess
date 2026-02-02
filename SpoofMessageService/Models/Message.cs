@@ -1,8 +1,8 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofMessageService.Models;
 
-public partial class Message : IdentifiedSoftDeletableEntity<Guid>
+public partial class Message : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public string Text { get; set; } = null!;
 
@@ -12,11 +12,9 @@ public partial class Message : IdentifiedSoftDeletableEntity<Guid>
 
     public DateTime SentAt { get; set; }
 
-    public DateTime LastModified { get; set; }
+    public virtual ICollection<Attachment> Attachments { get; set; } = [];
 
-    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+    public virtual ICollection<MessageOperationStatus> MessageOperationStatuses { get; set; } = [];
 
-    public virtual ICollection<MessageOperationStatus> MessageOperationStatuses { get; set; } = new List<MessageOperationStatus>();
-
-    public virtual ICollection<ViewMessage> ViewMessages { get; set; } = new List<ViewMessage>();
+    public virtual ICollection<ViewMessage> ViewMessages { get; set; } = [];
 }

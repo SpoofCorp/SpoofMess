@@ -1,6 +1,6 @@
 ﻿using CommonObjects.DTO;
 
-namespace CommonObjects.Requests;
+namespace CommonObjects.Requests.Messages;
 
 public class EditMessageRequest
 {

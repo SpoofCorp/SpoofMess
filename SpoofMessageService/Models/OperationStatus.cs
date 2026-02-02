@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofMessageService.Models;
 
-public partial class OperationStatus
+public partial class OperationStatus : IdentifiedEntity<short>
 {
-    public short Id { get; set; }
-
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = new List<AttachmentOperationStatus>();
+    public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = [];
 
-    public virtual ICollection<MessageOperationStatus> MessageOperationStatuses { get; set; } = new List<MessageOperationStatus>();
-}
-
-public enum OperationsStatus
-{
-    Pending,
-    Error,
-    Success,
-    Rejected
+    public virtual ICollection<MessageOperationStatus> MessageOperationStatuses { get; set; } = [];
 }

@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
 
-public partial class Attachment
+public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
 {
-    public Guid MessageId { get; set; }
+    [Column("MessageId")]
+    public new Guid Key1 { get; set; }
 
-    public Guid FileMetadataId { get; set; }
+    [Column("FileMetadataId")]
+    public new Guid Key2 { get; set; }
 
-    public bool IsDeleted { get; set; }
-
-    public DateTime LastModified { get; set; }
-
-    public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = new List<AttachmentOperationStatus>();
+    public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = [];
 
     public virtual FileMetadatum FileMetadata { get; set; } = null!;
 

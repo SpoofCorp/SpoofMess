@@ -1,7 +1,7 @@
 ﻿using CommonObjects.Results;
 using DataSaveHelpers.ServiceRealizations;
 using SpoofFileService.Models;
-using SpoofFileService.ServiceRealizatoionss.Validators;
+using SpoofFileService.Services.Validators;
 
 namespace SpoofFileService.ServiceRealizations.Validators;
 

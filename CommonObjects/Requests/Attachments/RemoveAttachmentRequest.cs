@@ -1,8 +1,8 @@
 ﻿using CommonObjects.DTO;
 
-namespace CommonObjects.Requests;
+namespace CommonObjects.Requests.Attachments;
 
-public class AddAttachmentRequest
+public class RemoveAttachmentRequest
 {
     public Guid MessageId { get; set; }
     public FileMetadata FileMetadata { get; set; } = null!;

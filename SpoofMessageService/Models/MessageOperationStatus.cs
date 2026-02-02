@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofMessageService.Models;
 
-public partial class MessageOperationStatus
+public partial class MessageOperationStatus : IdentifiedEntity<long>
 {
-    public long Id { get; set; }
-
     public Guid MessageId { get; set; }
 
     public short OperationStatusId { get; set; }

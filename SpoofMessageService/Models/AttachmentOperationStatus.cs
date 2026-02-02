@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofMessageService.Models;
 
-public partial class AttachmentOperationStatus
+public partial class AttachmentOperationStatus : IdentifiedEntity<long>
 {
-    public long Id { get; set; }
-
     public Guid MessageId { get; set; }
 
     public Guid FileMetadataId { get; set; }

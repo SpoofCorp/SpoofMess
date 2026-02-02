@@ -1,7 +1,6 @@
 ﻿using AdditionalHelpers.Services;
-using CommonObjects.Requests;
+using CommonObjects.Requests.Attachments;
 using CommonObjects.Results;
-using SpoofMessageService.Models;
 using SpoofMessageService.Services;
 
 namespace SpoofMessageService.ServiceRealizations;

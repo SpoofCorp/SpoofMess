@@ -35,7 +35,7 @@ public partial class SpoofMessageServiceContext : DbContext
     {
         modelBuilder.Entity<Attachment>(entity =>
         {
-            entity.HasKey(e => new { e.MessageId, e.FileMetadataId }).HasName("PK_Attachment_Id");
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_Attachment_Id");
 
             entity.ToTable("Attachment");
 
@@ -44,11 +44,11 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.FileMetadata).WithMany(p => p.Attachments)
-                .HasForeignKey(d => d.FileMetadataId)
+                .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_Attachment_FileMetadataId");
 
             entity.HasOne(d => d.Message).WithMany(p => p.Attachments)
-                .HasForeignKey(d => d.MessageId)
+                .HasForeignKey(d => d.Key1)
                 .HasConstraintName("FK_Attachment_MessageId");
         });
 
@@ -157,13 +157,13 @@ public partial class SpoofMessageServiceContext : DbContext
 
         modelBuilder.Entity<ViewMessage>(entity =>
         {
-            entity.HasKey(e => new { e.MessageId, e.UserId }).HasName("PK_ViewMessage_Id");
+            entity.HasKey(e => new { e.Key2, e.Key1 }).HasName("PK_ViewMessage_Id");
 
             entity.ToTable("ViewMessage");
 
-            entity.HasIndex(e => e.MessageId, "IX_ViewMessage_MessageId");
+            entity.HasIndex(e => e.Key2, "IX_ViewMessage_MessageId");
 
-            entity.HasIndex(e => e.UserId, "IX_ViewMessage_UserId");
+            entity.HasIndex(e => e.Key1, "IX_ViewMessage_UserId");
 
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -173,7 +173,7 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Message).WithMany(p => p.ViewMessages)
-                .HasForeignKey(d => d.MessageId)
+                .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_ViewMessage_MessageId");
         });
 

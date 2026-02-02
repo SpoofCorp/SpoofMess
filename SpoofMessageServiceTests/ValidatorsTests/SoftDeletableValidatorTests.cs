@@ -1,7 +1,6 @@
 ﻿using CommonObjects.Results;
-using DataSaveHelpers;
+using DataSaveHelpers.EntityTypes;
 using DataSaveHelpers.ServiceRealizations;
-using SpoofMessageService.ServiceRealizations.Validators;
 
 namespace SpoofMessageServiceTests.ValidatorsTests;
 

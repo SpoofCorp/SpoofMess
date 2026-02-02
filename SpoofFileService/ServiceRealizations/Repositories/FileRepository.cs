@@ -2,9 +2,9 @@
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofFileService.Models;
-using SpoofFileService.ServiceRealizatoionss.Repositories;
+using SpoofFileService.Services.Repositories;
 
-namespace SpoofFileService.ServiceRealizations.Validators;
+namespace SpoofFileService.ServiceRealizations.Repositories;
 
 public class FileRepository(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedSoftDeletableIdentifiedRepository<FileObject, Guid>(cache, context, processQueueTasks), IFileRepository
 {

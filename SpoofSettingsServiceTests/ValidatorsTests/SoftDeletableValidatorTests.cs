@@ -1,5 +1,5 @@
 ﻿using CommonObjects.Results;
-using DataSaveHelpers;
+using DataSaveHelpers.EntityTypes;
 using DataSaveHelpers.ServiceRealizations;
 
 namespace SpoofSettingsServiceTests.ValidatorsTests;

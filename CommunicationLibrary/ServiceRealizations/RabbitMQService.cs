@@ -1,7 +1,5 @@
 ﻿using AdditionalHelpers.Services;
-using CommunicationLibrary.Communication;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System.Collections.Concurrent;
 using System.Text;
 

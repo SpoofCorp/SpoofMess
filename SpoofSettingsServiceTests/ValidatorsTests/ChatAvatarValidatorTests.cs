@@ -7,7 +7,7 @@ namespace SpoofSettingsServiceTests.ValidatorsTests;
 public class ChatAvatarValidatorTests
 {
     [Theory]
-    [MemberData(nameof(GetAvatars))]
+    [MemberData(nameof(GetAvatars), DisableDiscoveryEnumeration = true)]
     public void Validate_awatars_collection(List<ChatAvatar> entities, int statusCode)
     {
         ChatAvatarValidator sut = new();
@@ -18,7 +18,7 @@ public class ChatAvatarValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(GetAvatarWithFile))]
+    [MemberData(nameof(GetAvatarWithFile), DisableDiscoveryEnumeration = true)]
     public void Validate_file_to_null_deleted_and_file(ChatAvatar entity, int statusCode)
     {
         ChatAvatarValidator sut = new();
@@ -29,7 +29,7 @@ public class ChatAvatarValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(GetAvatar))]
+    [MemberData(nameof(GetAvatar), DisableDiscoveryEnumeration = true)]
     public void Validate_file_to_null_deleted(ChatAvatar entity, int statusCode)
     {
         ChatAvatarValidator sut = new();
@@ -39,28 +39,33 @@ public class ChatAvatarValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetAvatars()
+    public static TheoryData<List<ChatAvatar>, int> GetAvatars()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new List<ChatAvatar>(), 400 };
-        yield return new object[] { new List<ChatAvatar> { new() }, 200 };
-        yield return new object[] { new List<ChatAvatar> { new(), new(), new() }, 200 };
+        TheoryData<List<ChatAvatar>, int> data = [];
+        data.Add(null!, 404 );
+        data.Add([], 400);
+        data.Add([new()], 200);
+        data.Add([ new(), new(), new() ], 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetAvatarWithFile()
-
+    public static TheoryData<ChatAvatar, int> GetAvatarWithFile()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new ChatAvatar { IsDeleted = true }, 400 };
-        yield return new object[] { new ChatAvatar { IsDeleted = true, FileId = new() }, 400 };
-        yield return new object[] { new ChatAvatar { IsDeleted = false }, 400 };
-        yield return new object[] { new ChatAvatar { IsDeleted = false, FileId = new() }, 400 };
-        yield return new object[] { new ChatAvatar { IsDeleted = false, File = new() }, 200 };
-        yield return new object[] { new ChatAvatar { IsDeleted = false, File = new(), FileId = new() }, 200 };
+        TheoryData<ChatAvatar, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new() { IsDeleted = true }, 400 );
+        data.Add(new() { IsDeleted = true, FileId = new() }, 400 );
+        data.Add(new() { IsDeleted = false }, 400 );
+        data.Add(new() { IsDeleted = false, FileId = new() }, 400 );
+        data.Add(new() { IsDeleted = false, File = new() }, 200 );
+        data.Add(new() { IsDeleted = false, File = new(), FileId = new() }, 200 );
+        return data;
     }
-    public static IEnumerable<object[]> GetAvatar()
+    public static TheoryData<ChatAvatar, int> GetAvatar()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new ChatAvatar { IsDeleted = true }, 400 };
-        yield return new object[] { new ChatAvatar { IsDeleted = false }, 200 };
+        TheoryData<ChatAvatar, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new() { IsDeleted = true }, 400);
+        data.Add(new() { IsDeleted = false }, 200);
+        return data;
     }
 }

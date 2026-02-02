@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
 
-public partial class ViewMessage
+public partial class ViewMessage : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
 {
-    public Guid UserId { get; set; }
+    [Column("UserId")]
+    public new Guid Key1 { get; set; }
 
-    public Guid MessageId { get; set; }
+    [Column("MessageId")]
+    public new Guid Key2 { get; set; }
 
     public DateTime ViewTime { get; set; }
-
-    public bool IsDeleted { get; set; }
-
-    public DateTime LastModified { get; set; }
 
     public virtual Message Message { get; set; } = null!;
 }

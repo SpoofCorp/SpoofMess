@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofMessageService.Models;
 
-public partial class FileMetadatum
+public partial class FileMetadatum : IdentifiedSoftDeletableEntity<Guid>
 {
-    public Guid Id { get; set; }
-
     public long Size { get; set; }
-
-    public bool IsDeleted { get; set; }
 
     public short ExtensionId { get; set; }
 
-    public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+    public virtual ICollection<Attachment> Attachments { get; set; } = [];
 
     public virtual Extension Extension { get; set; } = null!;
 }

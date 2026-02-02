@@ -2,7 +2,7 @@
 using DataSaveHelpers.Services;
 using SpoofFileService.Models;
 
-namespace SpoofFileService.ServiceRealizatoionss.Validators;
+namespace SpoofFileService.Services.Validators;
 
 public interface IFileValidator : ISoftDeletableValidator<FileObject>
 {

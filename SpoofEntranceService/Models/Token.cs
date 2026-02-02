@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofEntranceService.Models;

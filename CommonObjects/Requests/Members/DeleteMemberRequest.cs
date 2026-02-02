@@ -1,4 +1,4 @@
-﻿namespace CommonObjects.Requests;
+﻿namespace CommonObjects.Requests.Members;
 
 public class DeleteMemberRequest
 {

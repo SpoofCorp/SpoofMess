@@ -7,7 +7,7 @@ namespace SpoofSettingsServiceTests.ValidatorsTests;
 public class ChatValidatorTests 
 {
     [Theory]
-    [MemberData(nameof(GetChat))]
+    [MemberData(nameof(GetChat), DisableDiscoveryEnumeration = true)]
     public void Validate_chat_to_null_or_deleted(Chat entity, int statusCode)
     {
         ChatValidator sut = new();
@@ -18,7 +18,7 @@ public class ChatValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(GetChatType))]
+    [MemberData(nameof(GetChatType), DisableDiscoveryEnumeration = true)]
     public void Validate_chatType_to_null_or_deleted(ChatType entity, int statusCode)
     {
         ChatValidator sut = new();
@@ -29,7 +29,7 @@ public class ChatValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(GetChatForUniqueName))]
+    [MemberData(nameof(GetChatForUniqueName), DisableDiscoveryEnumeration = true)]
     public void Validate_chat_unique_name_is_busy(Chat entity, int statusCode)
     {
         ChatValidator sut = new();
@@ -40,7 +40,7 @@ public class ChatValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(GetChatWithOwner))]
+    [MemberData(nameof(GetChatWithOwner), DisableDiscoveryEnumeration = true)]
     public void Validate_chat_to_null_or_deleted_and_owner(Chat entity, Guid ownerId, int statusCode)
     {
         ChatValidator sut = new();
@@ -50,30 +50,38 @@ public class ChatValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetChat()
+    public static TheoryData<Chat, int> GetChat()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new Chat { IsDeleted = true }, 400 };
-        yield return new object[] { new Chat { IsDeleted = false }, 200 };
+        TheoryData<Chat, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new Chat { IsDeleted = true }, 400);
+        data.Add(new Chat { IsDeleted = false }, 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetChatType()
+    public static TheoryData<ChatType, int> GetChatType()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new ChatType { IsDeleted = true }, 400 };
-        yield return new object[] { new ChatType { IsDeleted = false }, 200 };
+        TheoryData<ChatType, int> data = [];
+        data.Add(null!, 404 );
+        data.Add(new() { IsDeleted = true }, 400 );
+        data.Add(new() { IsDeleted = false }, 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetChatForUniqueName()
+    public static TheoryData<Chat, int> GetChatForUniqueName()
     {
-        yield return new object[] { null!, 200 };
-        yield return new object[] { new Chat { IsDeleted = true }, 200 };
-        yield return new object[] { new Chat { IsDeleted = false }, 400 };
+        TheoryData<Chat, int> data = [];
+        data.Add(null!, 200);
+        data.Add(new() { IsDeleted = true }, 200);
+        data.Add(new() { IsDeleted = false }, 400);
+        return data;
     }
-    public static IEnumerable<object[]> GetChatWithOwner()
+    public static TheoryData<Chat, Guid, int> GetChatWithOwner()
     {
-        yield return new object[] { null!, Guid.Empty, 404 };
-        yield return new object[] { new Chat { IsDeleted = true }, Guid.Empty, 400 };
-        yield return new object[] { new Chat { IsDeleted = true, OwnerId = Guid.Empty }, Guid.Empty, 400 };
-        yield return new object[] { new Chat { IsDeleted = false, OwnerId = Guid.CreateVersion7() }, Guid.Empty, 403 };
-        yield return new object[] { new Chat { IsDeleted = false, OwnerId = Guid.Empty }, Guid.Empty, 200 };
+        TheoryData<Chat, Guid, int> data = [];
+        data.Add(null!, Guid.Empty, 404);
+        data.Add(new() { IsDeleted = true }, Guid.Empty, 400);
+        data.Add(new() { IsDeleted = true, OwnerId = Guid.Empty }, Guid.Empty, 400);
+        data.Add(new() { IsDeleted = false, OwnerId = Guid.CreateVersion7() }, Guid.Empty, 403);
+        data.Add(new() { IsDeleted = false, OwnerId = Guid.Empty }, Guid.Empty, 200);
+        return data;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace CommonObjects.Requests;
+﻿namespace CommonObjects.Requests.Members;
 
 public class AddMemberRequest
 {
@@ -6,5 +6,5 @@ public class AddMemberRequest
 
     public Guid ChatId { get; set; }
 
-    public long RoleId { get; set; }
+    public int RoleId { get; set; }
 }

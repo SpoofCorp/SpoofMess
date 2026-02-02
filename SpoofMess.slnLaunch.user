@@ -1,0 +1,32 @@
+[
+  {
+    "Name": "SES&SSS(https)",
+    "Projects": [
+      {
+        "Path": "SpoofEntranceService\\SpoofEntranceService.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "SpoofSettingsService\\SpoofSettingsService.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      }
+    ]
+  },
+  {
+    "Name": "SES&SSS(http)",
+    "Projects": [
+      {
+        "Path": "SpoofEntranceService\\SpoofEntranceService.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "SpoofSettingsService\\SpoofSettingsService.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "http"
+      }
+    ]
+  }
+]

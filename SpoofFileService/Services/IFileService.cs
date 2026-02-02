@@ -1,6 +1,6 @@
 ﻿using CommonObjects.Results;
 
-namespace SpoofFileService.ServiceRealizatoionss;
+namespace SpoofFileService.Services;
 
 public interface IFileService
 {
