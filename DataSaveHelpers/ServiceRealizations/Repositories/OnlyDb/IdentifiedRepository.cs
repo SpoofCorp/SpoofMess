@@ -1,11 +1,12 @@
-﻿using DataSaveHelpers.Services.Repositories;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
+using DataSaveHelpers.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataSaveHelpers.ServiceRealizations.Repositories.OnlyDb;
 
 public class IdentifiedRepository<T, TKey>(DbContext context) : BaseRepository<T>(context), IIdentifiedRepository<T, TKey> where T : IdentifiedEntity<TKey>
 {
-    public async ValueTask<T?> GetByIdAsync(TKey id)
+    public async Task<T?> GetByIdAsync(TKey id)
     {
         try
         {

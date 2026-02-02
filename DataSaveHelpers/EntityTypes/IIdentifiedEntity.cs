@@ -1,4 +1,4 @@
-﻿namespace DataSaveHelpers;
+﻿namespace DataSaveHelpers.EntityTypes;
 
 public interface IIdentifiedEntity
 {

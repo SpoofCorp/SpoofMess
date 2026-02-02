@@ -1,4 +1,6 @@
-﻿namespace DataSaveHelpers.Services.Repositories;
+﻿using DataSaveHelpers.EntityTypes;
+
+namespace DataSaveHelpers.Services.Repositories;
 
 public interface ISoftDeletableRepository<T> : IBaseRepository<T> where T : ISoftDeletable
 {

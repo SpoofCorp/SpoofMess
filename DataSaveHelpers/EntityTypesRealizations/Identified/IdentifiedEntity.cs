@@ -1,4 +1,6 @@
-﻿namespace DataSaveHelpers;
+﻿using DataSaveHelpers.EntityTypes;
+
+namespace DataSaveHelpers.EntityTypesRealizations.Identified;
 
 public abstract class IdentifiedEntity<TKey> : IIdentifiedEntity
 {

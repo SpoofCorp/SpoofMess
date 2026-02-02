@@ -1,4 +1,5 @@
-﻿using DataSaveHelpers.Services;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
+using DataSaveHelpers.Services;
 using DataSaveHelpers.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +7,7 @@ namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
 public class CachedIdentifiedRepository<T, TKey>(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedBaseRepository<T>(cache, context, processQueueTasks), IIdentifiedRepository<T, TKey> where T : IdentifiedEntity<TKey>
 {
-    public async ValueTask<T?> GetByIdAsync(TKey id)
+    public async Task<T?> GetByIdAsync(TKey id)
     {
         try
         {

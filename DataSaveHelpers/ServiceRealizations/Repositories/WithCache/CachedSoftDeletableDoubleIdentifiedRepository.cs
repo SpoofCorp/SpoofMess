@@ -1,11 +1,11 @@
-﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
+﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
 using DataSaveHelpers.Services;
 using DataSaveHelpers.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
-public class CachedSoftDeletableIdentifiedRepository<T, TKey>(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedIdentifiedRepository<T, TKey>(cache, context, processQueueTasks), ISoftDeletableIdentifiedRepository<T, TKey> where T : IdentifiedSoftDeletableEntity<TKey>
+public class CachedSoftDeletableDoubleIdentifiedRepository<T, TKey1, TKey2>(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedDoubleIdentifiedRepository<T, TKey1, TKey2>(cache, context, processQueueTasks), ISoftDeletableDoubleIdentifiedRepository<T, TKey1, TKey2> where T : DoubleIdentifiedSoftDeletable<TKey1, TKey2>
 {
     public async Task SoftDeleteAsync(T entity)
     {
@@ -22,11 +22,11 @@ public class CachedSoftDeletableIdentifiedRepository<T, TKey>(ICacheService cach
         }
     }
 
-    public async Task<bool> SoftDeleteAsync(TKey id)
+    public async Task<bool> SoftDeleteAsync(TKey1 key1, TKey2 key2)
     {
         try
         {
-            T? entity = await GetByIdAsync(id);
+            T? entity = await GetByIdAsync(key1, key2);
             if (entity is null) return false;
 
             await SoftDeleteAsync(entity);

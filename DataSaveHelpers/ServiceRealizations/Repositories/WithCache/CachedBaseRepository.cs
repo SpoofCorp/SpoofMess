@@ -42,7 +42,6 @@ public abstract class CachedBaseRepository<T>(ICacheService cache, DbContext con
     {
         try
         {
-            Console.WriteLine(_context is null);
             await _cache.Save(GetKey(entity), entity);
             _set.Update(entity);
             await _context.SaveChangesAsync();
@@ -87,7 +86,7 @@ public abstract class CachedBaseRepository<T>(ICacheService cache, DbContext con
         }
         catch (Exception ex)
         {
-            throw new ApplicationException("Ошибка при работе с БД", ex);
+            throw new ApplicationException("DataBase error", ex);
         }
     }
 
