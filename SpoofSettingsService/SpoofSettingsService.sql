@@ -34,11 +34,40 @@ create table "ChatTypeChatProperty"
     constraint "PK_ChatTypeChatProperty_Id" primary key("ChatTypeId", "ChatPropertyId")
 );
 
-create table "Role"
+create table "GlobalPermission"
 (
-    "Id" serial constraint "PK_Role_Id" primary key,
+    "Id" serial constraint "PK_GlobalPermission_Id" primary key,
 	"IsDeleted" boolean not null default false,
-    "Name" varchar(50) not null unique
+    "Name" varchar(50) not null unique,
+    "Description" varchar(100)
+);
+
+create table "Chat"
+(
+    "Id" uuid constraint "PK_Chat_Id" primary key,
+    "ChatTypeId" int not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
+	"OwnerId" uuid constraint "FK_Chat_OwnerId" references "User"("Id") on delete set null,
+    "ChatUniqueName" varchar(100) unique not null,
+    "ChatName" varchar(100) not null,
+    "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
+    "LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false
+);
+
+create table "UserGlobalPermission"
+(
+    "GlobalPermissionId" int not null constraint "FK_UserGlobalPermission_ChatId" references "GlobalPermission"("Id") on delete cascade,
+    "UserId" uuid not null constraint "FK_UserGlobalPermission_UserId" references "User"("Id") on delete cascade,
+    constraint "PK_UserGlobalPermission_Id" primary key("GlobalPermissionId", "UserId")
+);
+
+create table "ChatRole"
+(
+    "Id" bigserial constraint "PK_ChatRole_Id" primary key,
+    "ChatId" uuid not null constraint "FK_ChatRole_ChatId" references "Chat"("Id") on delete cascade,
+	"IsDeleted" boolean not null default false,
+    "Name" varchar(50) not null,
+	constraint "UQ_ChatRole_Chat_Name" unique ("ChatId", "Name")
 );
 
 create table "Permission"
@@ -49,24 +78,12 @@ create table "Permission"
     "Description" varchar(100)
 );
 
-create table "RolePermission"
+create table "ChatRoleRules"
 (
-    "RoleId" int not null constraint "FK_RolePermission_RoleId" references "Role"("Id") on delete cascade,
-    "PermissionId" smallint not null constraint "FK_RolePermission_PermissionId" references "Permission"("Id") on delete cascade,
-	"IsDeleted" boolean not null default false,
-    constraint "PK_RolePermission_Id" primary key("RoleId", "PermissionId")
-);
-
-create table "Chat"
-(
-    "Id" uuid constraint "PK_Chat_Id" primary key,
-    "ChatTypeId" int not null not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
-	"OwnerId" uuid constraint "FK_Chat_OwnerId" references "User"("Id") on delete cascade,
-    "ChatUniqueName" varchar(100) unique not null,
-    "ChatName" varchar(100) not null,
-    "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
-    "LastModified" timestamp not null default CURRENT_TIMESTAMP,
-	"IsDeleted" boolean not null default false
+    "ChatRoleId" bigint not null constraint "FK_ChatRoleRules_ChatRoleId" references "ChatRole"("Id") on delete cascade,
+    "PermissionId" smallint not null constraint "FK_ChatRoleRules_PermissionId" references "Permission"("Id") on delete cascade,
+	"IsPermission" boolean not null default true,
+    constraint "PK_RChatRoleRules_Id" primary key("ChatRoleId", "PermissionId")
 );
 
 create table "Extension"
@@ -104,7 +121,6 @@ create TABLE "ChatUser"
 (
     "ChatId" uuid not null constraint "FK_ChatUser_ChatId" references "Chat"("Id") on delete cascade,
     "UserId" uuid not null constraint "FK_ChatUser_UserId" references "User"("Id") on delete cascade,
-    "RoleId" int not null constraint "FK_ChatUser_RoleId" references "Role"("Id"),
 	"JoinedAt" timestamp not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false,
     constraint "PK_ChatUser_Id" primary key("ChatId", "UserId")
@@ -113,14 +129,24 @@ create unique index "UX_ChatUser_ChatId_UserId" on "ChatUser"("ChatId", "UserId"
 create index "IX_ChatUser_UserChat" on "ChatUser"("UserId", "ChatId") where "IsDeleted" = false;
 create index "IX_ChatUser_ChatId" on "ChatUser"("ChatId") where "IsDeleted" = false;
 
+create table "ChatUserChatRole"
+(
+    "ChatId" uuid not null,
+    "UserId" uuid not null,
+    "ChatRoleId" bigint not null constraint "FK_ChatUserChatRole_ChatRoleId" references "ChatRole"("Id"),
+	"IsDeleted" boolean not null default false,
+	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+    constraint "FK_ChatUserChatRole_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade,
+    constraint "PK_ChatUserChatRole_Id" primary key("ChatId", "UserId", "ChatRoleId")
+);
+
 create table "ChatUserRules"
 (
     "ChatId" uuid not null,
     "UserId" uuid not null,
 	"IsPermission" boolean not null default true,
     "PermissionId" smallint not null constraint "FK_ChatUserPermission_PermissionId" references "Permission"("Id"),
-	"IsDeleted" boolean not null default false,
-    constraint "FK_ChatUserPermission_ChatUser" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade,
+    constraint "FK_ChatUserPermission_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade,
     constraint "PK_ChatUserPermission_Id" primary key("ChatId", "UserId", "PermissionId")
 );
 
