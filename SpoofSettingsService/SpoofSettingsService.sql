@@ -191,3 +191,24 @@ create table "ChatAvatar"
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
     constraint "PK_ChatAvatar_Id" primary key("ChatId", "FileId")
 );
+
+insert into "OperationStatus"("Id", "Name")
+values 
+(0, 'Pending'),
+(1, 'Error'),
+(2, 'Success'),
+(3, 'Rejected'),
+(4, 'Deleting');
+
+create or replace function "FileMetadataOperationStatus_OnceActual"()
+returns trigger as
+$$
+begin
+	update "FileMetadataOperationStatus" set "IsActual" = false where "FileMetadataId" = new."FileMetadataId" and "Id" != new."Id";
+	return new;
+end;
+$$ language plpgsql;
+
+create trigger "Trg_FileMetadataOperationStatus_After_Insert" after insert on "FileMetadataOperationStatus"
+for each row
+execute function "FileMetadataOperationStatus_OnceActual"();

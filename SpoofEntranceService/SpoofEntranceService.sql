@@ -1,5 +1,3 @@
-create extension "uuid-ossp";
-
 create table "UserEntry"
 (
     "Id" uuid primary key,
@@ -71,6 +69,14 @@ create index "IX_Token_SessionInfoId"
 create index "IX_Token_ValidTo" 
     on "Token"("RefreshTokenHash") 
     where "IsDeleted" = false;
+
+insert into "OperationStatus"("Id", "Name")
+values 
+(0, 'Pending'),
+(1, 'Error'),
+(2, 'Success'),
+(3, 'Rejected'),
+(4, 'Deleting');
 
 create or replace function "UserEntryOperationStatus_Update_Trigger_Fnc"()
 returns trigger as
