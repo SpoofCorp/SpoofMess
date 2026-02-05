@@ -54,6 +54,16 @@ create table "Chat"
 	"IsDeleted" boolean not null default false
 );
 
+create table "RoleRank"
+(
+    "Id" bigserial constraint "PK_RoleRank_Id" primary key,
+    "ChatId" uuid not null constraint "FK_RoleRank_ChatId" references "Chat"("Id") on delete cascade,
+	"Level" smallint not null,
+	"Name" varchar(50) not null,
+	check("Level" between 0 and 255),
+	unique("ChatId", "Name")
+);
+
 create table "UserGlobalPermission"
 (
     "GlobalPermissionId" int not null constraint "FK_UserGlobalPermission_ChatId" references "GlobalPermission"("Id") on delete cascade,
@@ -65,6 +75,7 @@ create table "ChatRole"
 (
     "Id" bigserial constraint "PK_ChatRole_Id" primary key,
     "ChatId" uuid not null constraint "FK_ChatRole_ChatId" references "Chat"("Id") on delete cascade,
+	"RoleRankId" bigint not null constraint "FK_ChatRole_RoleRankId" references "RoleRank"("Id") on delete cascade,
 	"IsDeleted" boolean not null default false,
     "Name" varchar(50) not null,
 	constraint "UQ_ChatRole_Chat_Name" unique ("ChatId", "Name")
@@ -72,7 +83,7 @@ create table "ChatRole"
 
 create table "Permission"
 (
-    "Id" smallserial constraint "PK_Permission_Id" primary key,
+    "Id" smallint constraint "PK_Permission_Id" primary key,
     "Name" varchar(50) not null,
 	"IsDeleted" boolean not null default false,
     "Description" varchar(100)
@@ -200,15 +211,68 @@ values
 (3, 'Rejected'),
 (4, 'Deleting');
 
+insert into "Permission"("Id", "Name")
+values
+(0, 'SendTexts'),
+(1, 'SendAudios'),
+(2, 'SendVideos'),
+(3, 'SendFiles'),
+(4, 'Muting'),
+(5, 'Banning'),
+(6, 'Sharing'),
+(7, 'Inviting'),
+(8, 'Deleting'),
+(9, 'Editing');
+
 create or replace function "FileMetadataOperationStatus_OnceActual"()
 returns trigger as
 $$
 begin
-	update "FileMetadataOperationStatus" set "IsActual" = false where "FileMetadataId" = new."FileMetadataId" and "Id" != new."Id";
+	if NOT new."IsActive" THEN
+		return new;
+	end if;
+	update "FileMetadataOperationStatus" set "IsActual" = false where "FileMetadataId" = new."FileMetadataId" and "IsActual" = true and "Id" != new."Id";
 	return new;
 end;
 $$ language plpgsql;
 
+
 create trigger "Trg_FileMetadataOperationStatus_After_Insert" after insert on "FileMetadataOperationStatus"
 for each row
 execute function "FileMetadataOperationStatus_OnceActual"();
+
+create or replace function "CreateRolesAfterChat"()
+returns trigger as
+$$
+begin
+	if new."IsDeleted" THEN
+		return new;
+	end if;
+	
+	insert into "RoleRank"("ChatId", "Level", "Name")
+	values
+	(new."Id", 0, 'Top'),
+	(new."Id", 2, 'Middle'),
+	(new."Id", 5, 'Least');
+
+	insert into "ChatRole"("ChatId", "Name", "RoleRankId")
+	values
+	(new."Id", 'Owner', (Select "Id" from "RoleRank" where "ChatId" = new."Id" and "Level" = 0)),
+	(new."Id", 'Admin', (Select "Id" from "RoleRank" where "ChatId" = new."Id" and "Level" = 2)),
+	(new."Id", 'Member', (Select "Id" from "RoleRank" where "ChatId" = new."Id" and "Level" = 5));
+
+	insert into "ChatUser"("ChatId", "UserId")
+	values
+	(new."Id", new."OwnerId");
+
+	insert into "ChatUserChatRole"("ChatId", "UserId", "ChatRoleId")
+	values
+	(new."Id", new."OwnerId", (Select cr."Id" from "ChatRole" cr join "RoleRank" rr on rr."Id" = cr."RoleRankId" where cr."ChatId" = new."Id" and rr."Level" = 0));
+	
+	return new;
+end;
+$$ language plpgsql;
+
+create trigger "Trg_Chat_After_Insert" after insert on "Chat"
+for each row
+execute function "CreateRolesAfterChat"();
