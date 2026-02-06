@@ -244,22 +244,41 @@ execute function "FileMetadataOperationStatus_OnceActual"();
 create or replace function "CreateRolesAfterChat"()
 returns trigger as
 $$
+declare
+topRankId bigint;
+middleRankId bigint;
+leastRankId bigint;
+ownerRoleId bigint;
+adminRoleId bigint;
+memberRoleId bigint;
 begin
 	if new."IsDeleted" THEN
 		return new;
 	end if;
 	
 	insert into "RoleRank"("ChatId", "Level", "Name")
-	values
-	(new."Id", 0, 'Top'),
-	(new."Id", 2, 'Middle'),
-	(new."Id", 5, 'Least');
+	values (new."Id", 0, 'Top')
+	returning "Id" into topRankId; 
+
+	insert into "RoleRank"("ChatId", "Level", "Name")
+	values (new."Id", 2, 'Middle')
+	returning "Id" into middleRankId; 
+
+	insert into "RoleRank"("ChatId", "Level", "Name")
+	values (new."Id", 5, 'Least')
+	returning "Id" into leastRankId; 
 
 	insert into "ChatRole"("ChatId", "Name", "RoleRankId")
-	values
-	(new."Id", 'Owner', (Select "Id" from "RoleRank" where "ChatId" = new."Id" and "Level" = 0)),
-	(new."Id", 'Admin', (Select "Id" from "RoleRank" where "ChatId" = new."Id" and "Level" = 2)),
-	(new."Id", 'Member', (Select "Id" from "RoleRank" where "ChatId" = new."Id" and "Level" = 5));
+	values (new."Id", 'Owner', topRankId)
+	returning "Id" into ownerRoleId;
+
+	insert into "ChatRole"("ChatId", "Name", "RoleRankId")
+	values (new."Id", 'Admin', middleRankId)
+	returning "Id" into adminRoleId;
+
+	insert into "ChatRole"("ChatId", "Name", "RoleRankId")
+	values (new."Id", 'Member', leastRankId)
+	returning "Id" into memberRoleId;
 
 	insert into "ChatUser"("ChatId", "UserId")
 	values
@@ -267,7 +286,31 @@ begin
 
 	insert into "ChatUserChatRole"("ChatId", "UserId", "ChatRoleId")
 	values
-	(new."Id", new."OwnerId", (Select cr."Id" from "ChatRole" cr join "RoleRank" rr on rr."Id" = cr."RoleRankId" where cr."ChatId" = new."Id" and rr."Level" = 0));
+	(new."Id", new."OwnerId", ownerRoleId);
+	
+	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
+	values
+	(memberRoleId, 0, true),
+	(memberRoleId, 1, true),
+	(memberRoleId, 2, true),
+	(memberRoleId, 3, true),
+	(memberRoleId, 6, true),
+	(memberRoleId, 7, true),
+	(memberRoleId, 8, true),
+	(memberRoleId, 9, true),
+	(adminRoleId, 0, true),
+	(adminRoleId, 1, true),
+	(adminRoleId, 2, true),
+	(adminRoleId, 3, true),
+	(adminRoleId, 6, true),
+	(adminRoleId, 7, true),
+	(adminRoleId, 8, true),
+	(adminRoleId, 9, true),
+	(adminRoleId, 4, true),
+	(adminRoleId, 5, true);
+
+	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
+	select ownerRoleId, "Id", true from "Permission";
 	
 	return new;
 end;
@@ -276,3 +319,35 @@ $$ language plpgsql;
 create trigger "Trg_Chat_After_Insert" after insert on "Chat"
 for each row
 execute function "CreateRolesAfterChat"();
+
+create or replace function check_user_permission(
+	p_user_id uuid,
+	p_chat_id uuid,
+	p_permission_id smallint
+)
+returns int as
+$$
+declare
+isPermission bool;
+begin
+	select "IsPermission" into isPermission
+	from "ChatUserRules" where "ChatId" = p_chat_id and "UserId" = p_user_id and "PermissionId" = p_permission_id;
+	if found then
+		return case when isPermission then 1 else 2 end;
+	end if;
+
+	select crr."IsPermission" into isPermission
+	from "ChatUserChatRole" cucr
+	join "ChatRole" cr on cr."Id" = cucr."ChatRoleId" 
+	join "RoleRank" rr on rr."Id" = cr."RoleRankId"
+	join "ChatRoleRules" crr on crr."ChatRoleId" = cucr."ChatRoleId" and crr."PermissionId" = p_permission_id
+	where cucr."ChatId" = p_chat_id and cucr."UserId" = p_user_id
+	order by rr."Level" asc
+	limit 1;
+
+	if found then
+		return case when isPermission then 1 else 2 end;
+	end if;
+	return 0;
+end;
+$$ language plpgsql;
