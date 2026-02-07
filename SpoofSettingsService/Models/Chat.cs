@@ -16,6 +16,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = [];
 
+    public virtual ICollection<ChatRole> ChatRoles { get; set; } = [];
+
     public virtual ChatType ChatType { get; set; } = null!;
 
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
@@ -24,8 +26,9 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public Chat() { }
 
-    public Chat(int chatTypeId, Guid? ownerId, string chatName, string chatUniqueName, DateTime createdAt, DateTime lastModified)
+    public Chat(Guid id, int chatTypeId, Guid? ownerId, string chatName, string chatUniqueName, DateTime createdAt, DateTime lastModified)
     {
+        Id = id;
         ChatTypeId = chatTypeId;
         OwnerId = ownerId;
         ChatName = chatName;

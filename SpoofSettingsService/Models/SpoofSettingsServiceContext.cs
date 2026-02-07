@@ -19,11 +19,17 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<ChatProperty> ChatProperties { get; set; }
 
+    public virtual DbSet<ChatRole> ChatRoles { get; set; }
+
+    public virtual DbSet<ChatRoleRule> ChatRoleRules { get; set; }
+
     public virtual DbSet<ChatType> ChatTypes { get; set; }
 
     public virtual DbSet<ChatTypeChatProperty> ChatTypeChatProperties { get; set; }
 
     public virtual DbSet<ChatUser> ChatUsers { get; set; }
+
+    public virtual DbSet<ChatUserChatRole> ChatUserChatRoles { get; set; }
 
     public virtual DbSet<ChatUserRule> ChatUserRules { get; set; }
 
@@ -33,13 +39,11 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<FileMetadatum> FileMetadata { get; set; }
 
+    public virtual DbSet<GlobalPermission> GlobalPermissions { get; set; }
+
     public virtual DbSet<OperationStatus> OperationStatuses { get; set; }
 
     public virtual DbSet<Permission> Permissions { get; set; }
-
-    public virtual DbSet<Role> Roles { get; set; }
-
-    public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
     public virtual DbSet<Sticker> Stickers { get; set; }
 
@@ -63,11 +67,9 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.ChatName).HasMaxLength(100);
             entity.Property(e => e.ChatUniqueName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.ChatType).WithMany(p => p.Chats)
                 .HasForeignKey(d => d.ChatTypeId)
@@ -75,27 +77,26 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.HasOne(d => d.Owner).WithMany(p => p.Chats)
                 .HasForeignKey(d => d.OwnerId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_Chat_OwnerId");
         });
 
         modelBuilder.Entity<ChatAvatar>(entity =>
         {
-            entity.HasKey(e => new { e.ChatId, e.FileId }).HasName("PK_ChatAvatar_Id");
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_ChatAvatar_Id");
 
             entity.ToTable("ChatAvatar");
 
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatAvatars)
-                .HasForeignKey(d => d.ChatId)
+                .HasForeignKey(d => d.Key1)
                 .HasConstraintName("FK_ChatAvatar_ChatId");
 
             entity.HasOne(d => d.File).WithMany(p => p.ChatAvatars)
-                .HasForeignKey(d => d.FileId)
+                .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_ChatAvatar_FileId");
         });
 
@@ -107,6 +108,36 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.Property(e => e.Description).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<ChatRole>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_ChatRole_Id");
+
+            entity.ToTable("ChatRole");
+
+            entity.HasIndex(e => new { e.ChatId, e.Name }, "UQ_ChatRole_Chat_Name").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+
+            entity.HasOne(d => d.Chat).WithMany(p => p.ChatRoles)
+                .HasForeignKey(d => d.ChatId)
+                .HasConstraintName("FK_ChatRole_ChatId");
+        });
+
+        modelBuilder.Entity<ChatRoleRule>(entity =>
+        {
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_RChatRoleRules_Id");
+
+            entity.Property(e => e.IsPermission).HasDefaultValue(true);
+
+            entity.HasOne(d => d.ChatRole).WithMany(p => p.ChatRoleRules)
+                .HasForeignKey(d => d.Key1)
+                .HasConstraintName("FK_ChatRoleRules_ChatRoleId");
+
+            entity.HasOne(d => d.Permission).WithMany(p => p.ChatRoleRules)
+                .HasForeignKey(d => d.Key2)
+                .HasConstraintName("FK_ChatRoleRules_PermissionId");
         });
 
         modelBuilder.Entity<ChatType>(entity =>
@@ -150,21 +181,34 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasFilter("(\"IsDeleted\" = false)");
 
             entity.Property(e => e.JoinedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatUsers)
                 .HasForeignKey(d => d.Key1)
                 .HasConstraintName("FK_ChatUser_ChatId");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.ChatUsers)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ChatUser_RoleId");
-
             entity.HasOne(d => d.User).WithMany(p => p.ChatUsers)
                 .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_ChatUser_UserId");
+        });
+
+        modelBuilder.Entity<ChatUserChatRole>(entity =>
+        {
+            entity.HasKey(e => new { e.Key1, e.Key2, e.ChatRoleId }).HasName("PK_ChatUserChatRole_Id");
+
+            entity.ToTable("ChatUserChatRole");
+
+            entity.Property(e => e.TimeSet)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.ChatRole).WithMany(p => p.ChatUserChatRoles)
+                .HasForeignKey(d => d.ChatRoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ChatUserChatRole_ChatRoleId");
+
+            entity.HasOne(d => d.ChatUser).WithMany(p => p.ChatUserChatRoles)
+                .HasForeignKey(d => new { d.Key1, d.Key2 })
+                .HasConstraintName("FK_ChatUserChatRole_ChatUserId");
         });
 
         modelBuilder.Entity<ChatUserRule>(entity =>
@@ -180,7 +224,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.HasOne(d => d.ChatUser).WithMany(p => p.ChatUserRules)
                 .HasForeignKey(d => new { d.Key1, d.Key2 })
-                .HasConstraintName("FK_ChatUserPermission_ChatUser");
+                .HasConstraintName("FK_ChatUserPermission_ChatUserId");
         });
 
         modelBuilder.Entity<Extension>(entity =>
@@ -200,8 +244,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.Property(e => e.IsActual).HasDefaultValue(true);
             entity.Property(e => e.TimeSet)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.FileMetadata).WithMany(p => p.FileMetadataOperationStatuses)
                 .HasForeignKey(d => d.FileMetadataId)
@@ -221,6 +264,33 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasOne(d => d.Extension).WithMany(p => p.FileMetadata)
                 .HasForeignKey(d => d.ExtensionId)
                 .HasConstraintName("PK_FileMetadata_ExtensionId");
+        });
+
+        modelBuilder.Entity<GlobalPermission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_GlobalPermission_Id");
+
+            entity.ToTable("GlobalPermission");
+
+            entity.HasIndex(e => e.Name, "GlobalPermission_Name_key").IsUnique();
+
+            entity.Property(e => e.Description).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(50);
+
+            entity.HasMany(d => d.Users).WithMany(p => p.GlobalPermissions)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserGlobalPermission",
+                    r => r.HasOne<User>().WithMany()
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK_UserGlobalPermission_UserId"),
+                    l => l.HasOne<GlobalPermission>().WithMany()
+                        .HasForeignKey("GlobalPermissionId")
+                        .HasConstraintName("FK_UserGlobalPermission_ChatId"),
+                    j =>
+                    {
+                        j.HasKey("GlobalPermissionId", "UserId").HasName("PK_UserGlobalPermission_Id");
+                        j.ToTable("UserGlobalPermission");
+                    });
         });
 
         modelBuilder.Entity<OperationStatus>(entity =>
@@ -243,32 +313,6 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_Role_Id");
-
-            entity.ToTable("Role");
-
-            entity.HasIndex(e => e.Name, "Role_Name_key").IsUnique();
-
-            entity.Property(e => e.Name).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<RolePermission>(entity =>
-        {
-            entity.HasKey(e => new { e.RoleId, e.PermissionId }).HasName("PK_RolePermission_Id");
-
-            entity.ToTable("RolePermission");
-
-            entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissions)
-                .HasForeignKey(d => d.PermissionId)
-                .HasConstraintName("FK_RolePermission_PermissionId");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.RolePermissions)
-                .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("FK_RolePermission_RoleId");
-        });
-
         modelBuilder.Entity<Sticker>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Sticker_Id");
@@ -277,8 +321,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(50);
 
             entity.HasOne(d => d.File).WithMany(p => p.Stickers)
@@ -299,8 +342,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasIndex(e => e.AuthorId, "IX_StickerPack_AuthorId").HasFilter("(\"IsDeleted\" = false)");
 
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(100);
 
             entity.HasOne(d => d.Author).WithMany(p => p.StickerPacks)
@@ -326,8 +368,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.SearchMe).HasDefaultValue(true);
             entity.Property(e => e.ShowMe).HasDefaultValue(true);
             entity.Property(e => e.WasOnline)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         modelBuilder.Entity<UserAvatar>(entity =>
@@ -338,8 +379,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.File).WithMany(p => p.UserAvatars)
                 .HasForeignKey(d => d.FileId)

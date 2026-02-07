@@ -1,9 +1,9 @@
-﻿namespace SpoofSettingsService.Models;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
-public partial class OperationStatus
+namespace SpoofSettingsService.Models;
+
+public partial class OperationStatus : IdentifiedEntity<short>
 {
-    public short Id { get; set; }
-
     public string Name { get; set; } = null!;
 
     public virtual ICollection<FileMetadataOperationStatus> FileMetadataOperationStatuses { get; set; } = [];

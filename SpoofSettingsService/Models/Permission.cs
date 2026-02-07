@@ -10,5 +10,5 @@ public partial class Permission : IdentifiedSoftDeletableEntity<short>
 
     public virtual ICollection<ChatUserRule> ChatUserRules { get; set; } = [];
 
-    public virtual ICollection<RolePermission> RolePermissions { get; set; } = [];
+    public virtual ICollection<ChatRoleRule> ChatRoleRules { get; set; } = [];
 }

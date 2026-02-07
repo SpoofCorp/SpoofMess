@@ -3,24 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofSettingsService.Models;
 
-public partial class ChatUserRule : DoubleIdentifiedSoftDeletable<Guid, Guid>
+public partial class ChatRoleRule : DoubleIdentifiedEntity<long, short>
 {
     /// <summary>
-    /// ChatId
+    /// ChatRoleId
     /// </summary>
-    [Column("ChatId")]
-    public new Guid Key1 { get; set; }
+    [Column("ChatRoleId")]
+    public new long Key1 { get; set; }
+
     /// <summary>
-    /// UserId
+    /// PermissionId
     /// </summary>
-    [Column("UserId")]
-    public new Guid Key2 { get; set; }
+    [Column("PermissionId")]
+    public new short Key2 { get; set; }
 
     public bool IsPermission { get; set; }
 
-    public short PermissionId { get; set; }
-
-    public virtual ChatUser ChatUser { get; set; } = null!;
+    public virtual ChatRole ChatRole { get; set; } = null!;
 
     public virtual Permission Permission { get; set; } = null!;
 }
