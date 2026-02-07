@@ -1,11 +1,13 @@
 ﻿using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityLibrary;
 using SpoofSettingsService.Services;
 
 namespace SpoofSettingsService.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/v2/[controller]")]
 public class UserController(IUserService userService) : ControllerBase
@@ -18,8 +20,14 @@ public class UserController(IUserService userService) : ControllerBase
         Guid? userId = ClaimService.GetUserId(User);
         if (userId is null)
             return BadRequest("Invalid token");
+
         Result result = await _userService.ChangeSettings(request, userId.Value);
-        return StatusCode(result.StatusCode, result.Success ? result.Message : result.Error);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Message
+                : result.Error
+                );
     }
 
     [HttpDelete("Delete")]
@@ -28,7 +36,13 @@ public class UserController(IUserService userService) : ControllerBase
         Guid? userId = ClaimService.GetUserId(User);
         if (userId is null)
             return BadRequest("Invalid token");
+
         Result result = await _userService.Delete(userId.Value);
-        return StatusCode(result.StatusCode, result.Success ? result.Message : result.Error);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Message
+                : result.Error
+                );
     }
 }
