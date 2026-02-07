@@ -1,7 +1,7 @@
 create table "User"
 (
-	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
-	"WasOnline" timestamp not null default CURRENT_TIMESTAMP,
+	"Id" uuid constraint "PK_User_Id" primary key,
+	"WasOnline" timestamptz not null default CURRENT_TIMESTAMP,
 	"Name" varchar(100) not null,
 	"MonthsBeforeDelete" int not null default 6,
 	"SearchMe" boolean not null default true,
@@ -44,13 +44,13 @@ create table "GlobalPermission"
 
 create table "Chat"
 (
-    "Id" uuid constraint "PK_Chat_Id" primary key,
+    "Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
     "ChatTypeId" int not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
 	"OwnerId" uuid constraint "FK_Chat_OwnerId" references "User"("Id") on delete set null,
     "ChatUniqueName" varchar(100) unique not null,
     "ChatName" varchar(100) not null,
-    "CreatedAt" timestamp not null default CURRENT_TIMESTAMP,
-    "LastModified" timestamp not null default CURRENT_TIMESTAMP,
+    "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
+    "LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
 
@@ -124,7 +124,7 @@ create table "FileMetadataOperationStatus"
 	"FileMetadataId" uuid not null constraint "FK_FileMetadataOperationStatus_MessageId" references "FileMetadata"("Id") on delete cascade,
 	"OperationStatusId" smallint not null constraint "FK_FileMetadataOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
 	"Description" text,
-	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsActual" boolean not null default true
 );
 
@@ -132,7 +132,7 @@ create TABLE "ChatUser"
 (
     "ChatId" uuid not null constraint "FK_ChatUser_ChatId" references "Chat"("Id") on delete cascade,
     "UserId" uuid not null constraint "FK_ChatUser_UserId" references "User"("Id") on delete cascade,
-	"JoinedAt" timestamp not null default CURRENT_TIMESTAMP,
+	"JoinedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false,
     constraint "PK_ChatUser_Id" primary key("ChatId", "UserId")
 );
@@ -146,7 +146,7 @@ create table "ChatUserChatRole"
     "UserId" uuid not null,
     "ChatRoleId" bigint not null constraint "FK_ChatUserChatRole_ChatRoleId" references "ChatRole"("Id"),
 	"IsDeleted" boolean not null default false,
-	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
     constraint "FK_ChatUserChatRole_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade,
     constraint "PK_ChatUserChatRole_Id" primary key("ChatId", "UserId", "ChatRoleId")
 );
@@ -167,7 +167,7 @@ create table "StickerPack"
 	"AuthorId" uuid not null constraint "FK_StickerPack_AuthorId" references "User"("Id") on delete cascade,
 	"PreviewId" uuid not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
 	"Title" varchar(100),
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
 
@@ -179,7 +179,7 @@ create table "Sticker"
 	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
 	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
 	"Title" varchar(50) not null,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
 
@@ -189,7 +189,7 @@ create table "UserAvatar"
 	"FileId" uuid not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
     constraint "PK_UserAvatar_Id" primary key("UserId", "FileId")
 );
 
@@ -199,9 +199,16 @@ create table "ChatAvatar"
 	"FileId" uuid not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
     constraint "PK_ChatAvatar_Id" primary key("ChatId", "FileId")
 );
+
+insert into "ChatType"("Id", "Name")
+values 
+(0, 'Private'),
+(1, 'Group'),
+(2, 'Channel');
+
 
 insert into "OperationStatus"("Id", "Name")
 values 
@@ -222,7 +229,12 @@ values
 (6, 'Sharing'),
 (7, 'Inviting'),
 (8, 'Deleting'),
-(9, 'Editing');
+(9, 'Editing'),
+(10, 'ChangeSettings'),
+(11, 'CreateRole'),
+(12, 'SetRole'),
+(13, 'TakeRole'),
+(14, 'ChangeRules');
 
 create or replace function "FileMetadataOperationStatus_OnceActual"()
 returns trigger as
