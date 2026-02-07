@@ -30,9 +30,8 @@ public class ChatRepository(ICacheService cache, SpoofSettingsServiceContext con
                 await context.SaveChangesAsync();
                 SaveToCache(GetKey(newChat), newChat);
                 _processQueueTasks.AddTask(async () => await _cache.Delete(GetKey(oldChat)));
-
-                await transaction.CommitAsync();
             }
+            await transaction.CommitAsync();
         }
         catch (Exception ex)
         {

@@ -10,6 +10,7 @@ using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
+
 public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisherService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
@@ -26,7 +27,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
-            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.FileId, FileMetadata = avatar.File!.Set() });
+            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.Key2, FileMetadata = avatar.File!.Set() });
         }
         catch (Exception ex)
         {
@@ -50,7 +51,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
             for (int i = 0; i < avatars!.Count; i++)
             {
                 avatar = avatars[i];
-                response.Add(new() { FileId = avatars[i].FileId, FileMetadata = avatars[i].File!.Set() });
+                response.Add(new() { FileId = avatars[i].Key2, FileMetadata = avatars[i].File!.Set() });
             }
 
             return Result<List<AvatarResponse>>.OkResult(response);
@@ -84,7 +85,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         {
             ChatAvatar chatAvatar = new()
             {
-                ChatId = request.ChatId,
+                Key1 = request.ChatId,
                 File = request.Metadata.Set()
             };
             chatAvatar.File.Id = request.FileId;

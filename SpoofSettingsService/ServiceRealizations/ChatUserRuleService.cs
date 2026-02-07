@@ -7,16 +7,20 @@ using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserRuleService(ILoggerService loggerService, IChatUserRuleRepository chatUserRuleRepository, IChatUserService chatUserService)
+public class ChatUserRuleService(ILoggerService loggerService, IChatService chatService, IChatUserRuleRepository chatUserRuleRepository, IChatUserService chatUserService)
 {
     private readonly IChatUserService _chatUserService = chatUserService;
     private readonly IChatUserRuleRepository _chatUserRuleRepository = chatUserRuleRepository;
+    private readonly IChatService _chatService = chatService;
     private readonly ILoggerService _loggerService = loggerService;
 
-    public async Task<Result> ChangeMemberRights(ChangeRulesRequest request)
+    public async Task<Result> ChangeMemberRights(ChangeRulesRequest request, Guid requesterId)
     {
         try
         {
+            Result<ChatWithOwner> requester = await _chatService.GetChatWithOwner(requesterId, request.ChatId);
+            if (!requester.Success) return Result.From(requester);
+
             Result<ChatUser>? chatUserResult = await _chatUserService.Get(new(request.ChatId, request.UserId));
             if (!chatUserResult.Success) return Result.From(chatUserResult);
 

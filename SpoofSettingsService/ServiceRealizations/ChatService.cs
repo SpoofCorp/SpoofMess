@@ -2,6 +2,7 @@
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
+using SpoofSettingsService.Models.Enums;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
@@ -9,20 +10,25 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatService(IChatRepository chatRepository, IChatTypeService chatTypeService, IChatValidator chatValidator, IUserService userService) : IChatService
+public class ChatService(IChatRepository chatRepository, IChatTypeService chatTypeService, IChatValidator chatValidator, IUserService userService, IRuleService ruleService) : IChatService
 {
     private readonly IChatValidator _chatValidator = chatValidator;
     private readonly IUserService _userService = userService;
     private readonly IChatRepository _chatRepository = chatRepository;
     private readonly IChatTypeService _chatTypeService = chatTypeService;
+    private readonly IRuleService _ruleService = ruleService;
 
     public async ValueTask<Result> ChangeSettings(ChangeChatSettingsRequest request, Guid userId)
     {
-        UserChatResult result = await GetUserAndChat(userId, request.Id);
-        if (!result.Result.Success)
-            return result.Result;
+        Chat? chat = await _chatRepository.GetByIdAsync(request.Id);
+        Result result = _chatValidator.IsAvailable(chat);
+        if (!result.Success)
+            return result;
+        Result<HasPermission> permissionResult = await _ruleService.HasPermissionAsync(userId, request.Id, Permissions.ChangeSettings);
+        if (!permissionResult.Success)
+            return Result.From(permissionResult);
 
-        result.Chat!.Set(request);
+        chat!.Set(request);
         return Result.OkResult();
     }
 
@@ -41,6 +47,7 @@ public class ChatService(IChatRepository chatRepository, IChatTypeService chatTy
 
         DateTime now = DateTime.UtcNow;
         Chat newChat = new(
+            Guid.CreateVersion7(),
             request.ChatTypeId,
             userResult.Body!.Id,
             request.ChatName,
@@ -55,27 +62,27 @@ public class ChatService(IChatRepository chatRepository, IChatTypeService chatTy
 
     public async ValueTask<Result> DeleteChat(Guid chatId, Guid userId)
     {
-        UserChatResult result = await GetUserAndChat(userId, chatId);
-        if (!result.Result.Success)
-            return result.Result;
+        Result<ChatWithOwner> result = await GetChatWithOwner(userId, chatId);
+        if (!result.Success)
+            return Result.From(result);
 
-        await _chatRepository.SoftDeleteAsync(result.Chat!);
+        await _chatRepository.SoftDeleteAsync(result.Body.Chat!);
         return Result.OkResult();
     }
 
-    public async Task<UserChatResult> GetUserAndChat(Guid userId, Guid chatId)
+    public async Task<Result<ChatWithOwner>> GetChatWithOwner(Guid userId, Guid chatId)
     {
         Task<Result<User>> userResult = _userService.Get(userId);
         Task<Chat?> chatResult = _chatRepository.GetByIdAsync(chatId);
         await Task.WhenAll(userResult, chatResult);
 
-        Result result = _chatValidator.ValidateChatAndOwner(chatResult.Result, userId);
         if (!userResult.Result.Success)
-            return new(null, null, Result.From(userResult.Result));
+            return Result<ChatWithOwner>.From(userResult.Result);
 
+        Result result = _chatValidator.ValidateChatAndOwner(chatResult.Result, userId);
         if (!result.Success)
-            return new(null, null, result);
+            return Result<ChatWithOwner>.From(result);
 
-        return new(userResult.Result.Body, chatResult.Result, Result.OkResult());
+        return Result<ChatWithOwner>.OkResult(new(userResult.Result.Body!, chatResult.Result!));
     }
 }

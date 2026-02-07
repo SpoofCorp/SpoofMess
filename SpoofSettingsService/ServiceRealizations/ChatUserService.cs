@@ -9,34 +9,29 @@ using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserService(ILoggerService loggerService, IChatUserValidator chatUserValidator, IChatService chatService, IUserService userService, IRoleService roleService, IChatUserRepository chatUserRepository) : IChatUserService
+public class ChatUserService(ILoggerService loggerService, IChatUserValidator chatUserValidator, IChatService chatService, IUserService userService, IChatUserRepository chatUserRepository) : IChatUserService
 {
     private readonly IUserService _userService = userService;
     private readonly IChatUserValidator _chatUserValidator = chatUserValidator;
     private readonly IChatUserRepository _chatUserRepository = chatUserRepository;
     private readonly IChatService _chatService = chatService;
-    private readonly IRoleService _roleService = roleService;
     private readonly ILoggerService _loggerService = loggerService;
 
     public async Task<Result> Add(AddMemberRequest request, Guid userId)
     {
         try
         {
-            UserChatResult result = await _chatService.GetUserAndChat(userId, request.ChatId);
-            if (!result.Result.Success)
-                return result.Result;
+            Result<ChatWithOwner> result = await _chatService.GetChatWithOwner(userId, request.ChatId);
+            if (!result.Success)
+                return Result.From(result);
 
             Result<User>? memberResult = await _userService.Get(request.MemberId);
             if (!memberResult.Success) return Result.From(memberResult);
 
-            Result<Role> roleResult = await _roleService.GetRoleById(request.RoleId); 
-            if (!roleResult.Success) return Result.From(roleResult);
-
             ChatUser newMember = new()
             {
-                Key1 = result.User!.Id,
+                Key1 = result.Body.User!.Id,
                 Key2 = memberResult.Body!.Id,
-                RoleId = roleResult.Body!.Id,
                 JoinedAt = DateTime.UtcNow,
             };
 
@@ -71,9 +66,9 @@ public class ChatUserService(ILoggerService loggerService, IChatUserValidator ch
     {
         try
         {
-            UserChatResult result = await _chatService.GetUserAndChat(userId, request.ChatId);
-            if (!result.Result.Success)
-                return result.Result;
+            Result<ChatWithOwner> result = await _chatService.GetChatWithOwner(userId, request.ChatId);
+            if (!result.Success)
+                return Result.From(result);
 
             await _chatUserRepository.SoftDeleteAsync(request.ChatId, request.ChatId);
             return Result.OkResult();

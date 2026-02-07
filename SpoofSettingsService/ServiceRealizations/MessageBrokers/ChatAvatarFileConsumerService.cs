@@ -3,6 +3,7 @@ using CommonObjects.DTO;
 using CommunicationLibrary;
 using CommunicationLibrary.ServiceRealizations;
 using SpoofSettingsService.Models;
+using SpoofSettingsService.Models.Enums;
 using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 
