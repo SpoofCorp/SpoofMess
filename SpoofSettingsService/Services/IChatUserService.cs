@@ -5,6 +5,7 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services;
 
+[Obsolete("Not check user permissions")]
 public interface IChatUserService
 {
     public Task<Result> Add(AddMemberRequest request, Guid userId);

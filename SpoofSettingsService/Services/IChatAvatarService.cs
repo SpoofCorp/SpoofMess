@@ -4,6 +4,7 @@ using CommonObjects.Results;
 
 namespace SpoofSettingsService.Services;
 
+[Obsolete("Not check user permissions")]
 public interface IChatAvatarService
 {
     public Task<Result> SetAvatar(SetChatAvatarRequest request);

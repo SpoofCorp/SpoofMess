@@ -12,5 +12,5 @@ public interface IChatService
 
     public ValueTask<Result> DeleteChat(Guid chatId, Guid userId);
 
-    public Task<UserChatResult> GetUserAndChat(Guid userId, Guid chatId);
+    public Task<Result<ChatWithOwner>> GetChatWithOwner(Guid userId, Guid chatId);
 }
