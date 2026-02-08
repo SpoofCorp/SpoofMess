@@ -1,45 +1,14 @@
-using AdditionalHelpers.ServiceRealizations;
-using AdditionalHelpers.Services;
-using DataSaveHelpers.ServiceRealizations.Cache;
-using DataSaveHelpers.ServiceRealizations.Cache.Memory;
-using DataSaveHelpers.ServiceRealizations.Cache.Redis;
-using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
+using SettingsHelper;
 using SpoofMessageService.Models;
-using StackExchange.Redis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<SpoofMessageServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.SetBaseSettings<SpoofMessageServiceContext>();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    ConfigurationOptions configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis")!);
-    configuration.AbortOnConnectFail = false;
-    configuration.ConnectTimeout = 5000;
-    configuration.SyncTimeout = 5000;
-    configuration.ReconnectRetryPolicy = new LinearRetry(1000);
-
-    return ConnectionMultiplexer.Connect(configuration);
-});
-
-builder.Services.AddTransient<ILoggerService>(provider =>
-    new ConsoleLoggerService(
-        minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
-    )
-);
-
-builder.Services.AddTransient<Microsoft.Extensions.Caching.Memory.IMemoryCache, Microsoft.Extensions.Caching.Memory.MemoryCache>();
-builder.Services.AddTransient<IMemoryCacheService, LocalCacheService>();
-
-//redis
-builder.Services.AddTransient<IRedisService, BaseRedisCache>();
-
-//multi cache(in-memory + redis)
-builder.Services.AddTransient<ICacheService, MultiCache>();
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
