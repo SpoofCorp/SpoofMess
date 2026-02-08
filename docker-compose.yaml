@@ -133,7 +133,7 @@ services:
             - ASPNETCORE_ENVIRONMENT=Development
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
-            - ConnectionStrings__DefaultConnection=Host=sessql;Port=5432;Database=SpoofEntranceService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - ConnectionStrings__Sql=Host=sessql;Port=5432;Database=SpoofEntranceService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
             - RabbitMQSettings__HostName=rabbitmq
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
@@ -157,7 +157,7 @@ services:
             - ASPNETCORE_ENVIRONMENT=Development
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
-            - ConnectionStrings__DefaultConnection=Host=ssssql;Port=5434;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - ConnectionStrings__Sql=Host=ssssql;Port=5434;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
             - RabbitMQSettings__HostName=rabbitmq
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
@@ -181,7 +181,7 @@ services:
             - ASPNETCORE_ENVIRONMENT=Development
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
-            - ConnectionStrings__DefaultConnection=Host=smssql;Port=5433;Database=SpoofMessageService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - ConnectionStrings__Sql=Host=smssql;Port=5433;Database=SpoofMessageService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
         ports:
             - "5002:8082"
         volumes:
@@ -201,7 +201,7 @@ services:
             - ASPNETCORE_ENVIRONMENT=Development
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
-            - ConnectionStrings__DefaultConnection=Host=sfssql;Port=5435;Database=SpoofFileService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - ConnectionStrings__Sql=Host=sfssql;Port=5435;Database=SpoofFileService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
         ports:
             - "5002:8082"
         volumes:
