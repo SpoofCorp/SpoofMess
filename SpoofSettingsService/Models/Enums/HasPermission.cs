@@ -2,7 +2,7 @@
 
 public enum HasPermission
 {
-    NotIssued,
-    Permitted,
-    Banned
+    NotSet,
+    Allow,
+    Deny
 }

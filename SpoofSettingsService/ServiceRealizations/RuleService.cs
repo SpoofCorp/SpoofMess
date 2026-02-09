@@ -14,8 +14,8 @@ public class RuleService(IRuleRepository ruleRepository) : IRuleService
         HasPermission? hasPermission = await _ruleRepository.HasPermission(userId, chatId, (short)permission);
         if (hasPermission is null)
             return Result<HasPermission>.ErrorResult("DataBase error");
-        if(hasPermission is HasPermission.Permitted)
+        if(hasPermission is HasPermission.Allow)
             return Result<HasPermission>.OkResult(hasPermission.Value);
-        return Result<HasPermission>.Forbidden(hasPermission is HasPermission.NotIssued ? "Not permitted" : "Access Denied");
+        return Result<HasPermission>.Forbidden(hasPermission is HasPermission.NotSet ? "Not permitted" : "Access Denied");
     }
 }

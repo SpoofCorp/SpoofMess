@@ -220,21 +220,31 @@ values
 
 insert into "Permission"("Id", "Name")
 values
-(0, 'SendTexts'),
-(1, 'SendAudios'),
-(2, 'SendVideos'),
-(3, 'SendFiles'),
-(4, 'Muting'),
-(5, 'Banning'),
-(6, 'Sharing'),
-(7, 'Inviting'),
-(8, 'Deleting'),
-(9, 'Editing'),
-(10, 'ChangeSettings'),
-(11, 'CreateRole'),
-(12, 'SetRole'),
-(13, 'TakeRole'),
-(14, 'ChangeRules');
+--1xx: content and messages
+(100, 'SendTexts'),
+(101, 'SendAudios'),
+(102, 'SendVideos'),
+(103, 'SendFiles'),
+(104, 'SendEmoji'),
+(105, 'SendSticker'),
+(106, 'SendVoiceMessage'),
+(107, 'SendVideoMessage'),
+(150, 'ShareMessage'),
+(151, 'DeleteMessage'),
+(152, 'EditMessage'),
+--2xx: moderation and roles
+(200, 'CreateRole'),
+(201, 'SetRole'),
+(202, 'DepriveRole'),
+(240, 'ChangeRules'),
+(260, 'Muting'),
+(261, 'Restricting'),
+--3xx: settings and members moderation
+(300, 'Inviting'),
+(301, 'Kicking'),
+(302, 'Banning'),
+(303, 'Sharing'),
+(330, 'ChangeSettings');
 
 create or replace function "FileMetadataOperationStatus_OnceActual"()
 returns trigger as
@@ -301,25 +311,15 @@ begin
 	(new."Id", new."OwnerId", ownerRoleId);
 	
 	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
-	values
-	(memberRoleId, 0, true),
-	(memberRoleId, 1, true),
-	(memberRoleId, 2, true),
-	(memberRoleId, 3, true),
-	(memberRoleId, 6, true),
-	(memberRoleId, 7, true),
-	(memberRoleId, 8, true),
-	(memberRoleId, 9, true),
-	(adminRoleId, 0, true),
-	(adminRoleId, 1, true),
-	(adminRoleId, 2, true),
-	(adminRoleId, 3, true),
-	(adminRoleId, 6, true),
-	(adminRoleId, 7, true),
-	(adminRoleId, 8, true),
-	(adminRoleId, 9, true),
-	(adminRoleId, 4, true),
-	(adminRoleId, 5, true);
+	select memberRoleId, "Id", true 
+	from "Permission" 
+	where "Id" between 100 and 199;
+
+	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
+	select adminRoleId, "Id", true 
+	from "Permission" 
+	where "Id" between 100 and 199
+	or "Id" in (260, 261, 300, 301, 302, 303);
 
 	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
 	select ownerRoleId, "Id", true from "Permission";
