@@ -1,10 +1,8 @@
-﻿using CommonObjects.Results;
-using SpoofSettingsService.Models;
+﻿using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService;
 
-public readonly record struct UserChatResult(
-        User? User,
-        Chat? Chat,
-        Result Result = null!
+public readonly record struct ChatWithOwner(
+        User User,
+        Chat Chat
     );
