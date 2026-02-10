@@ -4,12 +4,42 @@ create table "OperationStatus"
 	"Name" varchar(50) not null
 );
 
+create table "User"
+(
+	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
+	"AvatarId" uuid,
+	"Login" varchar(100) unique not null,
+	"Name" varchar(100) not null,
+	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false
+);
+
+create table "Chat"
+(
+	"Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
+	"AvatarId" uuid,
+	"UniqueName" varchar(100) unique not null,
+	"Name" varchar(100),
+	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false
+);
+
+create TABLE "ChatUser"
+(
+    "ChatId" uuid not null constraint "FK_ChatUser_ChatId" references "Chat"("Id") on delete cascade,
+    "UserId" uuid not null constraint "FK_ChatUser_UserId" references "User"("Id") on delete cascade,
+	"Rules" bigint default 0 not null,
+	"JoinedAt" timestamptz not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false,
+    constraint "PK_ChatUser_Id" primary key("ChatId", "UserId")
+);
+
 create table "Message"
 (
 	"Id" uuid constraint "PK_Message_Id" primary key default uuidv7(),
 	"Text" text not null default '',
-	"ChatId" uuid not null,
-	"UserId" uuid not null,
+	"ChatId" uuid not null constraint "FK_Message_ChatId" references "Chat"("Id") on delete cascade,
+	"UserId" uuid not null constraint "FK_Message_UserId" references "User"("Id") on delete cascade,
 	"SentAt" timestamp not null default CURRENT_TIMESTAMP,
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
@@ -75,7 +105,7 @@ create table "AttachmentOperationStatus"
 
 create table "ViewMessage"
 (
-	"UserId" uuid not null, 
+	"UserId" uuid not null constraint "FK_ViewMessage_UserId" references "User"("Id") on delete cascade,
 	"MessageId"	uuid not null constraint "FK_ViewMessage_MessageId" references "Message"("Id") on delete cascade, 
 	"ViewTime" timestamp not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false,

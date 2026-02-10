@@ -94,7 +94,7 @@ create table "ChatRoleRules"
     "ChatRoleId" bigint not null constraint "FK_ChatRoleRules_ChatRoleId" references "ChatRole"("Id") on delete cascade,
     "PermissionId" smallint not null constraint "FK_ChatRoleRules_PermissionId" references "Permission"("Id") on delete cascade,
 	"IsPermission" boolean not null default true,
-    constraint "PK_RChatRoleRules_Id" primary key("ChatRoleId", "PermissionId")
+    constraint "PK_ChatRoleRules_Id" primary key("ChatRoleId", "PermissionId")
 );
 
 create table "Extension"
