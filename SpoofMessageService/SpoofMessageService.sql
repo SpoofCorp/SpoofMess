@@ -40,6 +40,7 @@ create table "Message"
 	"Text" text not null default '',
 	"ChatId" uuid not null constraint "FK_Message_ChatId" references "Chat"("Id") on delete cascade,
 	"UserId" uuid not null constraint "FK_Message_UserId" references "User"("Id") on delete cascade,
+	"CountViews" int not null default 0,
 	"SentAt" timestamp not null default CURRENT_TIMESTAMP,
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
@@ -115,3 +116,17 @@ create table "ViewMessage"
 
 create index "IX_ViewMessage_MessageId" on "ViewMessage"("MessageId");
 create index "IX_ViewMessage_UserId" on "ViewMessage"("UserId");
+
+create or replace function "Fnc_ViewMessage_Count"()
+returns trigger as
+$$
+begin
+	update "Message" set "CountViews" = "CountViews" + 1 where "Id" = new."MessageId";
+	
+	return new;
+end;
+$$ language plpgsql;
+
+create trigger "Trg_ViewMessage_After_Insert" after insert on "ViewMessage"
+for each row
+execute function "Fnc_ViewMessage_Count"();
