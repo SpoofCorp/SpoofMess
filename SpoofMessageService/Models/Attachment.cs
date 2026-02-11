@@ -5,8 +5,14 @@ namespace SpoofMessageService.Models;
 
 public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
 {
+    /// <summary>
+    /// MessageId
+    /// </summary>
     [Column("MessageId")]
     public new Guid Key1 { get; set; }
+    /// <summary>
+    /// FileMetadataId
+    /// </summary>
 
     [Column("FileMetadataId")]
     public new Guid Key2 { get; set; }

@@ -3,23 +3,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
 
-public partial class ViewMessage : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
+public partial class ChatUser : DoubleIdentifiedSoftDeletable<Guid, Guid>
 {
+    /// <summary>
+    /// ChatId
+    /// </summary>
+    [Column("ChatId")]
+    public new Guid Key1 { get; set; }
     /// <summary>
     /// UserId
     /// </summary>
-    [Column("UserId")]
-    public new Guid Key1 { get; set; }
-    /// <summary>
-    /// MessageId
-    /// </summary>
 
-    [Column("MessageId")]
+    [Column("UserId")]
     public new Guid Key2 { get; set; }
 
-    public DateTime ViewTime { get; set; }
+    public long Rules { get; set; }
 
-    public virtual Message Message { get; set; } = null!;
+    public DateTime JoinedAt { get; set; }
+
+    public virtual Chat Chat { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

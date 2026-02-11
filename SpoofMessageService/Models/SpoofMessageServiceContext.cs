@@ -72,6 +72,39 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasConstraintName("FK_AttachmentOperationStatus_AttachmentId");
         });
 
+        modelBuilder.Entity<Chat>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Chat_Id");
+
+            entity.ToTable("Chat");
+
+            entity.HasIndex(e => e.UniqueName, "Chat_UniqueName_key").IsUnique();
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.LastModified)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UniqueName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<ChatUser>(entity =>
+        {
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_ChatUser_Id");
+
+            entity.ToTable("ChatUser");
+
+            entity.Property(e => e.JoinedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.Chat).WithMany(p => p.ChatUsers)
+                .HasForeignKey(d => d.Key1)
+                .HasConstraintName("FK_ChatUser_ChatId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ChatUsers)
+                .HasForeignKey(d => d.Key2)
+                .HasConstraintName("FK_ChatUser_UserId");
+        });
+
         modelBuilder.Entity<Extension>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Extension_Id");
@@ -123,6 +156,14 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone");
             entity.Property(e => e.Text).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.Chat).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.ChatId)
+                .HasConstraintName("FK_Message_ChatId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Message_UserId");
         });
 
         modelBuilder.Entity<MessageOperationStatus>(entity =>
@@ -155,15 +196,27 @@ public partial class SpoofMessageServiceContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_User_Id");
+
+            entity.ToTable("User");
+
+            entity.HasIndex(e => e.Login, "User_Login_key").IsUnique();
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.LastModified)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.Login).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<ViewMessage>(entity =>
         {
             entity.HasKey(e => new { e.Key2, e.Key1 }).HasName("PK_ViewMessage_Id");
 
             entity.ToTable("ViewMessage");
-
-            entity.HasIndex(e => e.Key2, "IX_ViewMessage_MessageId");
-
-            entity.HasIndex(e => e.Key1, "IX_ViewMessage_UserId");
 
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -175,6 +228,10 @@ public partial class SpoofMessageServiceContext : DbContext
             entity.HasOne(d => d.Message).WithMany(p => p.ViewMessages)
                 .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_ViewMessage_MessageId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ViewMessages)
+                .HasForeignKey(d => d.Key1)
+                .HasConstraintName("FK_ViewMessage_UserId");
         });
 
         OnModelCreatingPartial(modelBuilder);
