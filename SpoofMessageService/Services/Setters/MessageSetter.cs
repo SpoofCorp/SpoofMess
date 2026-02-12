@@ -1,5 +1,6 @@
 ﻿using CommonObjects.Requests.Messages;
 using SpoofMessageService.Models;
+using SpoofMessageService.Models.Enums;
 
 namespace SpoofMessageService.Services.Setters;
 

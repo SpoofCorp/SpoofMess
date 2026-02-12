@@ -1,4 +1,4 @@
-﻿namespace SpoofMessageService.Models;
+﻿namespace SpoofMessageService.Models.Enums;
 
 public enum OperationsStatus
 {
