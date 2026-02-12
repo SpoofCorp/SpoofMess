@@ -1,6 +1,13 @@
-using Microsoft.EntityFrameworkCore;
+using RuleRoleHelper.ServiceRealizations;
+using RuleRoleHelper.Services;
 using SettingsHelper;
 using SpoofMessageService.Models;
+using SpoofMessageService.ServiceRealizations;
+using SpoofMessageService.ServiceRealizations.Repositories;
+using SpoofMessageService.ServiceRealizations.Validators;
+using SpoofMessageService.Services;
+using SpoofMessageService.Services.Repositories;
+using SpoofMessageService.Services.Validators;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +15,18 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.SetBaseSettings<SpoofMessageServiceContext>();
+
+builder.Services.AddScoped<IChatUserService, ChatUserService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+
+builder.Services.AddScoped<IMessageValidator, MessageValidator>();
+builder.Services.AddScoped<IChatUserValidator, ChatUserValidator>();
+
+builder.Services.AddScoped<IRuleService, RuleService>();
+
+builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 WebApplication app = builder.Build();
 
