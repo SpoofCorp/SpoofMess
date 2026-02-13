@@ -2,7 +2,7 @@ create table "UserEntry"
 (
     "Id" uuid primary key,
     "PasswordHash" varchar(100) not null,
-    "UniqueName" varchar(100) UNIQUE not null,
+    "UniqueName" varchar(100) unique not null,
     "IsDeleted" boolean not null default false
 );
 

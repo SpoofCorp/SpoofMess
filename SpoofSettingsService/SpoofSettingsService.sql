@@ -3,6 +3,7 @@ create table "User"
 	"Id" uuid constraint "PK_User_Id" primary key,
 	"WasOnline" timestamptz not null default CURRENT_TIMESTAMP,
 	"Name" varchar(100) not null,
+	"Login" varchar(100) not null unique,
 	"MonthsBeforeDelete" int not null default 6,
 	"SearchMe" boolean not null default true,
 	"ShowMe" boolean not null default true,
