@@ -2,7 +2,6 @@
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using CommunicationLibrary.Communication;
-using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.MessageBrokers;
@@ -67,7 +66,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             user!.IsDeleted = true;
 
             await _userRepository.SoftDeleteAsync(user);
-            await _userMessageBrokerService.ConfirmDelete(new(userId, ""));
+            await _userMessageBrokerService.ConfirmDelete(new(userId, "", ""));
 
             return Result.OkResult();
         }
@@ -86,6 +85,7 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             {
                 Id = createUser.UserId,
                 Name = createUser.Name,
+                Login = createUser.Login
             };
             await _userRepository.AddAsync(user);
             await _userMessageBrokerService.ConfirmCreate(createUser);

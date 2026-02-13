@@ -8,6 +8,8 @@ public partial class User : IdentifiedSoftDeletableEntity<Guid>
 
     public string Name { get; set; } = null!;
 
+    public string Login { get; set; } = null!;
+
     public int MonthsBeforeDelete { get; set; }
 
     public bool SearchMe { get; set; }

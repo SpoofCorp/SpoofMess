@@ -360,6 +360,9 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.ToTable("User");
 
+            entity.HasIndex(e => e.Login, "IX_User_Login");
+            entity.HasIndex(e => e.Login, "User_Login_key").IsUnique();
+
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.ForwardMessage).HasDefaultValue(true);
             entity.Property(e => e.InviteMe).HasDefaultValue(true);

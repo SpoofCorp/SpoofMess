@@ -74,7 +74,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
 
             await _repository.Change(user);
             await _sessionService.StartSession(context, newUser, sessionInfo);
-            _ = Task.Run(() => _userPublisherService.Create(new(newUser.Id, request.Name)));
+            _ = Task.Run(() => _userPublisherService.Create(new(newUser.Id, request.Name, newUser.UniqueName)));
 
             Result<TokenResponse> result = await _tokenService.Create(sessionInfo);
             await _repository.Create(newUser, sessionInfo, result.Body.Token);
@@ -115,7 +115,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
     public async Task Delete(Guid userId)
     {
         await ChangeStatus(userId, true);
-        await _userPublisherService.Delete(new(userId, ""));
+        await _userPublisherService.Delete(new(userId, "", ""));
     }
 
     public async Task ChangeStatus(Guid userId, bool isDeleted)
