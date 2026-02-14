@@ -251,10 +251,16 @@ create or replace function "FileMetadataOperationStatus_OnceActual"()
 returns trigger as
 $$
 begin
-	if NOT new."IsActive" THEN
+	if not new."IsActive" then
 		return new;
 	end if;
-	update "FileMetadataOperationStatus" set "IsActual" = false where "FileMetadataId" = new."FileMetadataId" and "IsActual" = true and "Id" != new."Id";
+
+	update "FileMetadataOperationStatus" 
+		set "IsActual" = false
+	where "FileMetadataId" = new."FileMetadataId"
+		and "IsActual" = true
+		and "Id" != new."Id";
+
 	return new;
 end;
 $$ language plpgsql;
@@ -268,12 +274,12 @@ create or replace function "CreateRolesAfterChat"()
 returns trigger as
 $$
 declare
-topRankId bigint;
-middleRankId bigint;
-leastRankId bigint;
-ownerRoleId bigint;
-adminRoleId bigint;
-memberRoleId bigint;
+	topRankId bigint;
+	middleRankId bigint;
+	leastRankId bigint;
+	ownerRoleId bigint;
+	adminRoleId bigint;
+	memberRoleId bigint;
 begin
 	if new."IsDeleted" THEN
 		return new;
@@ -344,17 +350,27 @@ declare
 isPermission bool;
 begin
 	select "IsPermission" into isPermission
-	from "ChatUserRules" where "ChatId" = p_chat_id and "UserId" = p_user_id and "PermissionId" = p_permission_id;
+	from "ChatUserRules" 
+	where "ChatId" = p_chat_id
+		and "UserId" = p_user_id 
+		and "PermissionId" = p_permission_id;
+
 	if found then
-		return case when isPermission then 1 else 2 end;
+		return
+			case when isPermission
+				then 1
+				else 2
+			end;
 	end if;
 
 	select crr."IsPermission" into isPermission
 	from "ChatUserChatRole" cucr
 	join "ChatRole" cr on cr."Id" = cucr."ChatRoleId" 
 	join "RoleRank" rr on rr."Id" = cr."RoleRankId"
-	join "ChatRoleRules" crr on crr."ChatRoleId" = cucr."ChatRoleId" and crr."PermissionId" = p_permission_id
-	where cucr."ChatId" = p_chat_id and cucr."UserId" = p_user_id
+	join "ChatRoleRules" crr on crr."ChatRoleId" = cucr."ChatRoleId"
+		and crr."PermissionId" = p_permission_id
+	where cucr."ChatId" = p_chat_id
+		and cucr."UserId" = p_user_id
 	order by rr."Level" asc
 	limit 1;
 
@@ -362,5 +378,63 @@ begin
 		return case when isPermission then 1 else 2 end;
 	end if;
 	return 0;
+end;
+$$ language plpgsql;
+
+create or replace function get_user_permission(
+	p_user_id uuid,
+	p_chat_id uuid,
+	p_mask smallint[]
+)
+returns 
+table(
+	"PermissionId" smallint,
+	"IsPermission" boolean
+)
+as
+$$
+begin
+	return query
+	select distinct on
+	(
+		rules."PermissionId"
+	)
+		rules."PermissionId",
+		rules."IsPermission"
+	from 
+	(
+		select
+			cur."PermissionId",
+			cur."IsPermission",
+			1 as priority
+		from "ChatUser" ch
+		join "ChatUserRules" cur on
+			cur."ChatId" = ch."ChatId"
+			and cur."UserId" = ch."UserId"
+		where ch."ChatId" = p_chat_id
+			and ch."UserId" = p_user_id
+			and p_mask is null
+				or cardinality(p_mask) = 0
+				or cur."PermissionId" = any(p_mask)
+		union all
+		select 
+			crr."PermissionId",
+			crr."IsPermission",
+			2 as priority
+		from "ChatUserChatRole" cucr
+		join "ChatRole" cr on
+			cucr."ChatRoleId" = cr."Id"
+		join "ChatRoleRules" crr on
+			crr."ChatRoleId" = cr."Id"
+		where cucr."ChatId" = p_chat_id 
+			and cucr."UserId" = p_user_id 
+			and p_mask is null
+				or cardinality(p_mask) = 0
+				or crr."PermissionId" = any(p_mask)
+	) as rules
+	order by 
+		rules."PermissionId",
+		rules.priority, 
+		rules."IsPermission";
 end;
 $$ language plpgsql;
