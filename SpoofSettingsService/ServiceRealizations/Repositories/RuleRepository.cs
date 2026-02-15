@@ -1,7 +1,8 @@
-﻿using DataSaveHelpers.Services;
+﻿using CommunicationLibrary.Communication;
+using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
+using RuleRoleHelper;
 using SpoofSettingsService.Models;
-using SpoofSettingsService.Models.Enums;
 using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
@@ -25,6 +26,11 @@ public class RuleRepository(SpoofSettingsServiceContext context, ICacheService c
             }
         }
         return hasPermission;
+    }
+    public async Task<Rule[]?> ChatUserRules(Guid chatId, Guid userId, short[] masks)
+    {
+        return await _context.Database.SqlQuery<Rule>($@"SELECT ""PermissionId"", ""IsPermission"" FROM get_user_permission({userId}, {chatId}, {masks})")
+            .ToArrayAsync();
     }
 
     private static string GetKey(Guid userId, Guid chatId, short permissionId) =>

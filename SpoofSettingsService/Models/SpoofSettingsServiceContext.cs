@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CommunicationLibrary.Communication;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpoofSettingsService.Models;
 
@@ -55,6 +56,11 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Rule>(entity =>
+        {
+            entity.HasNoKey();
+        });
+
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Chat_Id");

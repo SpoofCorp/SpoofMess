@@ -1,8 +1,8 @@
 ﻿using CommonObjects.Requests;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
+using RuleRoleHelper;
 using SpoofSettingsService.Models;
-using SpoofSettingsService.Models.Enums;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
@@ -29,6 +29,7 @@ public class ChatService(IChatRepository chatRepository, IChatTypeService chatTy
             return Result.From(permissionResult);
 
         chat!.Set(request);
+        await _chatRepository.UpdateAsync(chat!);
         return Result.OkResult();
     }
 

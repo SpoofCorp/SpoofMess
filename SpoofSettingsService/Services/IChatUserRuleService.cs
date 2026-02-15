@@ -1,5 +1,5 @@
 ﻿using CommonObjects.Results;
-using SpoofSettingsService.Models.Enums;
+using RuleRoleHelper;
 
 namespace SpoofSettingsService.Services;
 

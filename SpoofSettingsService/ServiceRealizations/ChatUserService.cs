@@ -2,26 +2,39 @@
 using CommonObjects.Requests.ChatUsers;
 using CommonObjects.Requests.Members;
 using CommonObjects.Results;
+using CommunicationLibrary.Communication;
+using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserService(ILoggerService loggerService, IChatUserValidator chatUserValidator, IChatService chatService, IUserService userService, IChatUserRepository chatUserRepository) : IChatUserService
+public class ChatUserService(
+    ILoggerService loggerService,
+    IChatUserValidator chatUserValidator,
+    IRuleService ruleService,
+    IChatService chatService,
+    IUserService userService,
+    IChatUserRepository chatUserRepository,
+    IChatUserPublisherService chatUserPublisherService
+    ) : IChatUserService
 {
     private readonly IUserService _userService = userService;
     private readonly IChatUserValidator _chatUserValidator = chatUserValidator;
     private readonly IChatUserRepository _chatUserRepository = chatUserRepository;
+    private readonly IRuleService _ruleService = ruleService;
     private readonly IChatService _chatService = chatService;
     private readonly ILoggerService _loggerService = loggerService;
+    private readonly IChatUserPublisherService _chatUserPublisherService = chatUserPublisherService;
 
     public async Task<Result> Add(AddMemberRequest request, Guid userId)
     {
         try
         {
-            Result<ChatWithOwner> result = await _chatService.GetChatWithOwner(userId, request.ChatId);
+            Result<HasPermission> result = await _ruleService.HasPermissionAsync(request.ChatId, userId, Permissions.Inviting);
             if (!result.Success)
                 return Result.From(result);
 
@@ -30,12 +43,19 @@ public class ChatUserService(ILoggerService loggerService, IChatUserValidator ch
 
             ChatUser newMember = new()
             {
-                Key1 = result.Body.User!.Id,
+                Key1 = memberResult.Body!.Id,
                 Key2 = memberResult.Body!.Id,
                 JoinedAt = DateTime.UtcNow,
             };
-
             await _chatUserRepository.AddAsync(newMember);
+            _ = Task.Run(async () =>
+            {
+                Result<Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
+                if (rulesResult.Success)
+                    await _chatUserPublisherService.Create(newMember, rulesResult.Body!);
+                else
+                    _loggerService.Error($"Can't find rules for: {newMember.Key1}, {newMember.Key2}\n{rulesResult.Error}");
+            });
             return Result.OkResult();
         }
         catch (Exception ex)
