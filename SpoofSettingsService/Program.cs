@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+﻿using Microsoft.OpenApi;
 using SettingsHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
@@ -20,6 +19,7 @@ builder.SetBaseSettings<SpoofSettingsServiceContext>();
 
 builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
 builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
+builder.Services.AddSingleton<IChatUserPublisherService, ChatUserPublisherService>();
 
 builder.Services.AddHostedService<UserConsumerService>();
 
@@ -30,6 +30,7 @@ builder.Services.AddTransient<IUserAvatarValidator, UserAvatarValidator>();
 builder.Services.AddTransient<IStickerPackValidator, StickerPackValidator>();
 builder.Services.AddTransient<IStickerValidator, StickerValidator>();
 builder.Services.AddTransient<IUserValidator, UserValidator>();
+builder.Services.AddScoped<IRuleValidator, RuleValidator>();
 
 builder.Services.AddScoped<IFileMetadatumRepository, FileMetadatumRepository>();
 builder.Services.AddScoped<IChatAvatarRepository, ChatAvatarRepository>();

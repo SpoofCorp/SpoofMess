@@ -16,12 +16,15 @@ builder.Services.AddOpenApi();
 
 builder.SetBaseSettings<SpoofMessageServiceContext>();
 
+builder.Services.AddHostedService<ChatUserConsumerService>();
+
 builder.Services.AddScoped<IChatUserService, ChatUserService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
 builder.Services.AddScoped<IMessageValidator, MessageValidator>();
 builder.Services.AddScoped<IChatUserValidator, ChatUserValidator>();
+builder.Services.AddScoped<IRuleParserService, RuleParserService>();
 
 builder.Services.AddScoped<IRuleService, RuleService>();
 
