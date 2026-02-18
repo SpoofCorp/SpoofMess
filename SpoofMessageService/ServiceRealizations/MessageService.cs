@@ -10,7 +10,12 @@ using SpoofMessageService.Services.Validators;
 
 namespace SpoofMessageService.ServiceRealizations;
 
-public class MessageService(ILoggerService loggerService, IMessageRepository messageRepository, IMessageValidator messageValidator, IChatUserService chatUserService) : IMessageService
+public class MessageService(
+    ILoggerService loggerService,
+    IMessageRepository messageRepository,
+    IMessageValidator messageValidator, 
+    IChatUserService chatUserService
+    ) : IMessageService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IMessageRepository _messageRepository = messageRepository;

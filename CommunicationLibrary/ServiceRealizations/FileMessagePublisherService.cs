@@ -7,17 +7,17 @@ namespace CommunicationLibrary.ServiceRealizations;
 
 public abstract class FileMessagePublisherService<T>(RabbitMQSettings settings, ISerializer serializer) : RabbitMQService(settings, serializer), IFileMessagePublisherService
 {
-    private readonly string _fileExchange = "file-service";
+    protected override string Exchange => "file-service";
 
     public async Task Create(CreateFile createFile)
     {
         byte[] body = Encoding.UTF8.GetBytes(_serializer.Serialize(createFile));
-        await Publish(_fileExchange, "file.reserve", body);
+        await Publish("file.reserve", body);
     }
 
     public async Task Delete(DeleteFile deleteFile)
     {
         byte[] body = Encoding.UTF8.GetBytes(_serializer.Serialize(deleteFile));
-        await Publish(_fileExchange, "file.delete", body);
+        await Publish("file.delete", body);
     }
 }

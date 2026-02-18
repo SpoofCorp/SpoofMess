@@ -18,12 +18,20 @@ public class ChatUserValidator(IRuleService ruleService) : SoftDeletableValidato
         if (result.Success)
         {
             HasPermission hasPermission = ruleService.HasPermission(chatUser!.Rules, (long)rule);
-            if (hasPermission == HasPermission.Allow)
+            if (hasPermission == RuleRoleHelper.HasPermission.Allow)
                 return Result.OkResult();
             else
                 return Result.Forbidden($"User doesn't have permission to {rule}");
         }
 
         return result;
+    }
+    public Result HasPermission(ChatUser chatUser, Rules rule)
+    {
+        HasPermission hasPermission = ruleService.HasPermission(chatUser!.Rules, (long)rule);
+        if (hasPermission == RuleRoleHelper.HasPermission.Allow)
+            return Result.OkResult();
+        else
+            return Result.Forbidden($"User doesn't have permission to {rule}");
     }
 }

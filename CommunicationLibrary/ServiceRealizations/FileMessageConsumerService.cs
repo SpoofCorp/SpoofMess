@@ -5,7 +5,7 @@ namespace CommunicationLibrary.ServiceRealizations;
 
 public abstract class FileMessageConsumerService<T>(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService) : ConsumerService(settings, serializer, loggerService), IConsumerService
 {
-    private readonly string _fileExchange = "file-service";
+    protected override string Exchange => "file-service";
     protected abstract string FileNomination { get; }
 
     protected abstract Func<T, Task> ConfirmDeletedFunc { get; }
@@ -14,16 +14,16 @@ public abstract class FileMessageConsumerService<T>(RabbitMQSettings settings, I
     protected abstract Func<T, Task> ErrorAddedFunc { get; }
 
     protected async Task ConfirmDeleted() =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.success", $"{FileNomination}.success.deleted", ConfirmDeletedFunc);
+        await ConsumeFromQueueAsync($"{FileNomination}.success", $"{FileNomination}.success.deleted", ConfirmDeletedFunc);
 
     protected async Task ConfirmAdded() =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.success", $"{FileNomination}.success.added", ConfirmAddedFunc);
+        await ConsumeFromQueueAsync($"{FileNomination}.success", $"{FileNomination}.success.added", ConfirmAddedFunc);
 
     protected async Task ErrorDeleted() =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorDeletedFunc);
+        await ConsumeFromQueueAsync($"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorDeletedFunc);
 
     protected async Task ErrorAdded() =>
-        await ConsumeFromQueueAsync(_fileExchange, $"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorAddedFunc);
+        await ConsumeFromQueueAsync($"{FileNomination}.error", $"{FileNomination}.error.deleted", ErrorAddedFunc);
 
     public override async Task Initialize()
     {

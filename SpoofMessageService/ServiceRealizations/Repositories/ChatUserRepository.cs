@@ -1,5 +1,6 @@
 ﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 using DataSaveHelpers.Services;
+using Microsoft.EntityFrameworkCore;
 using SpoofMessageService.Models;
 using SpoofMessageService.Services.Repositories;
 
@@ -14,5 +15,8 @@ public class ChatUserRepository(
         context,
         processQueueTasks), IChatUserRepository
 {
-
+    public async Task Delete(Guid chatId, Guid userId)
+    {
+        await context.ChatUsers.Where(x => x.Key1 == chatId && x.Key2 == userId).ExecuteDeleteAsync();
+    }
 }

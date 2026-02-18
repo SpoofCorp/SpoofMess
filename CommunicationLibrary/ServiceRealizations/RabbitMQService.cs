@@ -5,13 +5,18 @@ using System.Text;
 
 namespace CommunicationLibrary.ServiceRealizations;
 
-public class RabbitMQService
+public abstract class RabbitMQService
 {
     private readonly ConnectionFactory _factory;
     private readonly ConcurrentDictionary<string, IChannel> _channels = [];
     private readonly IConnection _connection;
     protected readonly ISerializer _serializer;
-    public RabbitMQService(RabbitMQSettings settings, ISerializer serializer)
+    protected abstract string Exchange { get; }
+
+    public RabbitMQService(
+        RabbitMQSettings settings, 
+        ISerializer serializer
+        )
     {
         _factory = new ConnectionFactory
         {
@@ -24,19 +29,30 @@ public class RabbitMQService
         _serializer = serializer;
     }
 
-    protected async Task Publish<T>(string exchange, string routingKey, T body, string type = ExchangeType.Direct)
+    protected async Task Publish<T>(
+        string routingKey, 
+        T body, 
+        string type = ExchangeType.Direct
+        )
     {
         byte[] bodyArray = Encoding.UTF8.GetBytes(_serializer.Serialize(body));
-        await Publish(exchange, routingKey, bodyArray, type);
+        await Publish(routingKey, bodyArray, type);
     }
 
-    protected async Task Publish(string exchange, string routingKey, byte[] body, string type = ExchangeType.Direct)
+    protected async Task Publish(
+        string routingKey,
+        byte[] body, 
+        string type = ExchangeType.Direct
+        )
     {
-        if (!_channels.TryGetValue(exchange, out IChannel? channel))
+        if (!_channels.TryGetValue(
+            Exchange, 
+            out IChannel? channel
+            ))
         {
-            await StartExchange(exchange, type);
-            if (!_channels.TryGetValue(exchange, out channel))
-                throw new KeyNotFoundException($"Exchange doesn't exists {exchange}");
+            await StartExchange(type);
+            if (!_channels.TryGetValue(Exchange, out channel))
+                throw new KeyNotFoundException($"Exchange doesn't exists {Exchange}");
         }
 
         BasicProperties props = new()
@@ -47,18 +63,26 @@ public class RabbitMQService
         };
 
         await channel.BasicPublishAsync(
-            exchange: exchange,
+            exchange: Exchange,
             routingKey: routingKey,
             mandatory: false,
             basicProperties: props,
             body: body);
     }
 
-    protected async Task StartExchange(string exchange, string type = ExchangeType.Direct)
+    protected async Task StartExchange(
+        string type = ExchangeType.Direct
+        )
     {
         IChannel channel = await _connection.CreateChannelAsync();
-        await channel.ExchangeDeclareAsync(exchange: exchange, type: type, autoDelete: false, durable: true);
-        if (!_channels.TryAdd(exchange, channel))
-            throw new InvalidOperationException($"Exchange already exists {exchange}");
+        await channel.ExchangeDeclareAsync(
+            exchange: Exchange, 
+            type: type, 
+            autoDelete: false, 
+            durable: true
+            );
+
+        if (!_channels.TryAdd(Exchange, channel))
+            throw new InvalidOperationException($"Exchange already exists {Exchange}");
     }
 }

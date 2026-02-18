@@ -15,8 +15,14 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
     private readonly ConcurrentDictionary<string, AsyncEventingBasicConsumer> _consumers = [];
     protected readonly ISerializer _serializer;
     protected readonly ILoggerService _loggerService;
+    protected abstract string BaseQueueName { get; }
+    protected abstract string Exchange { get; }
 
-    public ConsumerService(RabbitMQSettings settings, ISerializer serializer, ILoggerService loggerService)
+    public ConsumerService(
+        RabbitMQSettings settings, 
+        ISerializer serializer, 
+        ILoggerService loggerService
+        )
     {
         _factory = new ConnectionFactory
         {
@@ -61,33 +67,37 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         }
     }
 
-    protected async Task StartExchange(string exchange, string type = ExchangeType.Direct)
+    protected async Task StartExchange(string type = ExchangeType.Direct)
     {
         IChannel channel = await _connection.CreateChannelAsync();
-        await channel.ExchangeDeclareAsync(exchange: exchange, type: type, autoDelete: false, durable: true);
-        _channels.TryAdd(exchange, channel);
+        await channel.ExchangeDeclareAsync(
+            exchange: Exchange,
+            type: type, 
+            autoDelete: false,
+            durable: true
+            );
+        _channels.TryAdd(Exchange, channel);
     }
 
     public async Task ConsumeFromQueueAsync<T>(
-       string exchange,
        string queueName,
        string routingKey,
        Func<T, Task> handler)
     {
-        await StartExchange(exchange);
-        if (!_channels.TryGetValue(exchange, out IChannel? channel))
+        await StartExchange();
+        if (!_channels.TryGetValue(Exchange, out IChannel? channel))
             throw new ApplicationException($"Channel is null {routingKey}");
         
         await channel.QueueDeclareAsync(
-            queue: queueName,
+            queue: $"{BaseQueueName}.{queueName}",
             durable: true,
             exclusive: false,
             autoDelete: false,
             arguments: null);
 
         await channel.QueueBindAsync(
-            queue: queueName,
-            exchange: exchange,
+            queue: $"{BaseQueueName}.{queueName}",
+            exchange: Exchange,
             routingKey: routingKey);
 
         AsyncEventingBasicConsumer consumer = new(channel);
@@ -95,18 +105,32 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         {
             try
             {
-                await handler(_serializer.Deserialize<T>(args.Body.ToArray())!);
-                await channel.BasicAckAsync(args.DeliveryTag, multiple: false);
+                await handler(
+                    _serializer.Deserialize<T>(
+                        args.Body.ToArray()
+                        )!);
+                await channel.BasicAckAsync(
+                    args.DeliveryTag,
+                    multiple: false
+                    );
             }
             catch(Exception ex)
             {
                 _loggerService.Error("Can't handle message", ex);
-                await channel.BasicNackAsync(args.DeliveryTag, multiple: false, requeue: true);
+                await channel.BasicNackAsync(
+                    args.DeliveryTag, 
+                    multiple: false, 
+                    requeue: true
+                    );
             }
         };
-        _consumers.TryAdd(await channel.BasicConsumeAsync(
-            queue: queueName,
-            autoAck: false,
-            consumer: consumer), consumer);
+        _consumers.TryAdd(
+            await channel.BasicConsumeAsync(
+                queue: $"{BaseQueueName}.{queueName}",
+                autoAck: false,
+                consumer: consumer
+                ),
+            consumer
+            );
     }
 }

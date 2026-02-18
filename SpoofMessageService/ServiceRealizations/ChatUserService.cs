@@ -1,5 +1,6 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Results;
+using CommunicationLibrary.Communication;
 using SpoofMessageService.Models;
 using SpoofMessageService.Models.Enums;
 using SpoofMessageService.Services;
@@ -8,11 +9,38 @@ using SpoofMessageService.Services.Validators;
 
 namespace SpoofMessageService.ServiceRealizations;
 
-public class ChatUserService(IChatUserRepository chatUserRepository, IChatUserValidator chatUserValidator, ILoggerService loggerService) : IChatUserService
+public class ChatUserService(
+    IChatUserRepository chatUserRepository,
+    IChatUserValidator chatUserValidator,
+    ILoggerService loggerService,
+    IRuleParserService ruleParserService) : IChatUserService
 {
     private readonly IChatUserRepository _chatUserRepository = chatUserRepository;
     private readonly IChatUserValidator _chatUserValidator = chatUserValidator;
     private readonly ILoggerService _loggerService = loggerService;
+    private readonly IRuleParserService _ruleParserService = ruleParserService;
+
+    public async Task<Result> Add(CreateChatUser createChatUser)
+    {
+        try
+        {
+            ChatUser chatUser = new()
+            {
+                Key1 = createChatUser.ChatId,
+                Key2 = createChatUser.UserId,
+                JoinedAt = DateTime.UtcNow,
+                Rules = _ruleParserService.ParseRules(createChatUser.Rules)
+            };
+            await _chatUserRepository.AddAsync(chatUser);
+
+            return Result.OkResult();
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error($"An error occurred while saving chat users: {ex.Message}");
+            return Result.ErrorResult("An error occurred while saving chat users.");
+        }
+    }
 
     public async Task<Result<ChatUser>> Get(Guid chatId, Guid userId)
     {
@@ -29,6 +57,21 @@ public class ChatUserService(IChatUserRepository chatUserRepository, IChatUserVa
         {
             _loggerService.Error($"An error occurred while getting chat users: {ex.Message}");
             return Result<ChatUser>.ErrorResult("An error occurred while getting chat users.");
+        }
+    }
+
+    public async Task<Result> Delete(Guid chatId, Guid userId)
+    {
+        try
+        {
+            await _chatUserRepository.Delete(chatId, userId);
+
+            return Result.OkResult();
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error($"An error occurred while getting chat users: {ex.Message}");
+            return Result.ErrorResult("An error occurred while getting chat users.");
         }
     }
 
