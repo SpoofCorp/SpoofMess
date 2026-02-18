@@ -68,7 +68,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         try
         {
             bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
-            _ = Task.Run(async () => await _chatAvatarPublisherService.Delete(new() { FileId = request.FileId }));
+            _ = Task.Run(async () => await _chatAvatarPublisherService.Delete(new(request.FileId)));
 
             return result ? Result.OkResult() : Result.BadRequest("Invalid id");
         }
@@ -92,7 +92,7 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
 
             await _chatAvatarRepository.AddAsync(chatAvatar);
 
-            _ = Task.Run(async () => await _chatAvatarPublisherService.Create(new() { FileId = chatAvatar.File.Id }));
+            _ = Task.Run(async () => await _chatAvatarPublisherService.Create(new(request.FileId)));
 
             return Result.OkResult();
         }

@@ -3,7 +3,6 @@ using SpoofMessageService.Models;
 
 namespace SpoofMessageService.Services.Repositories;
 
-public interface IChatUserRepository : IDoubleIdentifiedRepository<ChatUser, Guid, Guid>
+public interface IChatRepository : ISoftDeletableIdentifiedRepository<Chat, Guid>
 {
-    public Task Delete(Guid chatId, Guid userId);
 }

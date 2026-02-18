@@ -5,6 +5,7 @@ using CommonObjects.Results;
 using SecurityLibrary;
 using SpoofEntranceService.Models;
 using SpoofEntranceService.Services;
+using SpoofEntranceService.Services.Publishers;
 using SpoofEntranceService.Services.Repositories;
 using SpoofEntranceService.Services.Validators;
 

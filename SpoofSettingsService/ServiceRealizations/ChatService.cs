@@ -4,19 +4,21 @@ using CommonObjects.Results;
 using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatService(IChatRepository chatRepository, IChatTypeService chatTypeService, IChatValidator chatValidator, IUserService userService, IRuleService ruleService) : IChatService
+public class ChatService(IChatRepository chatRepository, IChatTypeService chatTypeService, IChatPublisherService chatPublisherService, IChatValidator chatValidator, IUserService userService, IRuleService ruleService) : IChatService
 {
     private readonly IChatValidator _chatValidator = chatValidator;
     private readonly IUserService _userService = userService;
     private readonly IChatRepository _chatRepository = chatRepository;
     private readonly IChatTypeService _chatTypeService = chatTypeService;
     private readonly IRuleService _ruleService = ruleService;
+    private readonly IChatPublisherService _chatPublisherService = chatPublisherService;
 
     public async ValueTask<Result> ChangeSettings(ChangeChatSettingsRequest request, Guid userId)
     {
@@ -57,7 +59,7 @@ public class ChatService(IChatRepository chatRepository, IChatTypeService chatTy
             now);
 
         await _chatRepository.Change(newChat, repetition);
-
+        await _chatPublisherService.Publish(new(newChat.Id, null, newChat.ChatUniqueName, newChat.ChatName));
         return Result.OkResult();
     }
 

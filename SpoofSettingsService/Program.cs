@@ -2,7 +2,8 @@
 using SettingsHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
-using SpoofSettingsService.ServiceRealizations.MessageBrokers;
+using SpoofSettingsService.ServiceRealizations.MessageBrokers.Consumers;
+using SpoofSettingsService.ServiceRealizations.MessageBrokers.Publishers;
 using SpoofSettingsService.ServiceRealizations.Repositories;
 using SpoofSettingsService.ServiceRealizations.Validators;
 using SpoofSettingsService.Services;
@@ -20,6 +21,7 @@ builder.SetBaseSettings<SpoofSettingsServiceContext>();
 builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
 builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 builder.Services.AddSingleton<IChatUserPublisherService, ChatUserPublisherService>();
+builder.Services.AddSingleton<IChatPublisherService, ChatPublisherService>();
 
 builder.Services.AddHostedService<UserConsumerService>();
 
@@ -30,7 +32,7 @@ builder.Services.AddTransient<IUserAvatarValidator, UserAvatarValidator>();
 builder.Services.AddTransient<IStickerPackValidator, StickerPackValidator>();
 builder.Services.AddTransient<IStickerValidator, StickerValidator>();
 builder.Services.AddTransient<IUserValidator, UserValidator>();
-builder.Services.AddScoped<IRuleValidator, RuleValidator>();
+builder.Services.AddTransient<IRuleValidator, RuleValidator>();
 
 builder.Services.AddScoped<IFileMetadatumRepository, FileMetadatumRepository>();
 builder.Services.AddScoped<IChatAvatarRepository, ChatAvatarRepository>();
@@ -42,6 +44,7 @@ builder.Services.AddScoped<IUserAvatarRepository, UserAvatarRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChatTypeRepository, ChatTypeRepository>();
 builder.Services.AddScoped<IRuleRepository, RuleRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 builder.Services.AddScoped<IChatAvatarService, ChatAvatarService>();
 builder.Services.AddScoped<IChatService, ChatService>();
@@ -52,24 +55,9 @@ builder.Services.AddScoped<IStickerService, StickerService>();
 builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme()
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-    });
-
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-    {
-        [new("bearer", document)] = []
-    });
-});
 
 WebApplication app = builder.Build();
 

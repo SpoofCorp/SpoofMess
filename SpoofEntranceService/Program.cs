@@ -6,6 +6,9 @@ using SpoofEntranceService.Services;
 using SpoofEntranceService.Services.Repositories;
 using SpoofEntranceService.Services.Validators;
 using SettingsHelper;
+using SpoofEntranceService.ServiceRealizations.Consumers;
+using SpoofEntranceService.Services.Publishers;
+using SpoofEntranceService.ServiceRealizations.Publishers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 
 builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
+builder.Services.AddTransient<ISSSUserPublisherService, UserPublisherSSS>();
+builder.Services.AddTransient<ISMSUserPublisherService, UserPublisherSMS>();
 builder.Services.AddHostedService<UserConsumerService>();
 
 WebApplication app = builder.Build();

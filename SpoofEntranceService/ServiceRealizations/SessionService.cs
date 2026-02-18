@@ -1,7 +1,6 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests;
 using CommonObjects.Results;
-using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Converters;
 using SpoofEntranceService.Models;
 using SpoofEntranceService.Services;

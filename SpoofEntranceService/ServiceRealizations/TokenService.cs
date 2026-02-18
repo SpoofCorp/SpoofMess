@@ -2,7 +2,6 @@
 using CommonObjects.Requests;
 using CommonObjects.Responses;
 using CommonObjects.Results;
-using Microsoft.EntityFrameworkCore;
 using SecurityLibrary;
 using SpoofEntranceService.Converters;
 using SpoofEntranceService.Models;
