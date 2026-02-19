@@ -28,18 +28,22 @@ public class StickerPackValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetStickerPacks()
+    public static TheoryData<StickerPack, int> GetStickerPacks()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new StickerPack { IsDeleted = true }, 400 };
-        yield return new object[] { new StickerPack { IsDeleted = false }, 200 };
+        TheoryData<StickerPack, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new StickerPack { IsDeleted = true }, 400);
+        data.Add(new StickerPack { IsDeleted = false }, 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetStickerPacksWithOwner()
+    public static TheoryData<StickerPack, Guid, int> GetStickerPacksWithOwner()
     {
-        yield return new object[] { null!, Guid.Empty, 404 };
-        yield return new object[] { new StickerPack { IsDeleted = true, AuthorId = Guid.Empty }, Guid.Empty, 400 };
-        yield return new object[] { new StickerPack { IsDeleted = true, AuthorId = Guid.CreateVersion7() }, Guid.Empty, 400 };
-        yield return new object[] { new StickerPack { IsDeleted = false, AuthorId = Guid.CreateVersion7() }, Guid.Empty, 403 };
-        yield return new object[] { new StickerPack { IsDeleted = false, AuthorId = Guid.Empty }, Guid.Empty, 200 };
+        TheoryData<StickerPack, Guid, int> data = [];
+        data.Add(null!, Guid.Empty, 404);
+        data.Add(new StickerPack { IsDeleted = true, AuthorId = Guid.Empty }, Guid.Empty, 400);
+        data.Add(new StickerPack { IsDeleted = true, AuthorId = Guid.CreateVersion7() }, Guid.Empty, 400);
+        data.Add(new StickerPack { IsDeleted = false, AuthorId = Guid.CreateVersion7() }, Guid.Empty, 403);
+        data.Add(new StickerPack { IsDeleted = false, AuthorId = Guid.Empty }, Guid.Empty, 200);
+        return data;
     }
 }

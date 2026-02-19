@@ -17,12 +17,14 @@ public class TokenValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetTokens()
+    public static TheoryData<Token, int> GetTokens()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new Token { IsDeleted = true}, 401 };
-        yield return new object[] { new Token { IsDeleted = false, ValidTo = DateTime.UtcNow.AddSeconds(-1)}, 400 };
-        yield return new object[] { new Token { IsDeleted = false, ValidTo = DateTime.UtcNow.AddSeconds(1)}, 200 };
+        TheoryData<Token, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new Token { IsDeleted = true }, 401);
+        data.Add(new Token { IsDeleted = false, ValidTo = DateTime.UtcNow.AddSeconds(-1) }, 400);
+        data.Add(new Token { IsDeleted = false, ValidTo = DateTime.UtcNow.AddSeconds(1) }, 200);
+        return data;
     }
 
 }

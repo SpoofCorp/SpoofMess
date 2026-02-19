@@ -39,24 +39,29 @@ public class UserAvatarValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetAvatars()
+    public static TheoryData<List<UserAvatar>, int> GetAvatars()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new List<UserAvatar>(), 400 };
-        yield return new object[] { new List<UserAvatar> { new() }, 200 };
-        yield return new object[] { new List<UserAvatar> { new(), new(), new() }, 200 };
+        TheoryData<List<UserAvatar>, int> data = [];
+        data.Add(null!, 404);
+        data.Add([], 400);
+        data.Add([new()], 200);
+        data.Add([new(), new(), new(), new()], 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetAvatarWithFile()
-
+    public static TheoryData<UserAvatar, int> GetAvatarWithFile()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new UserAvatar { IsDeleted = true, FileId = new() }, 400 };
-        yield return new object[] { new UserAvatar { IsDeleted = false, FileId = new() }, 200 };
+        TheoryData<UserAvatar, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new UserAvatar { IsDeleted = true, FileId = new() }, 400);
+        data.Add(new UserAvatar { IsDeleted = false, FileId = new() }, 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetAvatar()
+    public static TheoryData<UserAvatar, int> GetAvatar()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new UserAvatar { IsDeleted = true }, 400 };
-        yield return new object[] { new UserAvatar { IsDeleted = false }, 200 };
+        TheoryData<UserAvatar, int> data = [];
+        data.Add(null!, 404 );
+        data.Add(new UserAvatar { IsDeleted = true }, 400 );
+        data.Add(new UserAvatar { IsDeleted = false }, 200 );
+        return data;
     }
 }

@@ -28,18 +28,22 @@ public class SoftDeletableValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetSoftDeletableEntities()
+    public static TheoryData<SoftDeletable, int> GetSoftDeletableEntities()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new SoftDeletable { IsDeleted = true }, 400 };
-        yield return new object[] { new SoftDeletable { IsDeleted = false }, 200 };
+        TheoryData<SoftDeletable, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new SoftDeletable { IsDeleted = true }, 400);
+        data.Add(new SoftDeletable { IsDeleted = false }, 200);
+        return data;
     }
-    public static IEnumerable<object[]> GetCollections()
+    public static TheoryData<List<SoftDeletable>, int> GetCollections()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new List<SoftDeletable>(), 400 };
-        yield return new object[] { new List<SoftDeletable>() { new() }, 200 };
-        yield return new object[] { new List<SoftDeletable>() { new(), new(), new(), new() }, 200 };
+        TheoryData<List<SoftDeletable>, int> data = [];
+        data.Add(null!, 404);
+        data.Add([], 400);
+        data.Add([new()], 200);
+        data.Add([new(), new(), new(), new()], 200);
+        return data;
     }
 
     public class SoftDeletable : ISoftDeletable

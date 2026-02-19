@@ -39,40 +39,46 @@ public class SessionServiceTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetSessionInvalidInfos()
+    public static TheoryData<SessionInfo, int> GetSessionInvalidInfos()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new SessionInfo { IsActive = false }, 400 };
-        yield return new object[] { new SessionInfo { IsDeleted = true }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = false, IsDeleted = true }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = true }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = false }, 200 };
+        TheoryData<SessionInfo, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new SessionInfo { IsActive = false }, 400);
+        data.Add(new SessionInfo { IsDeleted = true }, 400);
+        data.Add(new SessionInfo { IsActive = false, IsDeleted = true }, 400);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = true }, 400);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = false }, 200);
+        return data;
     }
 
-    public static IEnumerable<object[]> GetTrustSessionInfos()
+    public static TheoryData<SessionInfo, int> GetTrustSessionInfos()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new SessionInfo { IsActive = false }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = false, CreatedAt = DateTime.UtcNow }, 400 };
-        yield return new object[] { new SessionInfo { IsDeleted = true }, 400 };
-        yield return new object[] { new SessionInfo { IsDeleted = true, CreatedAt = DateTime.UtcNow }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = false, IsDeleted = true }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = false, IsDeleted = true, CreatedAt = DateTime.UtcNow }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = true }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = true, CreatedAt = DateTime.UtcNow }, 400 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = false , CreatedAt = DateTime.UtcNow.AddSeconds(-1) }, 403 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = false , CreatedAt = DateTime.UtcNow.AddDays(-2) }, 403 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = false , CreatedAt = DateTime.UtcNow.AddDays(-4) }, 403 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = false , CreatedAt = DateTime.UtcNow.AddDays(-7) }, 403 };
-        yield return new object[] { new SessionInfo { IsActive = true, IsDeleted = false , CreatedAt = DateTime.UtcNow.AddDays(-8) }, 200 };
+        TheoryData<SessionInfo, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new SessionInfo { IsActive = false }, 400);
+        data.Add(new SessionInfo { IsActive = false, CreatedAt = DateTime.UtcNow }, 400);
+        data.Add(new SessionInfo { IsDeleted = true }, 400);
+        data.Add(new SessionInfo { IsDeleted = true, CreatedAt = DateTime.UtcNow }, 400);
+        data.Add(new SessionInfo { IsActive = false, IsDeleted = true }, 400);
+        data.Add(new SessionInfo { IsActive = false, IsDeleted = true, CreatedAt = DateTime.UtcNow }, 400);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = true }, 400);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = true, CreatedAt = DateTime.UtcNow }, 400);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = false, CreatedAt = DateTime.UtcNow.AddSeconds(-1) }, 403);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = false, CreatedAt = DateTime.UtcNow.AddDays(-2) }, 403);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = false, CreatedAt = DateTime.UtcNow.AddDays(-4) }, 403);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = false, CreatedAt = DateTime.UtcNow.AddDays(-7) }, 403);
+        data.Add(new SessionInfo { IsActive = true, IsDeleted = false, CreatedAt = DateTime.UtcNow.AddDays(-8) }, 200);
+        return data;
     }
 
-    public static IEnumerable<object[]> GetAgesSessionInfos()
+    public static TheoryData<SessionInfo, bool> GetAgesSessionInfos()
     {
-        yield return new object[] { new SessionInfo { CreatedAt = DateTime.UtcNow }, true };
-        yield return new object[] { new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-4) }, true };
-        yield return new object[] { new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-7) }, true };
-        yield return new object[] { new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-8) }, false };
-        yield return new object[] { new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-10) }, false };
+        TheoryData<SessionInfo, bool> data = [];
+        data.Add(new SessionInfo { CreatedAt = DateTime.UtcNow }, true);
+        data.Add(new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-4) }, true);
+        data.Add(new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-7) }, true);
+        data.Add(new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-8) }, false);
+        data.Add(new SessionInfo { CreatedAt = DateTime.UtcNow.AddDays(-10) }, false);
+        return data;
     }
 }

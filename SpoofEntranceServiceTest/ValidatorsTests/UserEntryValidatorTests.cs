@@ -28,17 +28,21 @@ public class UserEntryValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetUserEntries()
+    public static TheoryData<UserEntry, int> GetUserEntries()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new UserEntry { IsDeleted = true }, 400 };
-        yield return new object[] { new UserEntry { IsDeleted = false }, 200 };
+        TheoryData<UserEntry, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new UserEntry { IsDeleted = true }, 400);
+        data.Add(new UserEntry { IsDeleted = false }, 200);
+        return data;
     }
 
-    public static IEnumerable<object[]> GetActiveUserEntries()
+    public static TheoryData<UserEntry, int> GetActiveUserEntries()
     {
-        yield return new object[] { null!, 200 };
-        yield return new object[] { new UserEntry { IsDeleted = true }, 200 };
-        yield return new object[] { new UserEntry { IsDeleted = false }, 400 };
+        TheoryData<UserEntry, int> data = [];
+        data.Add(null!, 200);
+        data.Add(new UserEntry { IsDeleted = true }, 200);
+        data.Add(new UserEntry { IsDeleted = false }, 400);
+        return data;
     }
 }

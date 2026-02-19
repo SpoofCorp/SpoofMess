@@ -53,11 +53,11 @@ public class ChatAvatarValidatorTests
         TheoryData<ChatAvatar, int> data = [];
         data.Add(null!, 404);
         data.Add(new() { IsDeleted = true }, 400 );
-        data.Add(new() { IsDeleted = true, FileId = new() }, 400 );
+        data.Add(new() { IsDeleted = true, Key2 = new() }, 400 );
         data.Add(new() { IsDeleted = false }, 400 );
-        data.Add(new() { IsDeleted = false, FileId = new() }, 400 );
+        data.Add(new() { IsDeleted = false, Key2 = new() }, 400 );
         data.Add(new() { IsDeleted = false, File = new() }, 200 );
-        data.Add(new() { IsDeleted = false, File = new(), FileId = new() }, 200 );
+        data.Add(new() { IsDeleted = false, File = new(), Key2 = new() }, 200 );
         return data;
     }
     public static TheoryData<ChatAvatar, int> GetAvatar()

@@ -17,10 +17,12 @@ public class UserValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetUsers()
+    public static TheoryData<User, int> GetUsers()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new User { IsDeleted = true }, 400 };
-        yield return new object[] { new User { IsDeleted = false }, 200 };
+        TheoryData<User, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new User { IsDeleted = true }, 400);
+        data.Add(new User { IsDeleted = false }, 200);
+        return data;
     }
 }

@@ -17,10 +17,12 @@ public class StickerValidatorTests
         Assert.Equal(statusCode, result.StatusCode);
     }
 
-    public static IEnumerable<object[]> GetStickers()
+    public static TheoryData<Sticker, int> GetStickers()
     {
-        yield return new object[] { null!, 404 };
-        yield return new object[] { new Sticker { IsDeleted = true, FileId = Guid.Empty }, 400 };
-        yield return new object[] { new Sticker { IsDeleted = false, FileId = Guid.Empty }, 200 };
+        TheoryData<Sticker, int> data = [];
+        data.Add(null!, 404);
+        data.Add(new Sticker { IsDeleted = true, FileId = Guid.Empty }, 400);
+        data.Add(new Sticker { IsDeleted = false, FileId = Guid.Empty }, 200);
+        return data;
     }
 }
