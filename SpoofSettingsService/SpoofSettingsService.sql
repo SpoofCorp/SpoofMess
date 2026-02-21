@@ -204,6 +204,18 @@ create table "ChatAvatar"
     constraint "PK_ChatAvatar_Id" primary key("ChatId", "FileId")
 );
 
+create table "ChatUserOutbox"
+(
+	"Id" uuid constraint "PK_ChatUserOutbox_Id" primary key default uuidv7(),
+    "ChatId" uuid not null,
+    "UserId" uuid not null,
+	"IsSynced" boolean not null default false,
+	"LastTryDate" timestamptz not null default CURRENT_TIMESTAMP,
+	"CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
+	"Data" jsonb not null,
+	constraint "FK_ChatUserOutbox_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade
+);
+
 insert into "ChatType"("Id", "Name")
 values 
 (0, 'Private'),
