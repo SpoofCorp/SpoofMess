@@ -1,6 +1,6 @@
 ﻿using AdditionalHelpers.Services;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System.Collections.Concurrent;
 using System.Text;
@@ -10,27 +10,51 @@ namespace CommunicationLibrary.ServiceRealizations;
 public abstract class PublisherService
 {
     private readonly ConnectionFactory _factory;
+    private readonly RabbitMQSettings _settings;
     private readonly ConcurrentDictionary<string, IChannel> _channels = [];
-    private readonly IConnection _connection;
+    private IConnection _connection = null!;
     protected readonly ISerializer _serializer;
+    protected readonly ILoggerService _loggerService;
     protected abstract string Exchange { get; }
 
     public PublisherService(
         RabbitMQSettings settings,
+        ILoggerService loggerService,
         ISerializer serializer
         )
     {
+        _settings = settings;
         _factory = new ConnectionFactory
         {
             HostName = settings.HostName,
             Port = settings.Port,
             UserName = settings.UserName,
             Password = settings.Password,
+            AutomaticRecoveryEnabled = true,
+            NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };
-        _connection = _factory.CreateConnectionAsync().Result;
+        _loggerService = loggerService;
         _serializer = serializer;
     }
+    private async Task EnsureConnectionAsync()
+    {
+        if (_connection is { IsOpen: true })
+            return;
 
+        while (_connection is { IsOpen: false })
+        {
+            _connection = await _factory.CreateConnectionAsync();
+            if (_connection is { IsOpen: false })
+            {
+                _loggerService.Error($"RabbitMQ wasn't started\nHostName: {_settings.HostName}\tPort: {_settings.Port}");
+                await Task.Delay(_settings.RetryConnectionTime);
+            }
+            else
+                _loggerService.Info("Publisher was started");
+        }
+    }
+
+    [Obsolete("May be removed in future versions.")]
     public async Task Batch<T>(
         string routingKey,
         List<T> values,
@@ -137,7 +161,7 @@ public abstract class PublisherService
             publisherConfirmationTrackingEnabled: true
         );
         IChannel channel = await _connection.CreateChannelAsync(options);
-
+        await EnsureConnectionAsync();
         await channel.ExchangeDeclareAsync(
             exchange: Exchange,
             type: type,

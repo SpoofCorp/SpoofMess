@@ -4,6 +4,7 @@ using System.Threading.Channels;
 
 namespace CommunicationLibrary.ServiceRealizations;
 
+[Obsolete("This a sh*t peace of system. Please don't use it. Soon I will remove it.")]
 public abstract class BatchPublisherService<T> : BackgroundService, IAsyncDisposable
 {
     private readonly CancellationTokenSource cts = new();

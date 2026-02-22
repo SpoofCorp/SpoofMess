@@ -7,11 +7,13 @@ using SpoofSettingsService.Services.MessageBrokers;
 namespace SpoofSettingsService.ServiceRealizations.MessageBrokers.Publishers;
 
 public class ChatPublisherService(
-    RabbitMQSettings settings,
-    ISerializer serializer
-    ) : RabbitMQService(
-        settings,
-        serializer
+        RabbitMQSettings settings,
+        ILoggerService loggerService,
+        ISerializer serializer
+    ) : PublisherService(
+            settings,
+            loggerService,
+            serializer
         ), IChatPublisherService
 {
     protected override string Exchange => "message-service";

@@ -9,4 +9,6 @@ public class RabbitMQSettings
     public string UserName { get; set; } = "guest";
 
     public string Password { get; set; } = "guest";
+
+    public int RetryConnectionTime { get; set; } = 1000;
 }
