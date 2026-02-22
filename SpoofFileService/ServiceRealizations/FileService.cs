@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using CommonObjects.Requests.Files;
 using CommonObjects.Results;
 using SpoofFileService.Models;
 using SpoofFileService.Services;
@@ -13,7 +14,23 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
     private readonly IFileRepository _fileRepository = fileRepository;
     private readonly IFileValidator _fileValidator = fileValidator;
     private readonly IFileWorkerService _fileWorkerService = fileWorkerService;
-    public async Task<Result> DeleteFile(Guid fileId)
+
+    public async Task<Result<Guid>> ExistL1(FingerprintExist request)
+    {
+        try
+        {
+            FileObject? fileObject = await _fileRepository.GetByIdAsync(request.Fingerprint);
+
+            return Result<Guid>.OkResult(new Guid());
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("Database error", ex);
+            return Result<Guid>.ErrorResult("Internal server error");
+        }
+    }
+
+    public async Task<Result> DeleteFile(byte[] fileId)
     {
         try
         {
@@ -23,7 +40,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
                 return result;
 
             await _fileRepository.SoftDeleteAsync(fileObject!);
-            await _fileWorkerService.Delete(fileObject!.FilePath);
+            await _fileWorkerService.Delete(fileObject!.Path);
 
             return Result.OkResult();
         }
@@ -34,7 +51,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async ValueTask<Result<FileStream>> GetFile(Guid fileId, Guid userId)
+    public async ValueTask<Result<FileStream>> GetFile(byte[] fileId, Guid userId)
     {
         try
         {
@@ -43,7 +60,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
             if (!result.Success)
                 return Result<FileStream>.From(result);
 
-            FileStream? stream = await _fileWorkerService.Get(fileObject!.FilePath);
+            FileStream? stream = await _fileWorkerService.Get(fileObject!.Path);
 
             return stream is null ? Result<FileStream>.NotFoundResult("File is not found") : Result<FileStream>.OkResult(stream);
         }
@@ -54,7 +71,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async Task<Result> SaveFile(IFormFile file, Guid? fileId)
+    public async Task<Result> SaveFile(IFormFile file, byte[]? fileId)
     {
         try
         {
@@ -65,8 +82,8 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
 
             FileObject fileObject = new()
             {
-                Id = fileId ?? Guid.CreateVersion7(),
-                FilePath = filePath,
+                Id = fileId,
+                Path = filePath,
                 IsDeleted = false,
                 LastModified = DateTime.UtcNow,
             };

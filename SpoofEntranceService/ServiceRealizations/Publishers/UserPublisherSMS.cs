@@ -6,7 +6,15 @@ using SpoofEntranceService.Services.Publishers;
 
 namespace SpoofEntranceService.ServiceRealizations.Publishers;
 
-public class UserPublisherSMS(RabbitMQSettings settings, ISerializer serializer) : RabbitMQService(settings, serializer), ISMSUserPublisherService
+public class UserPublisherSMS(
+        RabbitMQSettings settings,
+        ILoggerService loggerService,
+        ISerializer serializer
+    ) : PublisherService(
+        settings,
+        loggerService,
+        serializer
+        ), ISMSUserPublisherService
 {
     protected override string Exchange => "message-service";
 

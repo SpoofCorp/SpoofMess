@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 using StackExchange.Redis;
 
 namespace SettingsHelper;
@@ -104,6 +105,23 @@ public static class ServerSettingsService
     {
         builder.Services.AddSingleton<IProcessQueueTasksService, ProcessQueueTasksService>();
     }
+    public static void AddSwaggerGenWithAccess(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme()
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new("bearer", document)] = []
+            });
+        });
+    }
 
     public static void SetBaseSettings<TContext>(this WebApplicationBuilder builder) where TContext : DbContext
     {
@@ -113,6 +131,7 @@ public static class ServerSettingsService
         builder.AddRabbitMQ();
         builder.AddRedisAndMemoryCaches();
         builder.AddJsonSerializer();
+        builder.AddSwaggerGenWithAccess();
         builder.AddInjectionService();
     }
 }

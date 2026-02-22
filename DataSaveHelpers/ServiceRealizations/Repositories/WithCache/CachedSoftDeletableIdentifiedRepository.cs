@@ -12,8 +12,8 @@ public class CachedSoftDeletableIdentifiedRepository<T, TKey>(ICacheService cach
         try
         {
             entity.IsDeleted = true;
+            _context.Entry(entity).State = EntityState.Modified;
             await _cache.Save(GetKey(entity), entity);
-            _set.Update(entity);
             await _context.SaveChangesAsync();
         }
         catch (Exception ex)

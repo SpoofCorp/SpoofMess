@@ -4,7 +4,9 @@
     <Project Path="CommonObjects/CommonObjects.csproj" Id="63622330-76dc-4b2e-abb7-7f1a4ff31f02" />
     <Project Path="CommunicationLibrary/CommunicationLibrary.csproj" Id="3d58e754-be84-4619-9af9-4e08a7558ad5" />
     <Project Path="DataSaveHelpers/DataSaveHelpers.csproj" />
+    <Project Path="RuleRoleHelper/RuleRoleHelper.csproj" Id="47d07946-ac9c-41fc-8988-7c892c524f6c" />
     <Project Path="SecurityLibrary/SecurityLibrary.csproj" Id="da4bb2f8-6158-4f2d-a9d0-6cdde4a684f6" />
+    <Project Path="SettingsHelper/SettingsHelper.csproj" Id="8645382d-45b2-4f57-b12e-8e2ee83a546f" />
   </Folder>
   <Folder Name="/Helpers/Tests/">
     <Project Path="SecurityLibraryTest/SecurityLibraryTest.csproj" Id="3a83075b-823e-4bea-a10d-9957953b0727" />

@@ -3,6 +3,6 @@ using SpoofFileService.Models;
 
 namespace SpoofFileService.Services.Repositories;
 
-public interface IFileRepository : ISoftDeletableIdentifiedRepository<FileObject, Guid>
+public interface IFileRepository : ISoftDeletableIdentifiedRepository<FileObject, byte[]>
 {
 }

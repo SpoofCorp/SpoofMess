@@ -1,5 +1,4 @@
-﻿using Microsoft.OpenApi;
-using SettingsHelper;
+﻿using SettingsHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers.Consumers;

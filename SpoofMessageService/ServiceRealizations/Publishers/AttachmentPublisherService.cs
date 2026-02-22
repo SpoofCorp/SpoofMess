@@ -7,10 +7,12 @@ using SpoofMessageService.Services.Publishers;
 namespace SpoofMessageService.ServiceRealizations.Publishers;
 
 public class AttachmentPublisherService(
-    RabbitMQSettings settings, 
-    ISerializer serializer
+        RabbitMQSettings settings,
+        ILoggerService loggerService,
+        ISerializer serializer
     ) : FileMessagePublisherService<Attachment>(
         settings,
+        loggerService,
         serializer
         ), IAttachmentPublisherService
 {

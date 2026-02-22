@@ -4,13 +4,13 @@ public class ChangeChatSettingsRequest
 {
     public Guid Id { get; set; }
 
-    public int? ChatTypeId { get; set; }
+    public int? ChatTypeId { get; set; } = null;
 
-    public Guid? OwnerId { get; set; }
+    public Guid? OwnerId { get; set; } = null;
 
-    public string? ChatName { get; set; }
+    public string? ChatName { get; set; } = null;
 
-    public bool? IsPublic { get; set; }
+    public bool? IsPublic { get; set; } = null;
 
-    public string? UniqueName { get; set; }
+    public string? UniqueName { get; set; } = null;
 }

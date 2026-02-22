@@ -6,6 +6,6 @@ using SpoofFileService.Services.Repositories;
 
 namespace SpoofFileService.ServiceRealizations.Repositories;
 
-public class FileRepository(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedSoftDeletableIdentifiedRepository<FileObject, Guid>(cache, context, processQueueTasks), IFileRepository
+public class FileRepository(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedSoftDeletableIdentifiedRepository<FileObject, byte[]>(cache, context, processQueueTasks), IFileRepository
 {
 }

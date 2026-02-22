@@ -13,7 +13,7 @@ public class FileValidator : SoftDeletableValidator<FileObject>, IFileValidator
         if (!result.Success)
             return result;
 
-        if (File.Exists(obj!.FilePath))
+        if (File.Exists(obj!.Path))
             return Result.OkResult();
 
         return Result.BadRequest("File is not exist");

@@ -23,6 +23,8 @@ public partial class ChatUser : DoubleIdentifiedSoftDeletable<Guid, Guid>
 
     public virtual ICollection<ChatUserChatRole> ChatUserChatRoles { get; set; } = [];
 
+    public virtual ICollection<ChatUserOutbox> ChatUserOutboxes { get; set; } = [];
+
     public virtual ICollection<ChatUserRule> ChatUserRules { get; set; } = [];
 
     public virtual User User { get; set; } = null!;

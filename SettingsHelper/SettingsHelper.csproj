@@ -11,7 +11,15 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
 	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\CommunicationLibrary\CommunicationLibrary.csproj" />
+	  <ProjectReference Include="..\DataSaveHelpers\DataSaveHelpers.csproj" />
+	  <ProjectReference Include="..\SecurityLibrary\SecurityLibrary.csproj" />
 	</ItemGroup>
 </Project>

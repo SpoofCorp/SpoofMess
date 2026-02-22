@@ -34,6 +34,8 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<ChatUserRule> ChatUserRules { get; set; }
 
+    public virtual DbSet<ChatUserOutbox> ChatUserOutboxes { get; set; }
+
     public virtual DbSet<Extension> Extensions { get; set; }
 
     public virtual DbSet<FileMetadataOperationStatus> FileMetadataOperationStatuses { get; set; }
@@ -215,6 +217,22 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasOne(d => d.ChatUser).WithMany(p => p.ChatUserChatRoles)
                 .HasForeignKey(d => new { d.Key1, d.Key2 })
                 .HasConstraintName("FK_ChatUserChatRole_ChatUserId");
+        });
+
+        modelBuilder.Entity<ChatUserOutbox>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_ChatUserOutbox_Id");
+
+            entity.ToTable("ChatUserOutbox");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Data).HasColumnType("jsonb");
+            entity.Property(e => e.LastTryDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.ChatUser).WithMany(p => p.ChatUserOutboxes)
+                .HasForeignKey(d => new { d.ChatId, d.UserId })
+                .HasConstraintName("FK_ChatUserOutbox_ChatUserId");
         });
 
         modelBuilder.Entity<ChatUserRule>(entity =>
