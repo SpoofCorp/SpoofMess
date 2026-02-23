@@ -204,6 +204,8 @@ create table "ChatAvatar"
     constraint "PK_ChatAvatar_Id" primary key("ChatId", "FileId")
 );
 
+create type outbox_status as enum ('Delete', 'Create', 'Update', 'Rollback');
+
 create table "ChatUserOutbox"
 (
 	"Id" uuid constraint "PK_ChatUserOutbox_Id" primary key default uuidv7(),
@@ -213,6 +215,7 @@ create table "ChatUserOutbox"
 	"LastTryDate" timestamptz not null default CURRENT_TIMESTAMP,
 	"CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"Data" jsonb not null,
+	"Status" outbox_status not null,
 	constraint "FK_ChatUserOutbox_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade
 );
 
@@ -278,6 +281,128 @@ end;
 $$ language plpgsql;
 
 
+create or replace function "LogChatUserToOutbox"()
+returns trigger as $$
+begin
+    insert into "ChatUserOutbox"("ChatId", "UserId", "Status", "Data")
+    values (
+        new."ChatId",
+        new."UserId",
+        'Create',
+        jsonb_build_object(
+	        'ChatId', new."ChatId",
+	        'UserId', new."UserId",
+	        'Rules', (SELECT jsonb_agg(row_to_json(t)) 
+                FROM get_user_permission(
+					new."UserId",
+					new."ChatId",
+					array[
+						100,
+						101,
+						102,
+						103,
+						104,
+						105,
+						106,
+						107,
+						150,
+						151,
+						152
+					]::smallint[]
+					) t
+			)
+    	)
+    );
+    return new;
+end;
+$$ language plpgsql;
+create trigger "Trg_ChatUser_Outbox"
+after insert on "ChatUser"
+for each row execute function "LogChatUserToOutbox"();
+
+create or replace function "LogChatUserChatRoleToOutbox"()
+returns trigger as $$
+begin
+    insert into "ChatUserOutbox"("ChatId", "UserId", "Status", "Data")
+    values (
+        new."ChatId",
+        new."UserId",
+        'Update',
+        jsonb_build_object(
+	        'ChatId', new."ChatId",
+	        'UserId', new."UserId",
+	        'Rules', (SELECT jsonb_agg(row_to_json(t)) 
+                FROM get_user_permission(
+					new."UserId", 
+					new."ChatId",
+					array[
+						100,
+						101,
+						102,
+						103,
+						104,
+						105,
+						106,
+						107,
+						150,
+						151,
+						152
+					]::smallint[]
+					) t
+			)
+    	)
+    );
+    return new;
+end;
+$$ language plpgsql;
+create trigger "Trg_ChatUserChatRole_Outbox"
+after insert on "ChatUserChatRole"
+for each row execute function "LogChatUserChatRoleToOutbox"();
+
+create or replace function "LogChatRoleRulesToOutbox"()
+returns trigger as $$
+begin
+    insert into "ChatUserOutbox"("ChatId", "UserId", "Status", "Data")
+	select 
+		crr."ChatId", 
+		cucr."UserId",
+		'Update',
+		jsonb_build_object(
+	        'ChatId', crr."ChatId",
+	        'UserId', cucr."UserId",
+	        'Rules', (SELECT jsonb_agg(row_to_json(t)) 
+	            FROM get_user_permission(
+					cucr."UserId",
+					crr."ChatId",
+					array[
+						100,
+						101,
+						102,
+						103,
+						104,
+						105,
+						106,
+						107,
+						150,
+						151,
+						152
+					]::smallint[]
+					) t
+			)) from
+	"ChatRole" crr 
+	join "ChatUserChatRole" cucr on cucr."ChatId" = crr."ChatId" and cucr."ChatRoleId" = crr."Id"
+	where crr."Id" = 1;
+    return new;
+end;
+$$ language plpgsql;
+create trigger "Trg_ChatRoleRules_Outbox"
+after update on "ChatRoleRules"
+for each row execute function "LogChatRoleRulesToOutbox"();
+
+create trigger "Trg_Chat_After_Insert" after insert on "Chat"
+for each row
+execute function "CreateRolesAfterChat"();
+
 create trigger "Trg_FileMetadataOperationStatus_After_Insert" after insert on "FileMetadataOperationStatus"
 for each row
 execute function "FileMetadataOperationStatus_OnceActual"();
@@ -320,14 +445,6 @@ begin
 	insert into "ChatRole"("ChatId", "Name", "RoleRankId")
 	values (new."Id", 'Member', leastRankId)
 	returning "Id" into memberRoleId;
-
-	insert into "ChatUser"("ChatId", "UserId")
-	values
-	(new."Id", new."OwnerId");
-
-	insert into "ChatUserChatRole"("ChatId", "UserId", "ChatRoleId")
-	values
-	(new."Id", new."OwnerId", ownerRoleId);
 	
 	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
 	select memberRoleId, "Id", true 
@@ -342,6 +459,14 @@ begin
 
 	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
 	select ownerRoleId, "Id", true from "Permission";
+
+	insert into "ChatUser"("ChatId", "UserId")
+	values
+	(new."Id", new."OwnerId");
+
+	insert into "ChatUserChatRole"("ChatId", "UserId", "ChatRoleId")
+	values
+	(new."Id", new."OwnerId", ownerRoleId);
 	
 	return new;
 end;

@@ -117,6 +117,15 @@ create table "ViewMessage"
 create index "IX_ViewMessage_MessageId" on "ViewMessage"("MessageId");
 create index "IX_ViewMessage_UserId" on "ViewMessage"("UserId");
 
+
+insert into "OperationStatus"("Id", "Name")
+values 
+(0, 'Pending'),
+(1, 'Error'),
+(2, 'Success'),
+(3, 'Rejected'),
+(4, 'Deleting');
+
 create or replace function "Fnc_ViewMessage_Count"()
 returns trigger as
 $$
