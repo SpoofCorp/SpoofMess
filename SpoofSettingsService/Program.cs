@@ -1,7 +1,9 @@
-﻿using SettingsHelper;
+﻿using Microsoft.EntityFrameworkCore;
+using SettingsHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers.Consumers;
+using SpoofSettingsService.ServiceRealizations.MessageBrokers.Outboxers;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers.Publishers;
 using SpoofSettingsService.ServiceRealizations.Repositories;
 using SpoofSettingsService.ServiceRealizations.Validators;
@@ -15,7 +17,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.SetBaseSettings<SpoofSettingsServiceContext>();
+builder.SetBaseSettings();
+
+builder.Services.AddDbContext<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Sql"), o => o.MapEnum<OutboxStatus>("outbox_status")));
 
 builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
 builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
@@ -23,6 +27,7 @@ builder.Services.AddSingleton<IChatUserPublisherService, ChatUserPublisherServic
 builder.Services.AddSingleton<IChatPublisherService, ChatPublisherService>();
 
 builder.Services.AddHostedService<UserConsumerService>();
+builder.Services.AddHostedService<ChatUserOutboxer>();
 
 builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
 builder.Services.AddTransient<IChatValidator, ChatValidator>();
@@ -44,6 +49,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChatTypeRepository, ChatTypeRepository>();
 builder.Services.AddScoped<IRuleRepository, RuleRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IChatUserOutboxRepository, ChatUserOutboxRepository>();
 
 builder.Services.AddScoped<IChatAvatarService, ChatAvatarService>();
 builder.Services.AddScoped<IChatService, ChatService>();

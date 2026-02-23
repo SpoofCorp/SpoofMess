@@ -10,6 +10,8 @@ public partial class ChatUserOutbox : IdentifiedEntity<Guid>
 
     public bool IsSynced { get; set; }
 
+    public OutboxStatus Status { get; set; }
+
     public DateTime LastTryDate { get; set; }
 
     public DateTime CreatedAt { get; set; }

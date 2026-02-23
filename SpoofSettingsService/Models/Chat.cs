@@ -24,6 +24,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public virtual User Owner { get; set; } = null!;
 
+    public virtual ICollection<RoleRank> RoleRanks { get; set; } = [];
+
     public Chat() { }
 
     public Chat(Guid id, int chatTypeId, Guid? ownerId, string chatName, string chatUniqueName, DateTime createdAt, DateTime lastModified)

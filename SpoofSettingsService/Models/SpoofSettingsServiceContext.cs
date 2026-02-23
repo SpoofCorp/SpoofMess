@@ -32,9 +32,9 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<ChatUserChatRole> ChatUserChatRoles { get; set; }
 
-    public virtual DbSet<ChatUserRule> ChatUserRules { get; set; }
-
     public virtual DbSet<ChatUserOutbox> ChatUserOutboxes { get; set; }
+
+    public virtual DbSet<ChatUserRule> ChatUserRules { get; set; }
 
     public virtual DbSet<Extension> Extensions { get; set; }
 
@@ -47,6 +47,8 @@ public partial class SpoofSettingsServiceContext : DbContext
     public virtual DbSet<OperationStatus> OperationStatuses { get; set; }
 
     public virtual DbSet<Permission> Permissions { get; set; }
+
+    public virtual DbSet<RoleRank> RoleRanks { get; set; }
 
     public virtual DbSet<Sticker> Stickers { get; set; }
 
@@ -63,6 +65,8 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasNoKey();
         });
 
+        modelBuilder.HasPostgresEnum<OutboxStatus>(name: "outbox_status");
+
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Chat_Id");
@@ -71,13 +75,11 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.HasIndex(e => e.ChatUniqueName, "Chat_ChatUniqueName_key").IsUnique();
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.ChatName).HasMaxLength(100);
             entity.Property(e => e.ChatUniqueName).HasMaxLength(100);
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.ChatType).WithMany(p => p.Chats)
                 .HasForeignKey(d => d.ChatTypeId)
@@ -96,8 +98,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.ToTable("ChatAvatar");
 
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatAvatars)
                 .HasForeignKey(d => d.Key1)
@@ -107,7 +108,6 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_ChatAvatar_FileId");
         });
-
         modelBuilder.Entity<ChatProperty>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_ChatProperty_Id");
@@ -131,11 +131,15 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatRoles)
                 .HasForeignKey(d => d.ChatId)
                 .HasConstraintName("FK_ChatRole_ChatId");
+
+            entity.HasOne(d => d.RoleRank).WithMany(p => p.ChatRoles)
+                .HasForeignKey(d => d.RoleRankId)
+                .HasConstraintName("FK_ChatRole_RoleRankId");
         });
 
         modelBuilder.Entity<ChatRoleRule>(entity =>
         {
-            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_RChatRoleRules_Id");
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_ChatRoleRules_Id");
 
             entity.Property(e => e.IsPermission).HasDefaultValue(true);
 
@@ -188,8 +192,7 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .IsUnique()
                 .HasFilter("(\"IsDeleted\" = false)");
 
-            entity.Property(e => e.JoinedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.JoinedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatUsers)
                 .HasForeignKey(d => d.Key1)
@@ -206,8 +209,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.ToTable("ChatUserChatRole");
 
-            entity.Property(e => e.TimeSet)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.TimeSet).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.ChatRole).WithMany(p => p.ChatUserChatRoles)
                 .HasForeignKey(d => d.ChatRoleId)
@@ -224,6 +226,9 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK_ChatUserOutbox_Id");
 
             entity.ToTable("ChatUserOutbox");
+
+            entity.Property(e => e.Status)
+                .HasColumnType("outbox_status");
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -267,8 +272,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.ToTable("FileMetadataOperationStatus");
 
             entity.Property(e => e.IsActual).HasDefaultValue(true);
-            entity.Property(e => e.TimeSet)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.TimeSet).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.FileMetadata).WithMany(p => p.FileMetadataOperationStatuses)
                 .HasForeignKey(d => d.FileMetadataId)
@@ -333,8 +337,24 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.ToTable("Permission");
 
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Description).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<RoleRank>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_RoleRank_Id");
+
+            entity.ToTable("RoleRank");
+
+            entity.HasIndex(e => new { e.ChatId, e.Name }, "RoleRank_ChatId_Name_key").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+
+            entity.HasOne(d => d.Chat).WithMany(p => p.RoleRanks)
+                .HasForeignKey(d => d.ChatId)
+                .HasConstraintName("FK_RoleRank_ChatId");
         });
 
         modelBuilder.Entity<Sticker>(entity =>
@@ -344,8 +364,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.ToTable("Sticker");
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
-            entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(50);
 
             entity.HasOne(d => d.File).WithMany(p => p.Stickers)
@@ -365,8 +384,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.HasIndex(e => e.AuthorId, "IX_StickerPack_AuthorId").HasFilter("(\"IsDeleted\" = false)");
 
-            entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(100);
 
             entity.HasOne(d => d.Author).WithMany(p => p.StickerPacks)
@@ -384,18 +402,17 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.ToTable("User");
 
-            entity.HasIndex(e => e.Login, "IX_User_Login");
             entity.HasIndex(e => e.Login, "User_Login_key").IsUnique();
 
-            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ForwardMessage).HasDefaultValue(true);
             entity.Property(e => e.InviteMe).HasDefaultValue(true);
+            entity.Property(e => e.Login).HasMaxLength(100);
             entity.Property(e => e.MonthsBeforeDelete).HasDefaultValue(6);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.SearchMe).HasDefaultValue(true);
             entity.Property(e => e.ShowMe).HasDefaultValue(true);
-            entity.Property(e => e.WasOnline)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.WasOnline).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         modelBuilder.Entity<UserAvatar>(entity =>
@@ -405,8 +422,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.ToTable("UserAvatar");
 
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.File).WithMany(p => p.UserAvatars)
                 .HasForeignKey(d => d.FileId)
@@ -416,6 +432,7 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK_UserAvatar_UserId");
         });
+
 
         OnModelCreatingPartial(modelBuilder);
     }
