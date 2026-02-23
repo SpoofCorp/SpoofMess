@@ -550,9 +550,11 @@ begin
 			and cur."UserId" = ch."UserId"
 		where ch."ChatId" = p_chat_id
 			and ch."UserId" = p_user_id
-			and p_mask is null
+			and (
+				p_mask is null
 				or cardinality(p_mask) = 0
 				or cur."PermissionId" = any(p_mask)
+			)
 		union all
 		select 
 			crr."PermissionId",
@@ -565,9 +567,11 @@ begin
 			crr."ChatRoleId" = cr."Id"
 		where cucr."ChatId" = p_chat_id 
 			and cucr."UserId" = p_user_id 
-			and p_mask is null
+			and (
+				p_mask is null
 				or cardinality(p_mask) = 0
 				or crr."PermissionId" = any(p_mask)
+			)
 	) as rules
 	order by 
 		rules."PermissionId",
