@@ -7,10 +7,12 @@ namespace SpoofMessageService.ServiceRealizations;
 
 public class RuleParserService : IRuleParserService
 {
-    public long ParseRules(Rule[] rules)
+    public long ParseRules(Rule?[] rules)
     {
         long result = 0;
         Rules rule;
+        if (rules is null)
+            return result;
         for (int i = 0; i < rules.Length; i++)
         {
             rule = Parse(rules[i]);

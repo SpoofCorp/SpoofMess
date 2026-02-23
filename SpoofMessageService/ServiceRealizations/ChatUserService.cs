@@ -53,7 +53,7 @@ public class ChatUserService(
 
             return Result<ChatUser>.OkResult(chatUser!);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _loggerService.Error($"An error occurred while getting chat users: {ex.Message}");
             return Result<ChatUser>.ErrorResult("An error occurred while getting chat users.");
@@ -78,7 +78,7 @@ public class ChatUserService(
     public async Task<Result<ChatUser>> GetAndCheckPermission(Guid chatId, Guid userId, Rules rule)
     {
         Result<ChatUser> chatUserResult = await Get(chatId, userId);
-        if(chatUserResult.Success)
+        if (chatUserResult.Success)
         {
             Result result = _chatUserValidator.HasPermission(chatUserResult.Body!, rule);
             if (result.Success)
@@ -86,5 +86,26 @@ public class ChatUserService(
             return Result<ChatUser>.From(result);
         }
         return chatUserResult;
+    }
+
+    public async Task<Result> Update(UpdateChatUser updateChatUser)
+    {
+        try
+        {
+            ChatUser? chatUser = await _chatUserRepository.GetByIdAsync(updateChatUser.ChatId, updateChatUser.UserId);
+            Result result = _chatUserValidator.IsAvailable(chatUser);
+            if (!result.Success)
+                return result;
+
+            chatUser!.Rules = _ruleParserService.ParseRules(updateChatUser.Rules);
+            await _chatUserRepository.UpdateAsync(chatUser);
+
+            return Result.OkResult();
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error($"An error occurred while saving chat users: {ex.Message}");
+            return Result.ErrorResult("An error occurred while saving chat users.");
+        }
     }
 }

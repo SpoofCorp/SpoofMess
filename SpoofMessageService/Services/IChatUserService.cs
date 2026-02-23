@@ -9,6 +9,8 @@ public interface IChatUserService
 {
     public Task<Result<ChatUser>> Get(Guid chatId, Guid userId);
 
+    public Task<Result> Update(UpdateChatUser updateChatUser);
+
     public Task<Result> Add(CreateChatUser createChatUser);
 
     public Task<Result<ChatUser>> GetAndCheckPermission(Guid chatId, Guid userId, Rules rule);

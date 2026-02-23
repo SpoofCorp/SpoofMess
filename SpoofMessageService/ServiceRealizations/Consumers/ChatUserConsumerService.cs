@@ -22,11 +22,12 @@ public class ChatUserConsumerService(
     private readonly IInjectionService _injectionService = injectionService;
     protected override string Exchange => "message-service";
 
-    protected override string BaseQueueName => "message.chatuser.";
+    protected override string BaseQueueName => "message.chatuser";
 
     public override async Task Initialize()
     {
         await ConfirmAdded();
+        await ConfirmUpdated();
     }
 
     public async Task ConfirmAdded() =>
@@ -44,6 +45,14 @@ public class ChatUserConsumerService(
             await _injectionService.Invoke<IChatUserService, Task>(async (chatUserService) =>
             {
                 await chatUserService.Delete(chatUser.ChatId, chatUser.UserId);
+            });
+        });
+    public async Task ConfirmUpdated() =>
+        await ConsumeFromQueueAsync<UpdateChatUser>("update.success", "chatuser.update.success", async (chatUser) =>
+        {
+            await _injectionService.Invoke<IChatUserService, Task>(async (chatUserService) =>
+            {
+                await chatUserService.Update(chatUser);
             });
         });
 }
