@@ -30,6 +30,45 @@ public class ChatUserService(
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatUserPublisherService _chatUserPublisherService = chatUserPublisherService;
 
+    public async Task<Result> Join(JoinToChatRequest request, Guid userId)
+    {
+        try
+        { 
+            Task<Result<Chat>> chatResult = _chatService.Get(request.ChatId);
+            Task<Result<User>> memberResult = _userService.Get(userId);
+
+            await Task.WhenAll(chatResult, memberResult);
+
+            if (!chatResult.Result.Success)
+                return Result.From(chatResult.Result);
+
+            if (!memberResult.Result.Success)
+                return Result.From(memberResult.Result);
+
+            ChatUser newMember = new()
+            {
+                Key1 = chatResult.Result.Body!.Id,
+                Key2 = memberResult.Result.Body!.Id,
+                JoinedAt = DateTime.UtcNow,
+            };
+            await _chatUserRepository.AddAsync(newMember);
+            _ = Task.Run(async () =>
+            {
+                Result<Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
+                if (rulesResult.Success)
+                    await _chatUserPublisherService.Create(newMember, rulesResult.Body!);
+                else
+                    _loggerService.Error($"Can't find rules for: {newMember.Key1}, {newMember.Key2}\n{rulesResult.Error}");
+            });
+            return Result.OkResult();
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("DataBase error", ex);
+            return Result.ErrorResult("DataBase error");
+        }
+    }
+
     public async Task<Result> Add(AddMemberRequest request, Guid userId)
     {
         try
@@ -43,7 +82,7 @@ public class ChatUserService(
 
             ChatUser newMember = new()
             {
-                Key1 = memberResult.Body!.Id,
+                Key1 = request.ChatId,
                 Key2 = memberResult.Body!.Id,
                 JoinedAt = DateTime.UtcNow,
             };

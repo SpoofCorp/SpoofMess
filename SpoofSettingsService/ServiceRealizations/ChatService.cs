@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests;
+﻿using AdditionalHelpers.Services;
+using CommonObjects.Requests;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using RuleRoleHelper;
@@ -11,13 +12,22 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatService(IChatRepository chatRepository, IChatTypeService chatTypeService, IChatPublisherService chatPublisherService, IChatValidator chatValidator, IUserService userService, IRuleService ruleService) : IChatService
+public class ChatService(
+    IChatRepository chatRepository,
+    IChatTypeService chatTypeService,
+    IChatPublisherService chatPublisherService,
+    IChatValidator chatValidator,
+    IUserService userService,
+    IRuleService ruleService,
+    ILoggerService loggerService
+    ) : IChatService
 {
     private readonly IChatValidator _chatValidator = chatValidator;
     private readonly IUserService _userService = userService;
     private readonly IChatRepository _chatRepository = chatRepository;
     private readonly IChatTypeService _chatTypeService = chatTypeService;
     private readonly IRuleService _ruleService = ruleService;
+    private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatPublisherService _chatPublisherService = chatPublisherService;
 
     public async ValueTask<Result> ChangeSettings(ChangeChatSettingsRequest request, Guid userId)
@@ -71,6 +81,24 @@ public class ChatService(IChatRepository chatRepository, IChatTypeService chatTy
 
         await _chatRepository.SoftDeleteAsync(result.Body.Chat!);
         return Result.OkResult();
+    }
+
+    public async Task<Result<Chat>> Get(Guid chatId)
+    {
+        try
+        {
+            Chat? chat = await _chatRepository.GetByIdAsync(chatId);
+            Result result = _chatValidator.IsAvailable(chat);
+            if(!result.Success)
+                return Result<Chat>.From(result);
+
+            return Result<Chat>.OkResult(chat!);
+        }
+        catch (Exception ex)
+        {
+            loggerService.Error("Database error", ex);
+            return Result<Chat>.ErrorResult("Database error", 400);
+        }
     }
 
     public async Task<Result<ChatWithOwner>> GetChatWithOwner(Guid userId, Guid chatId)
