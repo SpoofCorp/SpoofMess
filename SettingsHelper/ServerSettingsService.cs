@@ -134,4 +134,14 @@ public static class ServerSettingsService
         builder.AddSwaggerGenWithAccess();
         builder.AddInjectionService();
     }
+    public static void SetBaseSettings(this WebApplicationBuilder builder)
+    {
+        builder.AddJwtAuthentification();
+        builder.AddLogging();
+        builder.AddRabbitMQ();
+        builder.AddRedisAndMemoryCaches();
+        builder.AddJsonSerializer();
+        builder.AddSwaggerGenWithAccess();
+        builder.AddInjectionService();
+    }
 }
