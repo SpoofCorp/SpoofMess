@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CommunicationLibrary.ServiceRealizations;
 
+[Obsolete("It's abstration for abstraction. Soon is can be deleted")]
 public class InjectionService(IServiceScopeFactory serviceFactory) : IInjectionService
 {
     private readonly IServiceScopeFactory _serviceFactory = serviceFactory;
@@ -15,5 +16,12 @@ public class InjectionService(IServiceScopeFactory serviceFactory) : IInjectionS
     {
         using IServiceScope scope = _serviceFactory.CreateScope();
         await func(scope.ServiceProvider.GetRequiredService<T>() ?? throw new ApplicationException($"Not such injection {typeof(T)}"));
+    }
+
+    public async Task<TResult> Invoke<T, TResult>(Func<T, Task<TResult>> func) where T : notnull
+    {
+        using IServiceScope scope = _serviceFactory.CreateScope();
+        return await func(scope.ServiceProvider.GetRequiredService<T>() 
+            ?? throw new ApplicationException($"Not such injection {typeof(T)}"));
     }
 }

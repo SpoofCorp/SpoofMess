@@ -19,8 +19,8 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
     protected abstract string Exchange { get; }
 
     public ConsumerService(
-        RabbitMQSettings settings, 
-        ISerializer serializer, 
+        RabbitMQSettings settings,
+        ISerializer serializer,
         ILoggerService loggerService
         )
     {
@@ -72,7 +72,7 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         IChannel channel = await _connection.CreateChannelAsync();
         await channel.ExchangeDeclareAsync(
             exchange: Exchange,
-            type: type, 
+            type: type,
             autoDelete: false,
             durable: true
             );
@@ -87,7 +87,7 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         await StartExchange();
         if (!_channels.TryGetValue(Exchange, out IChannel? channel))
             throw new ApplicationException($"Channel is null {routingKey}");
-        
+
         await channel.QueueDeclareAsync(
             queue: $"{BaseQueueName}.{queueName}",
             durable: true,
@@ -114,12 +114,12 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
                     multiple: false
                     );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _loggerService.Error("Can't handle message", ex);
                 await channel.BasicNackAsync(
-                    args.DeliveryTag, 
-                    multiple: false, 
+                    args.DeliveryTag,
+                    multiple: false,
                     requeue: true
                     );
             }

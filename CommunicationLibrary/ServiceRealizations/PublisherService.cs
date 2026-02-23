@@ -1,7 +1,5 @@
 ﻿using AdditionalHelpers.Services;
-using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
 using System.Collections.Concurrent;
 using System.Text;
 
@@ -41,10 +39,10 @@ public abstract class PublisherService
         if (_connection is { IsOpen: true })
             return;
 
-        while (_connection is { IsOpen: false })
+        while (_connection is null || !_connection.IsOpen)
         {
             _connection = await _factory.CreateConnectionAsync();
-            if (_connection is { IsOpen: false })
+            if (_connection is null || !_connection.IsOpen)
             {
                 _loggerService.Error($"RabbitMQ wasn't started\nHostName: {_settings.HostName}\tPort: {_settings.Port}");
                 await Task.Delay(_settings.RetryConnectionTime);
@@ -52,63 +50,6 @@ public abstract class PublisherService
             else
                 _loggerService.Info("Publisher was started");
         }
-    }
-
-    [Obsolete("May be removed in future versions.")]
-    public async Task Batch<T>(
-        string routingKey,
-        List<T> values,
-        Func<T, Task> confirmationFunc,
-        string type = ExchangeType.Direct
-        )
-    {
-        if (values.Count == 0)
-            return;
-
-        if (!_channels.TryGetValue(
-            Exchange,
-            out IChannel? channel
-            ))
-        {
-            await StartExchange(type);
-            if (!_channels.TryGetValue(Exchange, out channel))
-                throw new KeyNotFoundException($"Exchange doesn't exists {Exchange}");
-        }
-        BasicProperties props = new()
-        {
-            Persistent = true,
-            Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
-            ContentType = "application/json"
-        };
-
-        List<Task> tasks = [];
-
-        for (int i = 0; i < values.Count; i++)
-        {
-            tasks.Add(Task.Run(async () =>
-            {
-                try
-                {
-                    await channel.BasicPublishAsync(
-                        exchange: Exchange,
-                        routingKey: routingKey,
-                        mandatory: false,
-                        basicProperties: props,
-                        body: Encoding.UTF8.GetBytes(_serializer.Serialize(values[i])));
-
-                    await confirmationFunc(values[i]);
-                }
-                catch (PublishException ex)
-                {
-                    throw new InvalidOperationException($"Failed to publish message with routing key {routingKey} and data {values[i]}", ex);
-                }
-                catch (Exception ex)
-                {
-                    throw new ApplicationException($"Unexpected error to publish with routing key {routingKey}", ex);
-                }
-            }));
-        }
-        await Task.WhenAll(tasks);
     }
 
     public async Task Publish<T>(
@@ -160,8 +101,8 @@ public abstract class PublisherService
             publisherConfirmationsEnabled: true,
             publisherConfirmationTrackingEnabled: true
         );
-        IChannel channel = await _connection.CreateChannelAsync(options);
         await EnsureConnectionAsync();
+        IChannel channel = await _connection.CreateChannelAsync(options);
         await channel.ExchangeDeclareAsync(
             exchange: Exchange,
             type: type,
