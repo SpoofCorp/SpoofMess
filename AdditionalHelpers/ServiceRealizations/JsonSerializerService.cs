@@ -17,11 +17,11 @@ public class JsonSerializerService : ISerializer
     public string Serialize<T>(T obj) =>
         JsonSerializer.Serialize(obj, Options);
 
-    public T? Deserialize<T>(string text)
+    public T Deserialize<T>(string text)
     {
         try
         {
-            return JsonSerializer.Deserialize<T>(text, Options);
+            return JsonSerializer.Deserialize<T>(text, Options) ?? throw new ArgumentNullException($"Data has been null: {text}");
         }
         catch
         {
@@ -29,11 +29,11 @@ public class JsonSerializerService : ISerializer
         }
     }
 
-    public T? Deserialize<T>(byte[] body)
+    public T Deserialize<T>(byte[] body)
     {
         try
         {
-            return JsonSerializer.Deserialize<T>(body, Options);
+            return JsonSerializer.Deserialize<T>(body, Options) ?? throw new ArgumentNullException($"Data has been null: {body}");
         }
         catch
         {
