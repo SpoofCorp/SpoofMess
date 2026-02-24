@@ -43,9 +43,27 @@ public class Result
     public static Result BadRequest(string error) =>
         ErrorResult(error, 400);
 
+    public static Result UnAuthorized(string error) =>
+        ErrorResult(error, 401);
+
     public static Result ErrorResult(string error, int statusCode = 500) =>
         GetResult(success: false, error: error, statusCode: statusCode);
 
     public static Result From<T>(Result<T> result) =>
         GetResult(result.Success, result.Message, result.Error, result.StatusCode);
+
+    public static Result Parse(string message, int statusCode)
+    {
+        return statusCode switch
+        {
+            200 => OkResult(message),
+            204 => DeletedResult(message),
+            400 => BadRequest(message),
+            401 => UnAuthorized(message),
+            403 => Forbidden(message),
+            404 => NotFoundResult(message),
+            500 => ErrorResult(message),
+            _ => throw new InvalidOperationException(message),
+        };
+    }
 }

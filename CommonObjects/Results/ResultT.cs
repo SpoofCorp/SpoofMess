@@ -45,8 +45,26 @@ public class Result<T>
     public static Result<T> ErrorResult(string error, int statusCode = 500) =>
         GetResult(success: false, error: error, statusCode: statusCode);
 
+    public static Result<T> UnAuthorized(string error) =>
+        ErrorResult(error, 401);
+
     public static Result<T> From(Result result) =>
         GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
     public static Result<T> From<TAnother>(Result<TAnother> result) =>
         GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
+
+
+    public static Result<T> Parse(string? message, T? body, int statusCode)
+    {
+        return statusCode switch
+        {
+            200 => OkResult(body),
+            400 => BadRequest(message ?? ""),
+            401 => UnAuthorized(message ?? ""),
+            403 => Forbidden(message ?? ""),
+            404 => NotFoundResult(message ?? ""),
+            500 => ErrorResult(message ?? ""),
+            _ => throw new InvalidOperationException(message),
+        };
+    }
 }
