@@ -42,8 +42,7 @@ public partial class SpoofMessageServiceContext : DbContext
             entity.ToTable("Attachment");
 
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.FileMetadata).WithMany(p => p.Attachments)
                 .HasForeignKey(d => d.Key2)
@@ -62,8 +61,7 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.Property(e => e.IsActual).HasDefaultValue(true);
             entity.Property(e => e.TimeSet)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.OperationStatus).WithMany(p => p.AttachmentOperationStatuses)
                 .HasForeignKey(d => d.OperationStatusId)
@@ -84,8 +82,7 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UniqueName).HasMaxLength(100);
         });
@@ -152,11 +149,9 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.SentAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Text).HasDefaultValueSql("''::text");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.Messages)
@@ -176,8 +171,7 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.Property(e => e.IsActual).HasDefaultValue(true);
             entity.Property(e => e.TimeSet)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Message).WithMany(p => p.MessageOperationStatuses)
                 .HasForeignKey(d => d.MessageId)
@@ -208,8 +202,7 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Login).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
         });
@@ -221,11 +214,9 @@ public partial class SpoofMessageServiceContext : DbContext
             entity.ToTable("ViewMessage");
 
             entity.Property(e => e.LastModified)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.ViewTime)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Message).WithMany(p => p.ViewMessages)
                 .HasForeignKey(d => d.Key2)
