@@ -10,7 +10,7 @@ create table "User"
 	"AvatarId" uuid,
 	"Login" varchar(100) unique not null,
 	"Name" varchar(100) not null,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
 
@@ -20,7 +20,7 @@ create table "Chat"
 	"AvatarId" uuid,
 	"UniqueName" varchar(100) unique not null,
 	"Name" varchar(100),
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
 
@@ -41,8 +41,8 @@ create table "Message"
 	"ChatId" uuid not null constraint "FK_Message_ChatId" references "Chat"("Id") on delete cascade,
 	"UserId" uuid not null constraint "FK_Message_UserId" references "User"("Id") on delete cascade,
 	"CountViews" int not null default 0,
-	"SentAt" timestamp not null default CURRENT_TIMESTAMP,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"SentAt" timestamptz not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
 
@@ -52,7 +52,7 @@ create table "MessageOperationStatus"
 	"MessageId" uuid not null constraint "FK_MessageOperationStatus_MessageId" references "Message"("Id") on delete cascade,
 	"OperationStatusId" smallint not null constraint "FK_MessageOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
 	"Description" text,
-	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsActual" boolean not null default true
 );
 
@@ -88,7 +88,7 @@ create table "Attachment"
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
 	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"IsDeleted" boolean not null default false,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	constraint "PK_Attachment_Id" primary key("MessageId", "FileMetadataId")
 );
 
@@ -99,7 +99,7 @@ create table "AttachmentOperationStatus"
 	"FileMetadataId" uuid not null,
 	"OperationStatusId" smallint not null constraint "FK_AttachmentOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
 	"Description" text,
-	"TimeSet" timestamp not null default CURRENT_TIMESTAMP,
+	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsActual" boolean not null default true,
 	constraint "FK_AttachmentOperationStatus_AttachmentId" foreign key ("MessageId", "FileMetadataId") references "Attachment"("MessageId", "FileMetadataId") on delete cascade
 );
@@ -108,9 +108,9 @@ create table "ViewMessage"
 (
 	"UserId" uuid not null constraint "FK_ViewMessage_UserId" references "User"("Id") on delete cascade,
 	"MessageId"	uuid not null constraint "FK_ViewMessage_MessageId" references "Message"("Id") on delete cascade, 
-	"ViewTime" timestamp not null default CURRENT_TIMESTAMP,
+	"ViewTime" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false,
-	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	constraint "PK_ViewMessage_Id" primary key("MessageId", "UserId")
 );
 
