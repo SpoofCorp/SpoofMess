@@ -25,7 +25,9 @@ public class SessionValidator : ISessionValidator
     {
         Result result = IsInvalidSession(sessionInfo);
         if (result.Success)
-            result = IsSessionTooNew(sessionInfo!, DateTime.UtcNow) ? Result.ErrorResult("No trust", 403) : Result.OkResult();
+            result = IsSessionTooNew(sessionInfo!, DateTime.UtcNow) 
+                ? Result.Forbidden("No trust") 
+                : Result.OkResult();
 
         return result;
     }

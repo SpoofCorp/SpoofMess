@@ -33,7 +33,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
                 return Result<UserAuthorizeResponse>.From(result);
 
             if (!Hasher.VerifyPassword(request.Password, user!.PasswordHash))
-                return Result<UserAuthorizeResponse>.ErrorResult("Invalid password", 403);
+                return Result<UserAuthorizeResponse>.Forbidden("Invalid password");
 
             await _sessionService.StartSession(context, user, sessionInfo);
             Result<TokenResponse> response = await _tokenService.CreateAndSave(sessionInfo);

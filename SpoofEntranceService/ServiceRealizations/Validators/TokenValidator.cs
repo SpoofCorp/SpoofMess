@@ -12,7 +12,7 @@ public class TokenValidator : ITokenValidator
             return Result.NotFoundResult($"Token not found");
 
         if (token.IsDeleted)
-            return Result.ErrorResult("Token has been revoked", 401);
+            return Result.UnAuthorized("Token has been revoked");
 
         if (token.ValidTo < DateTime.UtcNow)
             return Result.BadRequest("Refresh token expired");

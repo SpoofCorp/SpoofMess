@@ -23,7 +23,12 @@ public class SessionController(ISessionService sessionService) : ControllerBase
             return BadRequest("Invalid token");
 
         Result result = await _sessionService.Exit(request, sessionId.Value);
-        return StatusCode(result.StatusCode, result.Success ? result.Message : result.Error);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Message
+                : result.Error
+            );
     }
 
     [HttpGet("GetSessions")]
@@ -34,8 +39,16 @@ public class SessionController(ISessionService sessionService) : ControllerBase
         if (sessionId is null || userId is null)
             return BadRequest("Invalid token");
 
-        Result<List<SessionInfo>> result = await _sessionService.GetSessions(userId.Value, sessionId.Value);
-        return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
+        Result<List<SessionInfo>> result = await _sessionService.GetSessions(
+                userId.Value,
+                sessionId.Value
+            );
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
+                : result.Error
+            );
     }
 
     [HttpPatch("EndSessions")]
@@ -45,8 +58,16 @@ public class SessionController(ISessionService sessionService) : ControllerBase
         if (sessionId is null)
             return BadRequest("Invalid token");
 
-        Result result = await _sessionService.EndSessions(sessionId.Value, withCurrent);
-        return StatusCode(result.StatusCode, result.Success ? result.Message : result.Error);
+        Result result = await _sessionService.EndSessions(
+                sessionId.Value,
+                withCurrent
+            );
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Message
+                : result.Error
+            );
     }
 
     [HttpPatch("EndSession")]
@@ -56,7 +77,15 @@ public class SessionController(ISessionService sessionService) : ControllerBase
         if (sessionId is null)
             return BadRequest("Invalid token");
 
-        Result result = await _sessionService.EndSession(request, sessionId.Value);
-        return StatusCode(result.StatusCode, result.Success ? result.Message : result.Error);
+        Result result = await _sessionService.EndSession(
+                request,
+                sessionId.Value
+            );
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Message
+                : result.Error
+            );
     }
 }

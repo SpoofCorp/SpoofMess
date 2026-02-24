@@ -18,14 +18,24 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
     public async ValueTask<IActionResult> Enter(UserAuthorizeRequest request)
     {
         Result<UserAuthorizeResponse> result = await _userEntryService.Authorization(HttpContext, request, new());
-        return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
+                : result.Error
+            );
     }
 
     [HttpPost("Registration")]
     public async ValueTask<IActionResult> Registration(RegistrationRequest request)
     {
         Result<UserAuthorizeResponse> result = await _userEntryService.Registration(HttpContext, request, new());
-        return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
+                : result.Error
+            );
     }
 
     [Authorize]
@@ -40,6 +50,11 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
     {
         Result<UserAuthorizeResponse> result = await _tokenService.UpdateToken(request);
 
-        return StatusCode(result.StatusCode, result.Success ? result.Body : result.Error);
+        return StatusCode(
+            result.StatusCode,
+            result.Success 
+                ? result.Body 
+                : result.Error
+            );
     }
 }
