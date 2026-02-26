@@ -5,4 +5,15 @@ namespace SpoofMessageService.Services.Repositories;
 
 public interface IMessageRepository : ISoftDeletableIdentifiedRepository<Message, Guid>
 {
+    public Task<List<Message>> GetMessagesAfterDate(
+            Guid chatId, 
+            DateTime after,
+            int take = 50
+        );
+
+    public Task<List<Message>> GetMessagesBeforeDate(
+            Guid chatId, 
+            DateTime before, 
+            int take = 50
+        );
 }

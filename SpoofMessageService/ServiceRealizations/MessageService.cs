@@ -11,10 +11,10 @@ using SpoofMessageService.Services.Validators;
 namespace SpoofMessageService.ServiceRealizations;
 
 public class MessageService(
-    ILoggerService loggerService,
-    IMessageRepository messageRepository,
-    IMessageValidator messageValidator, 
-    IChatUserService chatUserService
+        ILoggerService loggerService,
+        IMessageRepository messageRepository,
+        IMessageValidator messageValidator,
+        IChatUserService chatUserService
     ) : IMessageService
 {
     private readonly ILoggerService _loggerService = loggerService;
@@ -22,19 +22,29 @@ public class MessageService(
     private readonly IMessageValidator _messageValidator = messageValidator;
     private readonly IChatUserService _chatUserService = chatUserService;
 
-    public async Task<Result> DeleteMessage(DeleteMessageRequest request, Guid userId)
+    public async Task<Result> DeleteMessage(
+            DeleteMessageRequest request,
+            Guid userId
+        )
     {
         try
         {
             Task<Message?> messageTask = Task.Run(() => _messageRepository.GetByIdAsync(request.Id));
-            Task<Result<ChatUser>> resultTask = Task.Run(() => _chatUserService.GetAndCheckPermission(request.ChatId, userId, Rules.DeleteMessage));
+            Task<Result<ChatUser>> resultTask = Task.Run(() => _chatUserService.GetAndCheckPermission(
+                    request.ChatId,
+                    userId,
+                    Rules.DeleteMessage
+                ));
             await Task.WhenAll(messageTask, resultTask);
 
             if (!resultTask.Result.Success)
                 return Result.From(resultTask.Result);
 
-            Result result = _messageValidator.IsAvailableAndOwner(messageTask.Result, request.ChatId);
-            if(!result.Success)
+            Result result = _messageValidator.IsAvailableAndOwner(
+                    messageTask.Result,
+                    request.ChatId
+                );
+            if (!result.Success)
                 return result;
 
             await _messageRepository.DeleteAsync(messageTask.Result!);
@@ -47,21 +57,34 @@ public class MessageService(
         }
     }
 
-    public async Task<Result> EditMessage(EditMessageRequest request, Guid userId)
+    public async Task<Result> EditMessage(
+            EditMessageRequest request,
+            Guid userId
+        )
     {
         try
         {
             Task<Message?> messageTask = Task.Run(() => _messageRepository.GetByIdAsync(request.Id));
-            Task<Result<ChatUser>> resultTask = Task.Run(() => _chatUserService.GetAndCheckPermission(request.ChatId, userId, Rules.EditMessage));
+            Task<Result<ChatUser>> resultTask = Task.Run(() => _chatUserService.GetAndCheckPermission(
+                    request.ChatId,
+                    userId,
+                    Rules.EditMessage
+                ));
             await Task.WhenAll(messageTask, resultTask);
 
             if (!resultTask.Result.Success)
                 return Result.From(resultTask.Result);
-            Result result = _messageValidator.IsAvailableAndOwner(messageTask.Result, request.ChatId);
+            Result result = _messageValidator.IsAvailableAndOwner(
+                    messageTask.Result,
+                    request.ChatId
+                );
             if (!result.Success)
                 return result;
 
-            messageTask.Result!.Set(request, OperationsStatus.Pending);
+            messageTask.Result!.Set(
+                    request,
+                    OperationsStatus.Pending
+                );
             await _messageRepository.UpdateAsync(messageTask.Result!);
 
             return Result.OkResult();
@@ -73,16 +96,26 @@ public class MessageService(
         }
     }
 
-    public async Task<Result> SendMessage(CreateMessageRequest request, Guid userId)
+    public async Task<Result> SendMessage(
+            CreateMessageRequest request,
+            Guid userId
+        )
     {
         try
         {
-            Result<ChatUser> chatUserResult = await _chatUserService.GetAndCheckPermission(request.ChatId, userId, Rules.EditMessage);
-            if(!chatUserResult.Success)
+            Result<ChatUser> chatUserResult = await _chatUserService.GetAndCheckPermission(
+                    request.ChatId,
+                    userId,
+                    Rules.EditMessage
+                );
+            if (!chatUserResult.Success)
                 return Result.From(chatUserResult);
 
 
-            Message message = request.Set(userId, OperationsStatus.Pending);
+            Message message = request.Set(
+                    userId,
+                    OperationsStatus.Pending
+                );
             await _messageRepository.AddAsync(message);
 
             return Result.OkResult();
@@ -91,6 +124,70 @@ public class MessageService(
         {
             _loggerService.Error("DataBase error", ex);
             return Result.ErrorResult("Internal server error");
+        }
+    }
+
+    public async Task<Result<List<Message>>> GetMessagesAfterDate(
+            Guid chatId,
+            Guid userId,
+            DateTime date,
+            int take = 50
+        )
+    {
+        try
+        {
+            Result<ChatUser> resultCHatUser = await _chatUserService.GetAndCheckPermission(
+                    chatId,
+                    userId,
+                    Rules.DeleteMessage
+                );
+            if (!resultCHatUser.Success)
+                return Result<List<Message>>.From(resultCHatUser);
+
+            return Result<List<Message>>.OkResult(
+                await _messageRepository.GetMessagesAfterDate(
+                    chatId,
+                    date,
+                    take
+                    )
+                );
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("DataBase error", ex);
+            return Result<List<Message>>.ErrorResult("Internal server error");
+        }
+    }
+
+    public async Task<Result<List<Message>>> GetMessagesBeforeDate(
+            Guid chatId,
+            Guid userId,
+            DateTime date,
+            int take = 50
+        )
+    {
+        try
+        {
+            Result<ChatUser> resultCHatUser = await _chatUserService.GetAndCheckPermission(
+                    chatId,
+                    userId,
+                    Rules.DeleteMessage
+                );
+            if (!resultCHatUser.Success)
+                return Result<List<Message>>.From(resultCHatUser);
+
+            return Result<List<Message>>.OkResult(
+                await _messageRepository.GetMessagesBeforeDate(
+                    chatId,
+                    date,
+                    take
+                    )
+                );
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("DataBase error", ex);
+            return Result<List<Message>>.ErrorResult("Internal server error");
         }
     }
 }

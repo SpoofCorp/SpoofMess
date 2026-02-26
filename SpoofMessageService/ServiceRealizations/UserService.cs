@@ -36,13 +36,41 @@ public class UserService(
         }
     }
 
-    public Task<Result> Delete()
+    public async Task<Result> Delete(
+            Guid userId
+        )
     {
-        throw new NotImplementedException();
+        try
+        {
+            return await _userRepository.DeleteById(userId)
+                ? Result.OkResult()
+                : Result.BadRequest("Invalid id");
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("Database error", ex);
+            return Result.ErrorResult("Database error");
+        }
     }
 
     public Task<Result> Update()
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<Result> ChangeConnectionState(Guid userId, bool state)
+    {
+        try
+        { 
+            return await _userRepository.ExecuteUpdate(userId, state)
+                ? Result.OkResult()
+                : Result.BadRequest("Invalid id");
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("Database error", ex);
+            return Result.ErrorResult("Database error");
+        }
+
     }
 }

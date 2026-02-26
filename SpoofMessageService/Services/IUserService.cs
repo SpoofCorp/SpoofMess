@@ -9,5 +9,11 @@ public interface IUserService
 
     public Task<Result> Update();
 
-    public Task<Result> Delete();
+    public Task<Result> Delete(
+            Guid userId
+        );
+    public Task<Result> ChangeConnectionState(
+            Guid userId, 
+            bool state
+        );
 }

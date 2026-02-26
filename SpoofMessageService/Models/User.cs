@@ -10,6 +10,8 @@ public partial class User : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public string Name { get; set; } = null!;
 
+    public bool IsConnected { get; set; }
+
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 
     public virtual ICollection<Message> Messages { get; set; } = [];
