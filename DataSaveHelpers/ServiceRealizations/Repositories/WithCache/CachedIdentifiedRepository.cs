@@ -2,6 +2,7 @@
 using DataSaveHelpers.Services;
 using DataSaveHelpers.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
@@ -29,4 +30,20 @@ public class CachedIdentifiedRepository<T, TKey>(ICacheService cache, DbContext 
 
     protected virtual string GetKey(TKey id) =>
         $"{typeof(T).Name.ToLower()}:{id}";
+
+    public async Task<bool> DeleteById(TKey id)
+    {
+        try
+        {
+            await _cache.Delete(GetKey(id));
+            return (
+                await _set
+                .Where(x => x.Id!.Equals(id)
+                ).ExecuteDeleteAsync()) > 0;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("DataBase error", ex);
+        }
+    }
 }
