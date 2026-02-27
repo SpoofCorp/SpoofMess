@@ -7,7 +7,7 @@ namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
 public class CachedDoubleIdentifiedRepository<T, TKey1, TKey2>(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedBaseRepository<T>(cache, context, processQueueTasks), IDoubleIdentifiedRepository<T, TKey1, TKey2> where T : DoubleIdentifiedEntity<TKey1, TKey2>
 {
-    public async ValueTask<T?> GetByIdAsync(TKey1 key1, TKey2 key2)
+    public async Task<T?> GetByIdAsync(TKey1 key1, TKey2 key2)
     {
         try
         {

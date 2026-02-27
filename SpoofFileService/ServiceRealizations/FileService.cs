@@ -71,7 +71,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async Task<Result> SaveFile(IFormFile file, byte[]? fileId)
+    public async Task<Result> SaveFile(IFormFile file, byte[] fileId)
     {
         try
         {

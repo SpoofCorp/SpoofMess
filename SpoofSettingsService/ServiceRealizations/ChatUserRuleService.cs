@@ -1,7 +1,6 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests.ChatUsers;
 using CommonObjects.Results;
-using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;

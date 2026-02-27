@@ -18,11 +18,9 @@ public class SessionController(ISessionService sessionService) : ControllerBase
     [HttpPatch("Exit")]
     public async ValueTask<IActionResult> Exit(ExitRequest request)
     {
-        Guid? sessionId = ClaimService.GetSessionId(User);
-        if (sessionId is null)
-            return BadRequest("Invalid token");
+        Guid sessionId = ClaimService.GetSessionId(User);
 
-        Result result = await _sessionService.Exit(request, sessionId.Value);
+        Result result = await _sessionService.Exit(request, sessionId);
         return StatusCode(
             result.StatusCode,
             result.Success
@@ -34,14 +32,12 @@ public class SessionController(ISessionService sessionService) : ControllerBase
     [HttpGet("GetSessions")]
     public async ValueTask<IActionResult> GetSessions()
     {
-        Guid? sessionId = ClaimService.GetSessionId(User);
-        Guid? userId = ClaimService.GetUserId(User);
-        if (sessionId is null || userId is null)
-            return BadRequest("Invalid token");
+        Guid sessionId = ClaimService.GetSessionId(User);
+        Guid userId = ClaimService.GetUserId(User);
 
         Result<List<SessionInfo>> result = await _sessionService.GetSessions(
-                userId.Value,
-                sessionId.Value
+                userId,
+                sessionId
             );
         return StatusCode(
             result.StatusCode,
@@ -54,12 +50,10 @@ public class SessionController(ISessionService sessionService) : ControllerBase
     [HttpPatch("EndSessions")]
     public async ValueTask<IActionResult> EndSessions(bool withCurrent)
     {
-        Guid? sessionId = ClaimService.GetSessionId(User);
-        if (sessionId is null)
-            return BadRequest("Invalid token");
+        Guid sessionId = ClaimService.GetSessionId(User);
 
         Result result = await _sessionService.EndSessions(
-                sessionId.Value,
+                sessionId,
                 withCurrent
             );
         return StatusCode(
@@ -73,13 +67,11 @@ public class SessionController(ISessionService sessionService) : ControllerBase
     [HttpPatch("EndSession")]
     public async ValueTask<IActionResult> EndSession(EndSessionRequest request)
     {
-        Guid? sessionId = ClaimService.GetSessionId(User);
-        if (sessionId is null)
-            return BadRequest("Invalid token");
+        Guid sessionId = ClaimService.GetSessionId(User);
 
         Result result = await _sessionService.EndSession(
                 request,
-                sessionId.Value
+                sessionId
             );
         return StatusCode(
             result.StatusCode,

@@ -33,7 +33,7 @@ public abstract class BatchPublisherService<T> : BackgroundService, IAsyncDispos
 
     protected virtual async Task Flush(List<T> messages)
     {
-        await _publisherService.Batch(RoutingKey, Messages, ConfirmationFunc);
+        //await _publisherService.Batch(RoutingKey, Messages, ConfirmationFunc);
     }
 
     public async Task Read()

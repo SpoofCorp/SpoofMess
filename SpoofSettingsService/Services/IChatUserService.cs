@@ -5,11 +5,23 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services;
 
-[Obsolete("Not check user permissions")]
 public interface IChatUserService
 {
-    public Task<Result> Join(JoinToChatRequest request, Guid userId);
-    public Task<Result> Add(AddMemberRequest request, Guid userId);
-    public Task<Result> Remove(DeleteMemberRequest request, Guid userId);
-    public Task<Result<ChatUser>> Get(GetChatUserRequest request);
+    [Obsolete("Not check chat settings")]
+    public Task<Result> Join(
+            JoinToChatRequest request, 
+            Guid userId
+        );
+    public Task<Result> Add(
+            AddMemberRequest request,
+            Guid userId
+        );
+    public Task<Result> Remove(
+            DeleteMemberRequest request,
+            Guid userId
+        );
+    public Task<Result<ChatUser>> Get(
+            GetChatUserRequest request,
+            Guid userId
+        );
 }

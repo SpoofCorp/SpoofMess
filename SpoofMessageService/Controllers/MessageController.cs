@@ -17,11 +17,14 @@ public class MessageController(IMessageService messageService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Send(CreateMessageRequest request)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId == null)
-            return Unauthorized("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _messageService.SendMessage(request, userId.Value);
-        return StatusCode(result.StatusCode, result.Success ? result.Message : result.Error);
+        Result result = await _messageService.SendMessage(request, userId);
+        return StatusCode(
+            result.StatusCode,
+            result.Success 
+                ? result.Message
+                : result.Error
+            );
     }
 }

@@ -19,11 +19,9 @@ public class ChatUserController(
     [HttpPost("addMember")]
     public async Task<IActionResult> AddMember(AddMemberRequest request)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return Forbid("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _chatUserService.Add(request, userId.Value);
+        Result result = await _chatUserService.Add(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success 
@@ -35,11 +33,9 @@ public class ChatUserController(
     [HttpPost("join")]
     public async Task<IActionResult> Join(JoinToChatRequest request)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return Forbid("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _chatUserService.Join(request, userId.Value);
+        Result result = await _chatUserService.Join(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success

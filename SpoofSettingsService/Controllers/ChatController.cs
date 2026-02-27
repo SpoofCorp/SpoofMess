@@ -18,11 +18,9 @@ public class ChatController(IChatService chatService) : ControllerBase
     [HttpPatch("ChangeSettings")]
     public async Task<IActionResult> ChangeSettings(ChangeChatSettingsRequest request)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return BadRequest("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _chatService.ChangeSettings(request, userId.Value);
+        Result result = await _chatService.ChangeSettings(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success
@@ -35,11 +33,9 @@ public class ChatController(IChatService chatService) : ControllerBase
     [HttpPost("CreateChat")]
     public async Task<IActionResult> CreateChat(CreateChatRequest request)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return BadRequest("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _chatService.CreateChat(request, userId.Value);
+        Result result = await _chatService.CreateChat(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success
@@ -52,11 +48,9 @@ public class ChatController(IChatService chatService) : ControllerBase
     [HttpDelete("DeleteChat")]
     public async Task<IActionResult> DeleteChat(Guid chatId)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return BadRequest("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _chatService.DeleteChat(chatId, userId.Value);
+        Result result = await _chatService.DeleteChat(chatId, userId);
         return StatusCode(
             result.StatusCode,
             result.Success

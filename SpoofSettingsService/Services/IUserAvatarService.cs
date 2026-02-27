@@ -4,15 +4,14 @@ using CommonObjects.Results;
 
 namespace SpoofSettingsService.Services;
 
-[Obsolete("Not check user permissions")]
 public interface IUserAvatarService
 {
 
-    public Task<Result> SetAvatar(SesUserAvatarRequest request);
+    public Task<Result> SetAvatar(SesUserAvatarRequest request, Guid userId);
 
     public Task<Result<AvatarResponse>> GetAvatar(GetUserAvatarRequest request);
 
     public Task<Result<List<AvatarResponse>>> GetAvatars(GetUserAvatarRequest request);
 
-    public Task<Result> RemoveAvatar(RemoveUserAvatarRequest request);
+    public Task<Result> RemoveAvatar(RemoveUserAvatarRequest request, Guid userId);
 }

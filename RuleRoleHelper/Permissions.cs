@@ -28,5 +28,7 @@ public enum Permissions : short
     Kicking = 301,
     Banning = 302,
     Sharing = 303,
-    ChangeSettings = 330
+    ChangeSettings = 330,
+    ChangeAvatar = 331,
+    DeleteAvatar = 332,
 }

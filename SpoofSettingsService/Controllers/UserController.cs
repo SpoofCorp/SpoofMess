@@ -17,11 +17,9 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpPatch("ChangeSettings")]
     public async Task<IActionResult> ChangeSettigns(ChangeUserSettingsRequest request)
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return BadRequest("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _userService.ChangeSettings(request, userId.Value);
+        Result result = await _userService.ChangeSettings(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success
@@ -33,11 +31,9 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpDelete("Delete")]
     public async Task<IActionResult> Delete()
     {
-        Guid? userId = ClaimService.GetUserId(User);
-        if (userId is null)
-            return BadRequest("Invalid token");
+        Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _userService.Delete(userId.Value);
+        Result result = await _userService.Delete(userId);
         return StatusCode(
             result.StatusCode,
             result.Success
