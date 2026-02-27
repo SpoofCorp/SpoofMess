@@ -1,13 +1,14 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests.ChatUsers;
 using CommonObjects.Results;
+using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatUserRuleService(ILoggerService loggerService, IChatService chatService, IChatUserRuleRepository chatUserRuleRepository, IChatUserService chatUserService)
+public class ChatUserRuleService(ILoggerService loggerService, IChatService chatService, IChatUserRuleRepository chatUserRuleRepository, IChatUserService chatUserService) : IChatUserRuleService
 {
     private readonly IChatUserService _chatUserService = chatUserService;
     private readonly IChatUserRuleRepository _chatUserRuleRepository = chatUserRuleRepository;
@@ -21,7 +22,13 @@ public class ChatUserRuleService(ILoggerService loggerService, IChatService chat
             Result<ChatWithOwner> requester = await _chatService.GetChatWithOwner(requesterId, request.ChatId);
             if (!requester.Success) return Result.From(requester);
 
-            Result<ChatUser>? chatUserResult = await _chatUserService.Get(new(request.ChatId, request.UserId));
+            Result<ChatUser>? chatUserResult = await _chatUserService.Get(
+                    new(
+                        request.ChatId,
+                        request.UserId
+                        ),
+                    requesterId
+                );
             if (!chatUserResult.Success) return Result.From(chatUserResult);
 
             ChatUserRule? rule = chatUserResult.Body!.ChatUserRules.FirstOrDefault(x => x.PermissionId == request.RuleId);

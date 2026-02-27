@@ -12,14 +12,14 @@ public class RuleService(IRuleRepository ruleRepository, IRuleValidator ruleVali
     private readonly IRuleRepository _ruleRepository = ruleRepository;
     private readonly IRuleValidator _ruleValidator = ruleValidator;
 
-    public async Task<Result<HasPermission>> HasPermissionAsync(Guid userId, Guid chatId, Permissions permission)
+    public async Task<Result> HasPermissionAsync(Guid userId, Guid chatId, Permissions permission)
     {
         HasPermission? hasPermission = await _ruleRepository.HasPermission(userId, chatId, (short)permission);
         if (hasPermission is null)
-            return Result<HasPermission>.ErrorResult("DataBase error");
+            return Result.ErrorResult("DataBase error");
         if (hasPermission is HasPermission.Allow)
-            return Result<HasPermission>.OkResult(hasPermission.Value);
-        return Result<HasPermission>.Forbidden(hasPermission is HasPermission.NotSet ? "Not permitted" : "Access Denied");
+            return Result.OkResult();
+        return Result.Forbidden(hasPermission is HasPermission.NotSet ? "Not permitted" : "Access Denied");
     }
 
     public async Task<Result<Rule[]>> ChatUserRulesForSMS(Guid chatId, Guid userId) =>

@@ -73,9 +73,13 @@ public class ChatUserService(
     {
         try
         {
-            Result<HasPermission> result = await _ruleService.HasPermissionAsync(request.ChatId, userId, Permissions.Inviting);
+            Result result = await _ruleService.HasPermissionAsync(
+                    request.ChatId,
+                    userId,
+                    Permissions.Inviting
+                );
             if (!result.Success)
-                return Result.From(result);
+                return result;
 
             Result<User>? memberResult = await _userService.Get(request.MemberId);
             if (!memberResult.Success) return Result.From(memberResult);
@@ -104,15 +108,30 @@ public class ChatUserService(
         }
     }
 
-    public async Task<Result<ChatUser>> Get(GetChatUserRequest request)
+    public async Task<Result<ChatUser>> Get(GetChatUserRequest request, Guid userId)
     {
         try
         {
-            ChatUser? chatUser = await _chatUserRepository.GetWithRules(request.ChatId, request.UserId);
-            Result result = _chatUserValidator.IsAvailable(chatUser);
+            Task<ChatUser?> taskRequester = _chatUserRepository.GetByIdAsync(
+                    request.ChatId,
+                    userId
+                );
+            Task<ChatUser?> taskChatUser = _chatUserRepository.GetWithRules(
+                    request.ChatId,
+                    request.UserId
+                );
+            await Task.WhenAll(
+                    taskRequester,
+                    taskChatUser
+                );
+
+            Result result = _chatUserValidator.IsAvailable(taskRequester.Result);
             if (!result.Success) return Result<ChatUser>.From(result);
 
-            return Result<ChatUser>.OkResult(chatUser!);
+            result = _chatUserValidator.IsAvailable(taskChatUser.Result);
+            if (!result.Success) return Result<ChatUser>.From(result);
+
+            return Result<ChatUser>.OkResult(taskChatUser.Result!);
         }
         catch (Exception ex)
         {
@@ -125,9 +144,23 @@ public class ChatUserService(
     {
         try
         {
-            Result<ChatWithOwner> result = await _chatService.GetChatWithOwner(userId, request.ChatId);
-            if (!result.Success)
-                return Result.From(result);
+            Task<Result> taskRuleResult = _ruleService.HasPermissionAsync(
+                    userId,
+                    request.ChatId,
+                    Permissions.Kicking
+                );
+            Task<Result<Chat>> taskChat = _chatService.Get(userId);
+
+            await Task.WhenAll(
+                    taskRuleResult,
+                    taskChat
+                );
+
+            if (!taskRuleResult.Result.Success)
+                return taskRuleResult.Result;
+
+            if (!taskChat.Result.Success)
+                return Result.From(taskChat.Result);
 
             await _chatUserRepository.SoftDeleteAsync(request.ChatId, request.ChatId);
             return Result.OkResult();

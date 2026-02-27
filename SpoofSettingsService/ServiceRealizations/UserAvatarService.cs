@@ -10,7 +10,11 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class UserAvatarService(ILoggerService loggerService, IUserAvatarRepository userAvatarRepository, IUserAvatarValidator userAvatarValidator) : IUserAvatarService
+public class UserAvatarService(
+        ILoggerService loggerService, 
+        IUserAvatarRepository userAvatarRepository, 
+        IUserAvatarValidator userAvatarValidator
+    ) : IUserAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAvatarRepository _userAvatarRepository = userAvatarRepository;
@@ -25,7 +29,11 @@ public class UserAvatarService(ILoggerService loggerService, IUserAvatarReposito
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
-            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.FileId, FileMetadata = avatar.File!.Set() });
+            return Result<AvatarResponse>.OkResult(
+                new() { 
+                    FileId = avatar!.FileId,
+                    FileMetadata = avatar.File!.Set() 
+                });
         }
         catch (Exception ex)
         {
@@ -60,11 +68,11 @@ public class UserAvatarService(ILoggerService loggerService, IUserAvatarReposito
             return Result<List<AvatarResponse>>.ErrorResult("DataBase error");
         }
     }
-    public async Task<Result> RemoveAvatar(RemoveUserAvatarRequest request)
+    public async Task<Result> RemoveAvatar(RemoveUserAvatarRequest request, Guid userId)
     {
         try
         {
-            bool result = await _userAvatarRepository.TryDeleteAvatarByIds(request.UserId, request.FileId);
+            bool result = await _userAvatarRepository.TryDeleteAvatarByIds(userId, request.FileId);
 
             return result ? Result.OkResult() : Result.BadRequest("Invalid id");
         }
@@ -75,14 +83,14 @@ public class UserAvatarService(ILoggerService loggerService, IUserAvatarReposito
         }
     }
 
-    public async Task<Result> SetAvatar(SesUserAvatarRequest request)
+    public async Task<Result> SetAvatar(SesUserAvatarRequest request, Guid userId)
     {
 
         try
         {
             UserAvatar avatar = new()
             {
-                UserId = request.UserId,
+                UserId = userId,
                 File = request.Metadata.Set()
             };
 

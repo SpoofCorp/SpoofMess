@@ -2,6 +2,7 @@
 using CommonObjects.Requests.Avatars;
 using CommonObjects.Responses;
 using CommonObjects.Results;
+using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.MessageBrokers;
@@ -11,12 +12,19 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublisherService chatAvatarPublisherService, IChatAvatarRepository chatAvatarRepository, IChatAvatarValidator chatAvatarValidator) : IChatAvatarService
+public class ChatAvatarService(
+        ILoggerService loggerService,
+        IChatAvatarPublisherService chatAvatarPublisherService, 
+        IChatAvatarRepository chatAvatarRepository, 
+        IChatAvatarValidator chatAvatarValidator,
+        IRuleService ruleService
+    ) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatAvatarPublisherService _chatAvatarPublisherService = chatAvatarPublisherService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
+    private readonly IRuleService _ruleService = ruleService;
 
     public async Task<Result<AvatarResponse>> GetAvatar(GetChatAvatarRequest request)
     {
@@ -63,10 +71,18 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         }
     }
 
-    public async Task<Result> RemoveAvatar(RemoveChatAvatarRequest request)
+    public async Task<Result> RemoveAvatar(RemoveChatAvatarRequest request, Guid userId)
     {
         try
         {
+            Result ruleResult = await _ruleService.HasPermissionAsync(
+                    userId,
+                    request.ChatId,
+                    Permissions.DeleteAvatar
+                );
+            if (!ruleResult.Success)
+                return ruleResult;
+
             bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
             _ = Task.Run(async () => await _chatAvatarPublisherService.Delete(new(request.FileId)));
 
@@ -79,10 +95,18 @@ public class ChatAvatarService(ILoggerService loggerService, IChatAvatarPublishe
         }
     }
 
-    public async Task<Result> SetAvatar(SetChatAvatarRequest request)
+    public async Task<Result> SetAvatar(SetChatAvatarRequest request, Guid userId)
     {
         try
         {
+            Result ruleResult = await _ruleService.HasPermissionAsync(
+                    userId,
+                    request.ChatId,
+                    Permissions.ChangeAvatar
+                );
+            if (!ruleResult.Success)
+                return ruleResult;
+
             ChatAvatar chatAvatar = new()
             {
                 Key1 = request.ChatId,
