@@ -2,9 +2,6 @@
 
 namespace CommonObjects.Requests.Avatars;
 
-public class SesUserAvatarRequest
-{
-    public required Guid UserId { get; init; }
-
-    public required FileMetadata Metadata { get; init; }
-}
+public record SesUserAvatarRequest(
+        FileMetadata Metadata
+    );
