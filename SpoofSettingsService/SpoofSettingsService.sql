@@ -260,7 +260,9 @@ values
 (301, 'Kicking'),
 (302, 'Banning'),
 (303, 'Sharing'),
-(330, 'ChangeSettings');
+(330, 'ChangeSettings'),
+(331, 'ChangeAvatar'),
+(332, 'DeleteAvatar');
 
 create or replace function "FileMetadataOperationStatus_OnceActual"()
 returns trigger as
