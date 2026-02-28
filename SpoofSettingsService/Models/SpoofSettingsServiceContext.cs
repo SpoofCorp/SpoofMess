@@ -73,11 +73,11 @@ public partial class SpoofSettingsServiceContext : DbContext
 
             entity.ToTable("Chat");
 
-            entity.HasIndex(e => e.ChatUniqueName, "Chat_ChatUniqueName_key").IsUnique();
+            entity.HasIndex(e => e.UniqueName, "Chat_ChatUniqueName_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
-            entity.Property(e => e.ChatName).HasMaxLength(100);
-            entity.Property(e => e.ChatUniqueName).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UniqueName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 

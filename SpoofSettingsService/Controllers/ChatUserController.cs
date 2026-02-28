@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.Members;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.Members;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,20 @@ public class ChatUserController(
         Guid userId = ClaimService.GetUserId(User);
 
         Result result = await _chatUserService.Join(request, userId);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Message
+                : result.Error
+                );
+    }
+
+    [HttpGet("get-chats")]
+    public async Task<IActionResult> GetChats(DateTime before)
+    {
+        Guid userId = ClaimService.GetUserId(User);
+
+        Result<List<ChatUserDTO>> result = await _chatUserService.GetUserChats(userId, before);
         return StatusCode(
             result.StatusCode,
             result.Success

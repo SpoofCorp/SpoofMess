@@ -8,9 +8,9 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public Guid? OwnerId { get; set; }
 
-    public string ChatUniqueName { get; set; } = null!;
+    public string UniqueName { get; set; } = null!;
 
-    public string ChatName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
 
@@ -33,8 +33,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
         Id = id;
         ChatTypeId = chatTypeId;
         OwnerId = ownerId;
-        ChatName = chatName;
-        ChatUniqueName = chatUniqueName;
+        Name = chatName;
+        UniqueName = chatUniqueName;
         CreatedAt = createdAt;
         LastModified = lastModified;
     }

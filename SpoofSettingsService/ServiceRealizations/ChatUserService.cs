@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using CommonObjects.DTO;
 using CommonObjects.Requests.ChatUsers;
 using CommonObjects.Requests.Members;
 using CommonObjects.Results;
@@ -139,6 +140,25 @@ public class ChatUserService(
             return Result<ChatUser>.ErrorResult("DataBase error");
         }
     }
+
+    public async Task<Result<List<ChatUserDTO>>> GetUserChats(Guid userId, DateTime before)
+    {
+        try
+        {
+            List<ChatUserDTO> chats = await _chatUserRepository.GetUserChatsBeforeDate(userId, before);
+            if(chats is null or [])
+                return Result<List<ChatUserDTO>>.BadRequest("Invalid token");
+
+
+            return Result<List<ChatUserDTO>>.OkResult(chats);
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("DataBase error", ex);
+            return Result<List<ChatUserDTO>>.ErrorResult("DataBase error");
+        }
+    }
+
 
     public async Task<Result> Remove(DeleteMemberRequest request, Guid userId)
     {

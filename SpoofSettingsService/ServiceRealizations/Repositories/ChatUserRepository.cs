@@ -1,4 +1,6 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using CommonObjects.DTO;
+using CommunicationLibrary.Communication;
+using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
@@ -29,5 +31,10 @@ public class ChatUserRepository(
                         && x.Key2 == userId
                     )
             );
+    }
+
+    public async Task<List<ChatUserDTO>> GetUserChatsBeforeDate(Guid userId, DateTime before)
+    {
+        return await context.Database.SqlQuery<ChatUserDTO>($"SELECT c.\"Id\", c.\"ChatTypeId\", c.\"UniqueName\", c.\"Name\", get_user_permission({userId}, cu.\"ChatId\", null) AS \"Rules\" FROM \"ChatUser\" cu JOIN \"Chat\" c ON c.\"ChatId\" = cu.\"Id\" WHERE cu.\"UserId\" = {userId} AND cu.\"CreatedAt\" > {before}").ToListAsync();
     }
 }

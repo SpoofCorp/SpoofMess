@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.ChatUsers;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.ChatUsers;
 using CommonObjects.Requests.Members;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
@@ -23,5 +24,9 @@ public interface IChatUserService
     public Task<Result<ChatUser>> Get(
             GetChatUserRequest request,
             Guid userId
+        );
+    public Task<Result<List<ChatUserDTO>>> GetUserChats(
+            Guid userId, 
+            DateTime before
         );
 }
