@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.Messages;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.Messages;
 using SpoofMessageService.Models;
 using SpoofMessageService.Models.Enums;
 
@@ -13,5 +14,25 @@ public static class MessageSetter
         //message.Attachments = request.Attachments?.Select(x => x.Set(operationsStatus)).ToList() ?? message.Attachments;
     }
     public static Message Set(this CreateMessageRequest request, Guid userId, OperationsStatus operationsStatus) =>
-        new() { ChatId = request.ChatId, UserId = userId, MessageOperationStatuses = [new() { OperationStatusId = (short)operationsStatus }], Attachments = [.. request.Attachments.Select(x => x.Set(operationsStatus))], Text = request.Text };
+        new() { 
+            ChatId = request.ChatId,
+            UserId = userId,
+            MessageOperationStatuses = [
+                new() { 
+                    OperationStatusId = (short)operationsStatus 
+                }], 
+            Attachments = [..
+                request.Attachments.Select(x => x.Set(operationsStatus))
+                ], 
+            Text = request.Text 
+        };
+
+    public static MessageDTO Set(this Message message) =>
+        new(
+            message.Id, 
+            message.ChatId, 
+            message.UserId, 
+            message.Text, 
+            message.SentAt
+            );
 }

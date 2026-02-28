@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
 using SpoofMessageService.Models;
@@ -96,7 +97,7 @@ public class MessageService(
         }
     }
 
-    public async Task<Result> SendMessage(
+    public async Task<Result<MessageDTO>> SendMessage(
             CreateMessageRequest request,
             Guid userId
         )
@@ -109,7 +110,7 @@ public class MessageService(
                     Rules.EditMessage
                 );
             if (!chatUserResult.Success)
-                return Result.From(chatUserResult);
+                return Result<MessageDTO>.From(chatUserResult);
 
 
             Message message = request.Set(
@@ -118,12 +119,12 @@ public class MessageService(
                 );
             await _messageRepository.AddAsync(message);
 
-            return Result.OkResult();
+            return Result<MessageDTO>.OkResult(message.Set());
         }
         catch (Exception ex)
         {
             _loggerService.Error("DataBase error", ex);
-            return Result.ErrorResult("Internal server error");
+            return Result<MessageDTO>.ErrorResult("Internal server error");
         }
     }
 

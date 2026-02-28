@@ -19,4 +19,9 @@ public class ChatUserRepository(
     {
         await context.ChatUsers.Where(x => x.Key1 == chatId && x.Key2 == userId).ExecuteDeleteAsync();
     }
+
+    public async Task<List<ChatUser>> GetManyByChatId(Guid chatId)
+    {
+        return await _set.Where(x => x.Key1 == chatId).ToListAsync();
+    }
 }

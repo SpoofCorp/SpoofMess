@@ -42,24 +42,6 @@ public class ChatUserService(
         }
     }
 
-    public async Task<Result<ChatUser>> Get(Guid chatId, Guid userId)
-    {
-        try
-        {
-            ChatUser? chatUser = await _chatUserRepository.GetByIdAsync(chatId, userId);
-            Result result = _chatUserValidator.IsAvailable(chatUser);
-            if (!result.Success)
-                return Result<ChatUser>.From(result);
-
-            return Result<ChatUser>.OkResult(chatUser!);
-        }
-        catch (Exception ex)
-        {
-            _loggerService.Error($"An error occurred while getting chat users: {ex.Message}");
-            return Result<ChatUser>.ErrorResult("An error occurred while getting chat users.");
-        }
-    }
-
     public async Task<Result> Delete(Guid chatId, Guid userId)
     {
         try
@@ -77,7 +59,7 @@ public class ChatUserService(
 
     public async Task<Result<ChatUser>> GetAndCheckPermission(Guid chatId, Guid userId, Rules rule)
     {
-        Result<ChatUser> chatUserResult = await Get(chatId, userId);
+        Result<ChatUser> chatUserResult = await GetMember(chatId, userId);
         if (chatUserResult.Success)
         {
             Result result = _chatUserValidator.HasPermission(chatUserResult.Body!, rule);
@@ -106,6 +88,42 @@ public class ChatUserService(
         {
             _loggerService.Error($"An error occurred while saving chat users: {ex.Message}");
             return Result.ErrorResult("An error occurred while saving chat users.");
+        }
+    }
+
+    public async Task<Result<ChatUser>> GetMember(Guid chatId, Guid userId)
+    {
+        try
+        {
+            ChatUser? chatUser = await _chatUserRepository.GetByIdAsync(chatId, userId);
+            Result result = _chatUserValidator.IsAvailable(chatUser);
+            if (!result.Success)
+                return Result<ChatUser>.From(result);
+
+            return Result<ChatUser>.OkResult(chatUser!);
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error($"An error occurred while getting chat users: {ex.Message}");
+            return Result<ChatUser>.ErrorResult("An error occurred while getting chat users.");
+        }
+    }
+
+    public async Task<Result<List<ChatUser>>> GetMembers(Guid chatId)
+    {
+        try
+        {
+            List<ChatUser> chatUsers = await _chatUserRepository.GetManyByChatId(chatId);
+            Result result = _chatUserValidator.IsAvailableCollection(chatUsers);
+            if (!result.Success)
+                return Result<List<ChatUser>>.From(result);
+
+            return Result<List<ChatUser>>.OkResult(chatUsers!);
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error($"An error occurred while getting chat users: {ex.Message}");
+            return Result<List<ChatUser>>.ErrorResult("An error occurred while getting chat users.");
         }
     }
 }

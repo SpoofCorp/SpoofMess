@@ -7,7 +7,9 @@ namespace SpoofMessageService.Services;
 
 public interface IChatUserService
 {
-    public Task<Result<ChatUser>> Get(Guid chatId, Guid userId);
+    public Task<Result<ChatUser>> GetMember(Guid chatId, Guid userId);
+
+    public Task<Result<List<ChatUser>>> GetMembers(Guid chatId);
 
     public Task<Result> Update(UpdateChatUser updateChatUser);
 

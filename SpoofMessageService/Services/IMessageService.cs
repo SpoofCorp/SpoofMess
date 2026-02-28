@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.Messages;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
 using SpoofMessageService.Models;
 
@@ -7,7 +8,7 @@ namespace SpoofMessageService.Services;
 public interface IMessageService
 {
     [Obsolete("Need check permissions for message content")]
-    public Task<Result> SendMessage(
+    public Task<Result<MessageDTO>> SendMessage(
         CreateMessageRequest request, 
         Guid userId
     );

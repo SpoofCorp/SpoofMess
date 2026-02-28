@@ -6,4 +6,6 @@ namespace SpoofMessageService.Services.Repositories;
 public interface IChatUserRepository : IDoubleIdentifiedRepository<ChatUser, Guid, Guid>
 {
     public Task Delete(Guid chatId, Guid userId);
+
+    public Task<List<ChatUser>> GetManyByChatId(Guid chatId);
 }
