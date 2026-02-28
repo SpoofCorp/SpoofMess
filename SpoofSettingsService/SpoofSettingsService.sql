@@ -48,8 +48,8 @@ create table "Chat"
     "Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
     "ChatTypeId" int not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
 	"OwnerId" uuid constraint "FK_Chat_OwnerId" references "User"("Id") on delete set null,
-    "ChatUniqueName" varchar(100) unique not null,
-    "ChatName" varchar(100) not null,
+    "UniqueName" varchar(100) unique not null,
+    "Name" varchar(100) not null,
     "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
     "LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
