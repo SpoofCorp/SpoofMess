@@ -6,7 +6,7 @@ public partial class AttachmentOperationStatus : IdentifiedEntity<long>
 {
     public Guid MessageId { get; set; }
 
-    public Guid FileMetadataId { get; set; }
+    public byte[] FileMetadataId { get; set; } = null!;
 
     public short OperationStatusId { get; set; }
 

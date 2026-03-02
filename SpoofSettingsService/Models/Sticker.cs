@@ -6,7 +6,7 @@ public partial class Sticker : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public long StickerPackId { get; set; }
 
-    public Guid FileId { get; set; }
+    public byte[] FileId { get; set; } = null!;
 
     public string Title { get; set; } = null!;
 

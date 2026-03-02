@@ -2,7 +2,7 @@
 
 namespace SpoofMessageService.Models;
 
-public partial class FileMetadatum : IdentifiedSoftDeletableEntity<Guid>
+public partial class FileMetadatum : IdentifiedSoftDeletableEntity<byte[]>
 {
     public long Size { get; set; }
 

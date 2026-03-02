@@ -6,7 +6,7 @@ public partial class StickerPack : IdentifiedSoftDeletableChangeableEntity<long>
 {
     public Guid AuthorId { get; set; }
 
-    public Guid PreviewId { get; set; }
+    public byte[] PreviewId { get; set; } = null!;
 
     public string? Title { get; set; }
 

@@ -4,7 +4,7 @@ namespace SpoofMessageService.Models;
 
 public partial class User : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
-    public Guid? AvatarId { get; set; }
+    public byte[]? AvatarId { get; set; }
 
     public string Login { get; set; } = null!;
 

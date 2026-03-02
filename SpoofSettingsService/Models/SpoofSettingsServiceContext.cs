@@ -1,4 +1,5 @@
-﻿using CommunicationLibrary.Communication;
+﻿using CommonObjects.DTO;
+using CommunicationLibrary.Communication;
 using Microsoft.EntityFrameworkCore;
 
 namespace SpoofSettingsService.Models;
@@ -66,7 +67,7 @@ public partial class SpoofSettingsServiceContext : DbContext
         });
 
         modelBuilder.HasPostgresEnum<OutboxStatus>(name: "outbox_status");
-
+        
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Chat_Id");
@@ -417,7 +418,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
         modelBuilder.Entity<UserAvatar>(entity =>
         {
-            entity.HasKey(e => new { e.UserId, e.FileId }).HasName("PK_UserAvatar_Id");
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_UserAvatar_Id");
 
             entity.ToTable("UserAvatar");
 
@@ -425,11 +426,11 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.File).WithMany(p => p.UserAvatars)
-                .HasForeignKey(d => d.FileId)
+                .HasForeignKey(d => d.Key2)
                 .HasConstraintName("FK_UserAvatar_FileId");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserAvatars)
-                .HasForeignKey(d => d.UserId)
+                .HasForeignKey(d => d.Key1)
                 .HasConstraintName("FK_UserAvatar_UserId");
         });
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofSettingsService.Models;
 
-public partial class ChatAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
+public partial class ChatAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, byte[]>
 {
     /// <summary>
     /// ChatId
@@ -15,7 +15,7 @@ public partial class ChatAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<
     /// FileId
     /// </summary>
     [Column("FileId")]
-    public new Guid Key2 { get; set; }
+    public new byte[] Key2 { get; set; } = null!;
 
     public bool IsActive { get; set; }
 

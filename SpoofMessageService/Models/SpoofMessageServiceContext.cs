@@ -21,6 +21,10 @@ public partial class SpoofMessageServiceContext : DbContext
 
     public virtual DbSet<ChatUser> ChatUsers { get; set; }
 
+    public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<Chat> Chats { get; set; }
+
     public virtual DbSet<FileMetadatum> FileMetadata { get; set; }
 
     public virtual DbSet<FileType> FileTypes { get; set; }
