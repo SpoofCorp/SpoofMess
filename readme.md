@@ -5,11 +5,11 @@ A cross-platform messenger with any type of chats, stickers/emoji - that's just 
 
 
 ### Project possibilities
-Now you can registration and authorize in app, also create you're chat and send messages to your chats.
+Now you can registration and authorize in app, also create you're chat, add members to chat, connect to other user chats and send messages to your chats.
 
 ### Features
-Soon you can add members to you're chat and connect to other user chats.
 Also I want add message parser to find needable rules for send this message and check it.
+Soon I want realize ChatType, after you can create a unique types chats with properties.
 
 ## What stage of the project at?
 ### While on Alpha 0.0.6 Realized first prototypes of:
