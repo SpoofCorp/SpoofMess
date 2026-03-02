@@ -1,6 +1,7 @@
 using RuleRoleHelper.ServiceRealizations;
 using RuleRoleHelper.Services;
 using SettingsHelper;
+using SpoofMessageService;
 using SpoofMessageService.Models;
 using SpoofMessageService.ServiceRealizations;
 using SpoofMessageService.ServiceRealizations.Consumers;
@@ -14,8 +15,9 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddSignalR();
 
-builder.SetBaseSettings<SpoofMessageServiceContext>();
+builder.SetBaseSettingsWithFactory<SpoofMessageServiceContext>();
 
 builder.Services.AddHostedService<ChatUserConsumerService>();
 builder.Services.AddHostedService<UserSESConsumerService>();
@@ -39,7 +41,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 WebApplication app = builder.Build();
-
+app.MapHub<ChatHub>("/chat");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

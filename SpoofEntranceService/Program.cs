@@ -1,14 +1,14 @@
+using SettingsHelper;
 using SpoofEntranceService.Models;
 using SpoofEntranceService.ServiceRealizations;
+using SpoofEntranceService.ServiceRealizations.Consumers;
+using SpoofEntranceService.ServiceRealizations.Publishers;
 using SpoofEntranceService.ServiceRealizations.Repositories;
 using SpoofEntranceService.ServiceRealizations.Validators;
 using SpoofEntranceService.Services;
+using SpoofEntranceService.Services.Publishers;
 using SpoofEntranceService.Services.Repositories;
 using SpoofEntranceService.Services.Validators;
-using SettingsHelper;
-using SpoofEntranceService.ServiceRealizations.Consumers;
-using SpoofEntranceService.Services.Publishers;
-using SpoofEntranceService.ServiceRealizations.Publishers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
-builder.SetBaseSettings<SpoofEntranceServiceContext>();
+builder.SetBaseSettingsWithFactory<SpoofEntranceServiceContext>();
 
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();

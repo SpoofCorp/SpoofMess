@@ -22,6 +22,8 @@ public static class ServerSettingsService
 {
     public static void AddDbContext<TContext>(this WebApplicationBuilder builder) where TContext : DbContext =>
         builder.Services.AddDbContext<TContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Sql")));
+    public static void AddDbContextFactory<TContext>(this WebApplicationBuilder builder) where TContext : DbContext =>
+        builder.Services.AddDbContextFactory<TContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Sql")));
 
     public static void AddJwtAuthentification(this WebApplicationBuilder builder) =>
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
@@ -136,6 +138,17 @@ public static class ServerSettingsService
     }
     public static void SetBaseSettings(this WebApplicationBuilder builder)
     {
+        builder.AddJwtAuthentification();
+        builder.AddLogging();
+        builder.AddRabbitMQ();
+        builder.AddRedisAndMemoryCaches();
+        builder.AddJsonSerializer();
+        builder.AddSwaggerGenWithAccess();
+        builder.AddInjectionService();
+    }
+    public static void SetBaseSettingsWithFactory<TContext>(this WebApplicationBuilder builder) where TContext : DbContext
+    {
+        builder.AddDbContextFactory<TContext>();
         builder.AddJwtAuthentification();
         builder.AddLogging();
         builder.AddRabbitMQ();

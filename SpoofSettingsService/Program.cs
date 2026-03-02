@@ -19,7 +19,15 @@ builder.Services.AddOpenApi();
 
 builder.SetBaseSettings();
 
-builder.Services.AddDbContext<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Sql"), o => o.MapEnum<OutboxStatus>("outbox_status")));
+builder.Services.AddDbContextFactory<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Sql"), x =>
+{
+    x.MapEnum<OutboxStatus>("outbox_status");
+    x.ConfigureDataSource(ndsb =>
+    {
+        //ndsb.MapComposite<PermissionResult>("permission_result");
+        
+    });
+}));
 
 builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
 builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
@@ -48,7 +56,6 @@ builder.Services.AddScoped<IUserAvatarRepository, UserAvatarRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChatTypeRepository, ChatTypeRepository>();
 builder.Services.AddScoped<IRuleRepository, RuleRepository>();
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IChatUserOutboxRepository, ChatUserOutboxRepository>();
 
 builder.Services.AddScoped<IChatAvatarService, ChatAvatarService>();
