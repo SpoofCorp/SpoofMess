@@ -40,7 +40,7 @@ public class ChatUserConsumerService(
         });
 
     public async Task ConfirmDeleted() =>
-        await ConsumeFromQueueAsync<CreateChatUser>("delete.success", "chatuser.delete.success", async (chatUser) =>
+        await ConsumeFromQueueAsync<DeleteChatUser>("delete.success", "chatuser.deleted.success", async (chatUser) =>
         {
             await _injectionService.Invoke<IChatUserService, Task>(async (chatUserService) =>
             {

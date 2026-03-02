@@ -16,4 +16,10 @@ public interface IMessageRepository : ISoftDeletableIdentifiedRepository<Message
             DateTime before, 
             int take = 50
         );
+
+    public Task<List<Message>> GetMessageSinceDate(
+            Guid userId,
+            DateTime after,
+            int take = 50
+        );
 }

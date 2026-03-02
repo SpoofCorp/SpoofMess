@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.Messages;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,67 @@ public class MessageController(IMessageService messageService) : ControllerBase
     {
         Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _messageService.SendMessage(request, userId);
+        Result<MessageDTO> result = await _messageService.SendMessage(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success 
                 ? result.Message
+                : result.Error
+            );
+    }
+    
+    [HttpGet("get-after")]
+    public async Task<IActionResult> GetAfterDate(Guid chatId, DateTime date, int take = 50)
+    {
+        Guid userId = ClaimService.GetUserId(User);
+
+        Result<List<MessageDTO>> result = await _messageService.GetMessagesAfterDate(
+                chatId,
+                userId,
+                date.ToUniversalTime(),
+                take
+            );
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
+                : result.Error
+            );
+    }
+
+    [HttpGet("get-before")]
+    public async Task<IActionResult> GetBeforeDate(Guid chatId, DateTime date, int take = 50)
+    {
+        Guid userId = ClaimService.GetUserId(User);
+
+        Result<List<MessageDTO>> result = await _messageService.GetMessagesBeforeDate(
+                chatId, 
+                userId, 
+                date.ToUniversalTime(), 
+                take
+            );
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
+                : result.Error
+            );
+    }
+
+    [HttpGet("get-skiped")]
+    public async Task<IActionResult> GetSkipped(DateTime after, int take = 50)
+    {
+        Guid userId = ClaimService.GetUserId(User);
+
+        Result<List<MessageDTO>> result = await _messageService.GetSkippedMessages(
+                userId,
+                after.ToUniversalTime(),
+                take
+            );
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
                 : result.Error
             );
     }

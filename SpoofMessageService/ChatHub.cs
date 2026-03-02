@@ -1,6 +1,7 @@
 ﻿using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SecurityLibrary;
 using SpoofMessageService.Models;
@@ -9,6 +10,7 @@ using System.Collections.Concurrent;
 
 namespace SpoofMessageService;
 
+[Authorize]
 public class ChatHub(
         IMessageService messageService,
         IUserService userService,

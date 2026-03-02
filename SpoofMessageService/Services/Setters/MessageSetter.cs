@@ -31,7 +31,9 @@ public static class MessageSetter
         new(
             message.Id, 
             message.ChatId, 
-            message.UserId, 
+            message.UserId,
+            message.User.Name,
+            message.User.AvatarId,
             message.Text, 
             message.SentAt
             );

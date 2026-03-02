@@ -20,7 +20,7 @@ public class UserSESConsumerService(
 {
     protected readonly IInjectionService _injectionService = injectionService;
     protected override string Exchange => "message-service";
-    protected override string BaseQueueName => "entrance.user";
+    protected override string BaseQueueName => "message.user";
 
     public override async Task Initialize()
     {

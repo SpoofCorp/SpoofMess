@@ -1,7 +1,6 @@
 ﻿using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
-using SpoofMessageService.Models;
 
 namespace SpoofMessageService.Services;
 
@@ -24,17 +23,22 @@ public interface IMessageService
         Guid userId
     );
 
-    public Task<Result<List<Message>>> GetMessagesAfterDate(
+    public Task<Result<List<MessageDTO>>> GetMessagesAfterDate(
         Guid chatId,
         Guid userId,
         DateTime date,
         int take = 50
     );
 
-    public Task<Result<List<Message>>> GetMessagesBeforeDate(
+    public Task<Result<List<MessageDTO>>> GetMessagesBeforeDate(
         Guid chatId,
         Guid userId,
         DateTime date,
+        int take = 50
+    );
+    public Task<Result<List<MessageDTO>>> GetSkippedMessages(
+        Guid userId,
+        DateTime after,
         int take = 50
     );
 }

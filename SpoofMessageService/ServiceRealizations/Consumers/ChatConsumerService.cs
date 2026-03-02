@@ -40,6 +40,7 @@ public class ChatConsumerService(
             {
                 return await chatService.Create(createChat);
             });
+            _loggerService.Info($"Chat was created {createChat.UniqueName}");
         });
     }
 }

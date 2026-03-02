@@ -107,7 +107,7 @@ public class MessageService(
             Result<ChatUser> chatUserResult = await _chatUserService.GetAndCheckPermission(
                     request.ChatId,
                     userId,
-                    Rules.EditMessage
+                    Rules.SendTexts
                 );
             if (!chatUserResult.Success)
                 return Result<MessageDTO>.From(chatUserResult);
@@ -118,7 +118,7 @@ public class MessageService(
                     OperationsStatus.Pending
                 );
             await _messageRepository.AddAsync(message);
-
+            message.User = chatUserResult.Body!.User;
             return Result<MessageDTO>.OkResult(message.Set());
         }
         catch (Exception ex)
@@ -128,7 +128,7 @@ public class MessageService(
         }
     }
 
-    public async Task<Result<List<Message>>> GetMessagesAfterDate(
+    public async Task<Result<List<MessageDTO>>> GetMessagesAfterDate(
             Guid chatId,
             Guid userId,
             DateTime date,
@@ -143,24 +143,24 @@ public class MessageService(
                     Rules.DeleteMessage
                 );
             if (!resultCHatUser.Success)
-                return Result<List<Message>>.From(resultCHatUser);
+                return Result<List<MessageDTO>>.From(resultCHatUser);
 
-            return Result<List<Message>>.OkResult(
-                await _messageRepository.GetMessagesAfterDate(
+            return Result<List<MessageDTO>>.OkResult(
+                [.. (await _messageRepository.GetMessagesAfterDate(
                     chatId,
                     date,
                     take
-                    )
+                    )).Select(x => x.Set())]
                 );
         }
         catch (Exception ex)
         {
             _loggerService.Error("DataBase error", ex);
-            return Result<List<Message>>.ErrorResult("Internal server error");
+            return Result<List<MessageDTO>>.ErrorResult("Internal server error");
         }
     }
 
-    public async Task<Result<List<Message>>> GetMessagesBeforeDate(
+    public async Task<Result<List<MessageDTO>>> GetMessagesBeforeDate(
             Guid chatId,
             Guid userId,
             DateTime date,
@@ -175,20 +175,44 @@ public class MessageService(
                     Rules.DeleteMessage
                 );
             if (!resultCHatUser.Success)
-                return Result<List<Message>>.From(resultCHatUser);
+                return Result<List<MessageDTO>>.From(resultCHatUser);
 
-            return Result<List<Message>>.OkResult(
-                await _messageRepository.GetMessagesBeforeDate(
+            return Result<List<MessageDTO>>.OkResult(
+                [.. (await _messageRepository.GetMessagesBeforeDate(
                     chatId,
                     date,
                     take
-                    )
+                    )).Select(x => x.Set())]
                 );
         }
         catch (Exception ex)
         {
             _loggerService.Error("DataBase error", ex);
-            return Result<List<Message>>.ErrorResult("Internal server error");
+            return Result<List<MessageDTO>>.ErrorResult("Internal server error");
+        }
+    }
+
+    public async Task<Result<List<MessageDTO>>> GetSkippedMessages(
+            Guid userId,
+            DateTime after,
+            int take = 50
+        )
+    {
+        try
+        {
+            List<Message> messages = await _messageRepository.GetMessageSinceDate(userId, after, take);
+            Result result = _messageValidator.IsAvailableCollection(messages);
+            if (!result.Success)
+                return Result<List<MessageDTO>>.From(result);
+
+            return Result<List<MessageDTO>>.OkResult(
+                [.. messages.Select(x => x.Set())]
+                );
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("DataBase error", ex);
+            return Result<List<MessageDTO>>.ErrorResult("Internal server error");
         }
     }
 }
