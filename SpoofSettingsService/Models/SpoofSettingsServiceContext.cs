@@ -1,5 +1,4 @@
-﻿using CommonObjects.DTO;
-using CommunicationLibrary.Communication;
+﻿using CommunicationLibrary.Communication;
 using Microsoft.EntityFrameworkCore;
 
 namespace SpoofSettingsService.Models;

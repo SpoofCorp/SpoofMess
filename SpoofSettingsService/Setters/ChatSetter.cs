@@ -9,7 +9,7 @@ public static class ChatSetter
     {
         chat.OwnerId = request.OwnerId ?? chat.OwnerId;
         chat.ChatTypeId = request.ChatTypeId ?? chat.ChatTypeId;
-        chat.ChatName = request.ChatName ?? chat.ChatName;
-        chat.ChatUniqueName = request.UniqueName ?? chat.ChatUniqueName;
+        chat.Name = request.ChatName ?? chat.Name;
+        chat.UniqueName = request.UniqueName ?? chat.UniqueName;
     }
 }

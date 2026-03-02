@@ -25,7 +25,7 @@ public class ChatAvatarFileConsumerService(RabbitMQSettings settings, ISerialize
     protected override Func<FileMetadata, Task> ErrorAddedFunc => async (fileMetadata) => await ChangeStatus(fileMetadata.Id, OperationsStatus.Error, true);
 
 
-    private async Task ChangeStatus(Guid fileId, OperationsStatus status, bool isDeleted)
+    private async Task ChangeStatus(byte[] fileId, OperationsStatus status, bool isDeleted)
     {
         FileMetadatum? fileMetadatum = await _fileMetadatumRepository.GetByIdAsync(fileId);
         if (fileMetadatum is null)

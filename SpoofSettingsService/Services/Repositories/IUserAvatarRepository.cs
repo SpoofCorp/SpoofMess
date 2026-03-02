@@ -3,11 +3,11 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Repositories;
 
-public interface IUserAvatarRepository : ISoftDeletableRepository<UserAvatar>
+public interface IUserAvatarRepository : IDoubleIdentifiedRepository<UserAvatar, Guid, byte[]>
 {
     public Task<UserAvatar?> GetActualUserAvatarById(Guid userId);
 
     public Task<List<UserAvatar>?> GetUserAvatarsById(Guid userId);
 
-    public Task<bool> TryDeleteAvatarByIds(Guid userId, Guid fileId);
+    public Task<bool> TryDeleteAvatarByIds(Guid userId, byte[] fileId);
 }

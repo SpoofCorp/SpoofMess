@@ -3,6 +3,6 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Repositories;
 
-public interface IFileMetadatumRepository : ISoftDeletableIdentifiedRepository<FileMetadatum, byte[]>
+public interface IChatRoleRepository : ISoftDeletableIdentifiedRepository<ChatRole, long>
 {
 }

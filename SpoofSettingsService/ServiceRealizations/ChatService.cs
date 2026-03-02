@@ -96,8 +96,8 @@ public class ChatService(
                 new(
                     newChat.Id,
                     null,
-                    newChat.ChatUniqueName,
-                    newChat.ChatName
+                    newChat.UniqueName,
+                    newChat.Name
                     )
                 );
             return Result.OkResult();

@@ -57,7 +57,7 @@ public class ChatUserOutboxer(
                         _ => throw new NotImplementedException($"Not supported OutboxStatus {outbox.Status}")
                     };
                     await processingTask;
-
+                    _loggerService.Info($"Create chat-user {outbox.UserId}");
                     await Confirm(outbox, outboxRepo, true);
                 }
                 catch (Exception ex)

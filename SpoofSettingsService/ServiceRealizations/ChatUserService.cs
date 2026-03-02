@@ -3,7 +3,6 @@ using CommonObjects.DTO;
 using CommonObjects.Requests.ChatUsers;
 using CommonObjects.Requests.Members;
 using CommonObjects.Results;
-using CommunicationLibrary.Communication;
 using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
@@ -55,7 +54,7 @@ public class ChatUserService(
             await _chatUserRepository.AddAsync(newMember);
             _ = Task.Run(async () =>
             {
-                Result<Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
+                Result<CommunicationLibrary.Communication.Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
                 if (rulesResult.Success)
                     await _chatUserPublisherService.Create(newMember, rulesResult.Body!);
                 else
@@ -75,14 +74,15 @@ public class ChatUserService(
         try
         {
             Result result = await _ruleService.HasPermissionAsync(
-                    request.ChatId,
                     userId,
+                    request.ChatId,
                     Permissions.Inviting
                 );
             if (!result.Success)
                 return result;
 
-            Result<User>? memberResult = await _userService.Get(request.MemberId);
+            Result<User> memberResult = await _userService.Get(request.MemberId);
+
             if (!memberResult.Success) return Result.From(memberResult);
 
             ChatUser newMember = new()
@@ -94,7 +94,7 @@ public class ChatUserService(
             await _chatUserRepository.AddAsync(newMember);
             _ = Task.Run(async () =>
             {
-                Result<Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
+                Result<CommunicationLibrary.Communication.Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
                 if (rulesResult.Success)
                     await _chatUserPublisherService.Create(newMember, rulesResult.Body!);
                 else
@@ -141,11 +141,11 @@ public class ChatUserService(
         }
     }
 
-    public async Task<Result<List<ChatUserDTO>>> GetUserChats(Guid userId, DateTime before)
+    public async Task<Result<List<ChatUserDTO>>> GetUserChats(Guid userId, DateTime after)
     {
         try
         {
-            List<ChatUserDTO> chats = await _chatUserRepository.GetUserChatsBeforeDate(userId, before);
+            List<ChatUserDTO> chats = await _chatUserRepository.GetUserChatsAfterDate(userId, after);
             if(chats is null or [])
                 return Result<List<ChatUserDTO>>.BadRequest("Invalid token");
 

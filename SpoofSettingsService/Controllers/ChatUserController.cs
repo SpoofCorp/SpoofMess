@@ -46,15 +46,18 @@ public class ChatUserController(
     }
 
     [HttpGet("get-chats")]
-    public async Task<IActionResult> GetChats(DateTime before)
+    public async Task<IActionResult> GetChats(DateTime after)
     {
         Guid userId = ClaimService.GetUserId(User);
-
-        Result<List<ChatUserDTO>> result = await _chatUserService.GetUserChats(userId, before);
+        if(after.Kind != DateTimeKind.Utc)
+        {
+            after = after.ToUniversalTime();
+        }
+        Result<List<ChatUserDTO>> result = await _chatUserService.GetUserChats(userId, after);
         return StatusCode(
             result.StatusCode,
             result.Success
-                ? result.Message
+                ? result.Body
                 : result.Error
                 );
     }
