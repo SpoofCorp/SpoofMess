@@ -4,7 +4,7 @@ namespace CommonObjects.Responses;
 
 public class GetStickerPackResponse
 {
-    public Guid FileId { get; set; }
+    public byte[] FileId { get; set; } = null!;
 
     public List<StickerDTO>? Stickers { get; set; }
 }

@@ -48,6 +48,9 @@ public class Result<T>
     public static Result<T> UnAuthorized(string error) =>
         ErrorResult(error, 401);
 
+    public static Result<T> InternalServerError(string error = "Internal server error") =>
+        ErrorResult(error, 500);
+
     public static Result<T> From(Result result) =>
         GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
     public static Result<T> From<TAnother>(Result<TAnother> result) =>

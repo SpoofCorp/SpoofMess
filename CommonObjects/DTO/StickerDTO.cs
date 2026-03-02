@@ -2,7 +2,7 @@
 
 public class StickerDTO
 {
-    public Guid FileId { get; set; }
+    public byte[] FileId { get; set; } = null!;
 
     public Guid Id { get; set; }
 

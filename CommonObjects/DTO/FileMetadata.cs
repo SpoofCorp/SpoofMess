@@ -2,7 +2,7 @@
 
 public class FileMetadata
 {
-    public Guid Id { get; set; }    
+    public byte[] Id { get; set; }    
 
     public required long Size { get; init; }
 }

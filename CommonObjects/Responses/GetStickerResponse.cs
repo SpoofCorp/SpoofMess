@@ -2,5 +2,5 @@
 
 public class GetStickerResponse
 {
-    public Guid FileId { get; set; }
+    public byte[] FileId { get; set; } = null!;
 }

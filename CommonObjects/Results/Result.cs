@@ -46,6 +46,9 @@ public class Result
     public static Result UnAuthorized(string error) =>
         ErrorResult(error, 401);
 
+    public static Result InternalServerError(string error = "Internal server error") =>
+        ErrorResult(error, 500);
+
     public static Result ErrorResult(string error, int statusCode = 500) =>
         GetResult(success: false, error: error, statusCode: statusCode);
 
