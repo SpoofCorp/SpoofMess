@@ -7,9 +7,10 @@ create table "OperationStatus"
 create table "User"
 (
 	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
-	"AvatarId" uuid,
+	"AvatarId" bytea,
 	"Login" varchar(100) unique not null,
 	"Name" varchar(100) not null,
+	"IsConnected" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
@@ -17,7 +18,7 @@ create table "User"
 create table "Chat"
 (
 	"Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
-	"AvatarId" uuid,
+	"AvatarId" bytea,
 	"UniqueName" varchar(100) unique not null,
 	"Name" varchar(100),
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -72,7 +73,7 @@ create table "Extension"
 );
 
 create table "FileMetadata" (
-    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
+    "Id" bytea constraint "PK_FileMetadata_Id" primary key,
     "Size" bigint not null,
 	"IsDeleted" boolean not null default false,
 	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
@@ -86,7 +87,7 @@ create index "IX_Message_SentAt" on "Message"("SentAt");
 create table "Attachment"
 (
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
-	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
+	"FileMetadataId" bytea not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	constraint "PK_Attachment_Id" primary key("MessageId", "FileMetadataId")
@@ -96,7 +97,7 @@ create table "AttachmentOperationStatus"
 (
 	"Id" bigserial constraint "PK_AttachmentOperationStatus_Id" primary key,
 	"MessageId"	uuid not null, 
-	"FileMetadataId" uuid not null,
+	"FileMetadataId" bytea not null,
 	"OperationStatusId" smallint not null constraint "FK_AttachmentOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
 	"Description" text,
 	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
