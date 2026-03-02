@@ -82,6 +82,8 @@ create table "ChatRole"
 	constraint "UQ_ChatRole_Chat_Name" unique ("ChatId", "Name")
 );
 
+alter table "Chat" add "BaseRoleId" bigint constraint "FK_Chat_BaseRoleId" references "ChatRole"("Id") on delete set null;
+
 create table "Permission"
 (
     "Id" smallint constraint "PK_Permission_Id" primary key,
@@ -107,7 +109,7 @@ create table "Extension"
 );
 
 create table "FileMetadata" (
-    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
+    "Id" bytea constraint "PK_FileMetadata_Id" primary key,
 	"IsDeleted" boolean not null default false,
     "Size" bigint not null,
 	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
@@ -122,7 +124,7 @@ create table "OperationStatus"
 create table "FileMetadataOperationStatus"
 (
 	"Id" bigserial constraint "PK_FileMetadataOperationStatus_Id" primary key,
-	"FileMetadataId" uuid not null constraint "FK_FileMetadataOperationStatus_MessageId" references "FileMetadata"("Id") on delete cascade,
+	"FileMetadataId" bytea not null constraint "FK_FileMetadataOperationStatus_MessageId" references "FileMetadata"("Id") on delete cascade,
 	"OperationStatusId" smallint not null constraint "FK_FileMetadataOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
 	"Description" text,
 	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
@@ -166,7 +168,7 @@ create table "StickerPack"
 (
 	"Id" bigserial constraint "PK_StickerPack_Id" primary key,
 	"AuthorId" uuid not null constraint "FK_StickerPack_AuthorId" references "User"("Id") on delete cascade,
-	"PreviewId" uuid not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
+	"PreviewId" bytea not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
 	"Title" varchar(100),
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
@@ -178,7 +180,7 @@ create table "Sticker"
 (
 	"Id" uuid constraint "PK_Sticker_Id" primary key default uuidv7(),
 	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
-	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
+	"FileId" bytea not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
 	"Title" varchar(50) not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
@@ -187,7 +189,7 @@ create table "Sticker"
 create table "UserAvatar"
 (
 	"UserId" uuid not null constraint "FK_UserAvatar_UserId" references "User"("Id") on delete cascade,
-	"FileId" uuid not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
+	"FileId" bytea not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -197,7 +199,7 @@ create table "UserAvatar"
 create table "ChatAvatar"
 (
 	"ChatId" uuid not null constraint "FK_ChatAvatar_ChatId" references "Chat"("Id") on delete cascade,
-	"FileId" uuid not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
+	"FileId" bytea not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -285,7 +287,10 @@ $$ language plpgsql;
 
 create or replace function "LogChatUserToOutbox"()
 returns trigger as $$
+declare
+	roleId bigint;
 begin
+	select "BaseRoleId" into roleId from "Chat" where "Id" = new."ChatId" limit 1;
     insert into "ChatUserOutbox"("ChatId", "UserId", "Status", "Data")
     values (
         new."ChatId",
@@ -315,6 +320,11 @@ begin
 			)
     	)
     );
+	if roleId is not null then
+		insert into "ChatUserChatRole"("ChatId", "UserId", "ChatRoleId")
+		values
+		(new."ChatId", new."UserId", roleId);
+	end if;
     return new;
 end;
 $$ language plpgsql;
@@ -401,10 +411,6 @@ create trigger "Trg_ChatRoleRules_Outbox"
 after update on "ChatRoleRules"
 for each row execute function "LogChatRoleRulesToOutbox"();
 
-create trigger "Trg_Chat_After_Insert" after insert on "Chat"
-for each row
-execute function "CreateRolesAfterChat"();
-
 create trigger "Trg_FileMetadataOperationStatus_After_Insert" after insert on "FileMetadataOperationStatus"
 for each row
 execute function "FileMetadataOperationStatus_OnceActual"();
@@ -447,7 +453,7 @@ begin
 	insert into "ChatRole"("ChatId", "Name", "RoleRankId")
 	values (new."Id", 'Member', leastRankId)
 	returning "Id" into memberRoleId;
-	
+
 	insert into "ChatRoleRules"("ChatRoleId", "PermissionId", "IsPermission")
 	select memberRoleId, "Id", true 
 	from "Permission" 
@@ -470,9 +476,12 @@ begin
 	values
 	(new."Id", new."OwnerId", ownerRoleId);
 	
+	update "Chat" set "BaseRoleId" = memberRoleId where "Id" = new."Id";
+	
 	return new;
 end;
 $$ language plpgsql;
+
 
 create trigger "Trg_Chat_After_Insert" after insert on "Chat"
 for each row
@@ -520,64 +529,48 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace function get_user_permission(
-	p_user_id uuid,
-	p_chat_id uuid,
-	p_mask smallint[]
-)
-returns 
-table(
-	"PermissionId" smallint,
-	"IsPermission" boolean
-)
-as
-$$
+CREATE TYPE permission_result AS 
+( 
+	"RuleId" smallint, 
+	"IsAllowed" boolean 
+); 
+
+create or replace function get_user_permission
+(
+	p_user_id uuid, 
+	p_chat_id uuid, 
+	p_mask smallint[] 
+) RETURNS SETOF permission_result
+as $$
 begin
-	return query
-	select distinct on
-	(
-		rules."PermissionId"
-	)
-		rules."PermissionId",
-		rules."IsPermission"
-	from 
-	(
-		select
-			cur."PermissionId",
-			cur."IsPermission",
-			1 as priority
-		from "ChatUser" ch
-		join "ChatUserRules" cur on
-			cur."ChatId" = ch."ChatId"
-			and cur."UserId" = ch."UserId"
-		where ch."ChatId" = p_chat_id
-			and ch."UserId" = p_user_id
+return query select distinct on ( rules."PermissionId" ) rules."PermissionId" AS "RuleId", rules."IsPermission" AS "IsAllowed"
+	from (
+		select cur."PermissionId", cur."IsPermission", 1 as priority from "ChatUser" 
+		ch join "ChatUserRules" cur on cur."ChatId" = ch."ChatId"
+			and cur."UserId" = ch."UserId" 
+		where ch."ChatId" = p_chat_id 
+			and ch."UserId" = p_user_id 
 			and (
 				p_mask is null
 				or cardinality(p_mask) = 0
 				or cur."PermissionId" = any(p_mask)
 			)
-		union all
-		select 
-			crr."PermissionId",
-			crr."IsPermission",
-			2 as priority
-		from "ChatUserChatRole" cucr
-		join "ChatRole" cr on
-			cucr."ChatRoleId" = cr."Id"
-		join "ChatRoleRules" crr on
-			crr."ChatRoleId" = cr."Id"
-		where cucr."ChatId" = p_chat_id 
-			and cucr."UserId" = p_user_id 
+		union all 
+		select crr."PermissionId", crr."IsPermission", 2 as priority 
+		from "ChatUserChatRole" cucr 
+		join "ChatRole" cr on cucr."ChatRoleId" = cr."Id"
+		join "ChatRoleRules" crr on crr."ChatRoleId" = cr."Id"
+		where cucr."ChatId" = p_chat_id
+			and cucr."UserId" = p_user_id
 			and (
 				p_mask is null
 				or cardinality(p_mask) = 0
 				or crr."PermissionId" = any(p_mask)
 			)
 	) as rules
-	order by 
-		rules."PermissionId",
-		rules.priority, 
+	order by rules."PermissionId",
+		rules.priority,
 		rules."IsPermission";
-end;
+end; 
 $$ language plpgsql;
+
