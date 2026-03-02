@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
@@ -8,18 +8,19 @@ namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
 public class ChatUserOutboxRepository(
         ICacheService cache,
-        SpoofSettingsServiceContext context,
+        IDbContextFactory<SpoofSettingsServiceContext> factory,
         IProcessQueueTasksService processQueueTasks
-    ) : CachedIdentifiedRepository<ChatUserOutbox, Guid>(
+    ) : CachedIdentifiedFactoryRepository<ChatUserOutbox, Guid, SpoofSettingsServiceContext>(
             cache,
-            context,
+            factory,
             processQueueTasks
         ), IChatUserOutboxRepository
 {
 
     public async Task<List<ChatUserOutbox>> GetNotSynced(DateTime notBefore)
     {
-        return await _set.Where(
+        await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.ChatUserOutboxes.Where(
                 x => !x.IsSynced
                 && x.LastTryDate < notBefore
             ).ToListAsync();

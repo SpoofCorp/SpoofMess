@@ -6,14 +6,14 @@ using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
-public class StickerRepository(
+public class ChatRoleRepository(
     ICacheService cache,
-    IDbContextFactory<SpoofSettingsServiceContext> factory,
-    IProcessQueueTasksService tasksService
-    ) : CachedSoftDeletableIdentifiedFactoryRepository<Sticker, Guid, SpoofSettingsServiceContext>(
+    IDbContextFactory<SpoofSettingsServiceContext> factory, 
+    IProcessQueueTasksService processQueueTasks
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<ChatRole, long, SpoofSettingsServiceContext>(
         cache, 
         factory, 
-        tasksService
-    ), IStickerRepository
+        processQueueTasks
+    ), IChatRoleRepository
 {
 }

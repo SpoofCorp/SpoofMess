@@ -1,5 +1,5 @@
 ﻿using AdditionalHelpers.Services;
-using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
@@ -7,11 +7,21 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class UserRepository(ICacheService cache, ISerializer serializer, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<UserEntry, Guid>(cache, context, tasksService), IUserEntryRepository
+public class UserRepository(
+    ICacheService cache,
+    ISerializer serializer,
+    IDbContextFactory<SpoofEntranceServiceContext> factory,
+    IProcessQueueTasksService tasksService
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<UserEntry, Guid, SpoofEntranceServiceContext>(
+        cache,
+        factory, 
+        tasksService
+    ), IUserEntryRepository
 {
     private readonly ISerializer _serializer = serializer;
     public async Task Create(UserEntry entry, SessionInfo session, Token token)
     {
+        await using SpoofEntranceServiceContext context = await _factory.CreateDbContextAsync();
         await context.UserEntries.AddAsync(entry);
         await context.SessionInfos.AddAsync(session);
         await context.Tokens.AddAsync(token);
@@ -26,14 +36,15 @@ public class UserRepository(ICacheService cache, ISerializer serializer, SpoofEn
             ));
     }
 
-    public async Task Change( UserEntry? oldUser)
+    public async Task Change(UserEntry? oldUser)
     {
         if (oldUser is not null)
         {
+            await using SpoofEntranceServiceContext context = await _factory.CreateDbContextAsync();
             oldUser.IsDeleted = true;
             oldUser.UniqueName = Guid.CreateVersion7().ToString();
-            _context.Entry(oldUser).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            context.Entry(oldUser).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
     }
 
@@ -41,7 +52,11 @@ public class UserRepository(ICacheService cache, ISerializer serializer, SpoofEn
         $"{typeof(UserEntry).Name}:{entity.UniqueName}".ToLower();
 
     public async Task<UserEntry?> GetByLogin(string login) =>
-        await GetAsync(GetKeyByLogin(login), async () => await context.UserEntries.FirstOrDefaultAsync(x => x.UniqueName == login));
+        await GetAsync(GetKeyByLogin(login), async () =>
+        {
+            await using SpoofEntranceServiceContext context = await _factory.CreateDbContextAsync();
+            return await context.UserEntries.FirstOrDefaultAsync(x => x.UniqueName == login);
+        });
 
     private static string GetKeyByLogin(string login) =>
         $"{typeof(UserEntry).Name}:{login}".ToLower();

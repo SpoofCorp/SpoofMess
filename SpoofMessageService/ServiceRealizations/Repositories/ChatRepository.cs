@@ -1,5 +1,6 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
+using Microsoft.EntityFrameworkCore;
 using SpoofMessageService.Models;
 using SpoofMessageService.Services.Repositories;
 
@@ -7,11 +8,11 @@ namespace SpoofMessageService.ServiceRealizations.Repositories;
 
 public class ChatRepository(
     ICacheService cache,
-    SpoofMessageServiceContext context,
+    IDbContextFactory<SpoofMessageServiceContext> factory,
     IProcessQueueTasksService processQueueTasks)
-    : CachedSoftDeletableIdentifiedRepository<Chat, Guid>(
+    : CachedSoftDeletableIdentifiedFactoryRepository<Chat, Guid, SpoofMessageServiceContext>(
         cache,
-        context,
+        factory,
         processQueueTasks), IChatRepository
 {
 }

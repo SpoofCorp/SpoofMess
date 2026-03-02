@@ -1,8 +1,9 @@
 ﻿using CommonObjects.DTO;
-using CommunicationLibrary.Communication;
-using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+using Dapper;
+using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services.Repositories;
 
@@ -10,11 +11,11 @@ namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
 public class ChatUserRepository(
         ICacheService cache,
-        SpoofSettingsServiceContext context,
+        IDbContextFactory<SpoofSettingsServiceContext> factory,
         IProcessQueueTasksService tasksService
-    ) : CachedSoftDeletableDoubleIdentifiedRepository<ChatUser, Guid, Guid>(
+    ) : CachedSoftDeletableDoubleIdentifiedFactoryRepository<ChatUser, Guid, Guid, SpoofSettingsServiceContext>(
             cache,
-            context,
+            factory,
             tasksService
         ), IChatUserRepository
 {
@@ -22,19 +23,34 @@ public class ChatUserRepository(
     {
         return await GetAsync(
             GetKey(chatId, userId),
-            async() => 
-                await _set.
+            async() =>
+            {
+                await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
+                return await context.ChatUsers.
                     Include(x => x.ChatUserRules)
                     .Include(x => x.ChatUserChatRoles)
-                    .FirstOrDefaultAsync(x => 
-                        x.Key1 == chatId 
+                    .FirstOrDefaultAsync(x =>
+                        x.Key1 == chatId
                         && x.Key2 == userId
-                    )
-            );
+                    );
+            });
     }
 
-    public async Task<List<ChatUserDTO>> GetUserChatsBeforeDate(Guid userId, DateTime before)
+    public async Task<List<ChatUserDto>> GetUserChatsAfterDate(Guid userId, DateTime after)
     {
-        return await context.Database.SqlQuery<ChatUserDTO>($"SELECT c.\"Id\", c.\"ChatTypeId\", c.\"UniqueName\", c.\"Name\", get_user_permission({userId}, cu.\"ChatId\", null) AS \"Rules\" FROM \"ChatUser\" cu JOIN \"Chat\" c ON c.\"ChatId\" = cu.\"Id\" WHERE cu.\"UserId\" = {userId} AND cu.\"CreatedAt\" > {before}").ToListAsync();
+        await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
+        var result = context.Database.SqlQuery<PermissionResult>(
+            $@"select * from get_user_permission('019caa3c-f136-73e4-a3bb-a88fdfe0c517', '019caa6c-237d-74f0-9e8a-704df800faeb', null)").ToArray();
+        foreach(var perm in result)
+        {
+            Console.WriteLine(perm.RuleId);
+        }
+
+        return await context.Database.SqlQuery<ChatUserDto>($@"SELECT c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name"",
+   jsonb_agg(perm::permission_result) AS ""RulesJson""
+   FROM ""ChatUser"" cu JOIN ""Chat"" c ON c.""Id"" = cu.""ChatId"" 
+   cross JOIN LATERAL get_user_permission({userId}, cu.""ChatId"", null) perm
+   WHERE cu.""UserId"" = {userId} AND cu.""JoinedAt"" > {after}
+   GROUP BY c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name""").ToListAsync();
     }
 }

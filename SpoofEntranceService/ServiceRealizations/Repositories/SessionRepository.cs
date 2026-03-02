@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofEntranceService.Models;
@@ -6,14 +6,25 @@ using SpoofEntranceService.Services.Repositories;
 
 namespace SpoofEntranceService.ServiceRealizations.Repositories;
 
-public class SessionRepository(ICacheService cache, SpoofEntranceServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<SessionInfo, Guid>(cache, context, tasksService), ISessionRepository
+public class SessionRepository(
+        ICacheService cache,
+        IDbContextFactory<SpoofEntranceServiceContext> factory,
+        IProcessQueueTasksService tasksService
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<SessionInfo, Guid, SpoofEntranceServiceContext>(
+        cache, 
+        factory,
+        tasksService
+    ), ISessionRepository
 {
-    public async ValueTask<List<SessionInfo>?> GetSessionsByUserId(Guid userId) =>
-        await context.SessionInfos
+    public async ValueTask<List<SessionInfo>?> GetSessionsByUserId(Guid userId)
+    {
+        await using SpoofEntranceServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.SessionInfos
                 .Where(x => x.UserEntryId == userId
                     && !x.IsDeleted
                     && x.IsActive)
                 .ToListAsync();
+    }
 
     public async Task SoftDelete(SessionInfo entity)
     {
@@ -23,6 +34,7 @@ public class SessionRepository(ICacheService cache, SpoofEntranceServiceContext 
 
     public async Task SoftDeleteSessionsByUserId(Guid userId, bool withCurrent = false, Guid? currentSessionId = null)
     {
+        await using SpoofEntranceServiceContext context = await _factory.CreateDbContextAsync();
         await context.SessionInfos
         .Where(x => x.
             UserEntryId == userId

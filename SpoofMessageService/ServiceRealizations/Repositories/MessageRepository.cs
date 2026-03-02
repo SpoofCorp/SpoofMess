@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofMessageService.Models;
@@ -8,12 +8,12 @@ namespace SpoofMessageService.ServiceRealizations.Repositories;
 
 public class MessageRepository(
         ICacheService cache,
-        SpoofMessageServiceContext context, 
+        IDbContextFactory<SpoofMessageServiceContext> factory, 
         IProcessQueueTasksService processQueueTasks
     ) 
-    : CachedSoftDeletableIdentifiedRepository<Message, Guid>(
+    : CachedSoftDeletableIdentifiedFactoryRepository<Message, Guid, SpoofMessageServiceContext>(
             cache,
-            context,
+            factory,
             processQueueTasks
         ), IMessageRepository
 {
@@ -23,7 +23,9 @@ public class MessageRepository(
             int take = 50
         )
     {
-        return await _set.OrderByDescending(x => x.SentAt)
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.Messages.OrderByDescending(x => x.SentAt)
+            .Include(x => x.User)
             .Where(m =>
                 m.ChatId == chatId
                 && m.SentAt >= after
@@ -37,10 +39,28 @@ public class MessageRepository(
             int take = 50
         )
     {
-        return await _set.OrderByDescending(x => x.SentAt)
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.Messages.OrderByDescending(x => x.SentAt)
+            .Include(x => x.User)
             .Where(m =>
                 m.ChatId == chatId
                 && m.SentAt <= before
+            ).Take(take)
+            .ToListAsync();
+    }
+
+    public async Task<List<Message>> GetMessageSinceDate(
+            Guid userId,
+            DateTime after, 
+            int take = 50
+        )
+    {
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.Messages
+            .Include(x => x.User)
+            .Where(x => 
+                x.UserId == userId 
+                && x.SentAt >= after
             ).Take(take)
             .ToListAsync();
     }

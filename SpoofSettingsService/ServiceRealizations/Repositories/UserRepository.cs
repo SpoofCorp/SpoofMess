@@ -1,10 +1,19 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
+using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services.Repositories;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
-public class UserRepository(ICacheService cache, SpoofSettingsServiceContext context, IProcessQueueTasksService tasksService) : CachedSoftDeletableIdentifiedRepository<User, Guid>(cache, context, tasksService), IUserRepository
+public class UserRepository(
+        ICacheService cache, 
+        IDbContextFactory<SpoofSettingsServiceContext> factory, 
+        IProcessQueueTasksService tasksService
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<User, Guid, SpoofSettingsServiceContext>(
+        cache,
+        factory, 
+        tasksService
+    ), IUserRepository
 {
 }

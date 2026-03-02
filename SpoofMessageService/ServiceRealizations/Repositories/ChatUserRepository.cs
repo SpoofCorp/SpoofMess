@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofMessageService.Models;
@@ -8,20 +8,33 @@ namespace SpoofMessageService.ServiceRealizations.Repositories;
 
 public class ChatUserRepository(
     ICacheService cache,
-    SpoofMessageServiceContext context,
+    IDbContextFactory<SpoofMessageServiceContext> factory,
     IProcessQueueTasksService processQueueTasks) 
-    : CachedSoftDeletableDoubleIdentifiedRepository<ChatUser, Guid, Guid>(
+    : CachedSoftDeletableDoubleIdentifiedFactoryRepository<ChatUser, Guid, Guid, SpoofMessageServiceContext>(
         cache,
-        context,
+        factory,
         processQueueTasks), IChatUserRepository
 {
     public async Task Delete(Guid chatId, Guid userId)
     {
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
         await context.ChatUsers.Where(x => x.Key1 == chatId && x.Key2 == userId).ExecuteDeleteAsync();
+    }
+
+    public new async Task<ChatUser?> GetByIdAsync(Guid chatId, Guid userId)
+    {
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.ChatUsers
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x => 
+            x.Key1 == chatId 
+            && x.Key2 == userId
+        );
     }
 
     public async Task<List<ChatUser>> GetManyByChatId(Guid chatId)
     {
-        return await _set.Where(x => x.Key1 == chatId).ToListAsync();
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.ChatUsers.Where(x => x.Key1 == chatId).ToListAsync();
     }
 }

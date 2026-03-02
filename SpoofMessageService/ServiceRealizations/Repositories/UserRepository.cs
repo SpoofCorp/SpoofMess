@@ -1,4 +1,4 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
+﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofMessageService.Models;
@@ -8,19 +8,19 @@ namespace SpoofMessageService.ServiceRealizations.Repositories;
 
 public class UserRepository(
     ICacheService cache,
-    SpoofMessageServiceContext context,
+    IDbContextFactory<SpoofMessageServiceContext> factory,
     IProcessQueueTasksService processQueueTasks
-    ) : CachedSoftDeletableIdentifiedRepository<User, Guid>(
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<User, Guid, SpoofMessageServiceContext>(
         cache,
-        context,
+        factory,
         processQueueTasks
         ), IUserRepository
 {
     public async Task<bool> ExecuteUpdate(Guid userId, bool isConnected)
     {
-        int count = await _set.Where(x => x.Equals(userId)).ExecuteUpdateAsync(x =>
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        int count = await context.Users.Where(x => x.Id.Equals(userId)).ExecuteUpdateAsync(x =>
             x.SetProperty(p => p.IsConnected, isConnected)
-            .SetProperty(p => p.IsConnected, isConnected)
         );
         User? user = await _cache.Get<User>(GetKey(userId));
         if (user is null)
