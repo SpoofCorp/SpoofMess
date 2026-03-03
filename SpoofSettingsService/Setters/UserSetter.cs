@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.Changes;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.Changes;
 using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Setters;
@@ -14,4 +15,12 @@ public static class UserSetter
         user.InviteMe = request.InviteMe ?? user.InviteMe;
         user.ForwardMessage = request.ForwardMessage ?? user.ForwardMessage;
     }
+
+    public static UserDTO Set(this User user) =>
+        new(
+            user.Id,
+            user.Name,
+            user.Login,
+            user.UserAvatars.FirstOrDefault(a => a.IsActive)?.Key2
+        );
 }

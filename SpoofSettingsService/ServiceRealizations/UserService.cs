@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using CommonObjects.DTO;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using CommunicationLibrary.Communication;
@@ -33,6 +34,21 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
         {
             _logger.Error("Database error", ex);
             return Result<User>.ErrorResult("Database error");
+        }
+    }
+    public async Task<Result<UserDTO>> GetInfo(Guid id)
+    {
+        try
+        {
+            Result<User> userResult = await Get(id);
+            return userResult.Success 
+                ? Result<UserDTO>.OkResult(userResult.Body!.Set()) 
+                : Result<UserDTO>.From(userResult);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Database error", ex);
+            return Result<UserDTO>.ErrorResult("Database error");
         }
     }
 

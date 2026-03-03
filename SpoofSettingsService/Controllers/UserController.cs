@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests.Changes;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,5 +41,19 @@ public class UserController(IUserService userService) : ControllerBase
                 ? result.Message
                 : result.Error
                 );
+    }
+    [HttpGet("info")]
+    public async Task<IActionResult> GetInfo()
+    {
+        Guid userId = ClaimService.GetUserId(User);
+
+        Result<UserDTO> result = await _userService.GetInfo(userId);
+        return StatusCode(
+            result.StatusCode,
+            result.Success
+                ? result.Body
+                : result.Error
+                );
+
     }
 }

@@ -43,12 +43,11 @@ public class ChatUserRepository(
         {
             Console.WriteLine(perm.RuleId);
         }
-
         return await context.Database.SqlQuery<ChatUserDTO>(
             $@"SELECT c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name"",
                jsonb_agg(perm::permission_result) AS ""RulesJson""
                FROM ""ChatUser"" cu JOIN ""Chat"" c ON c.""Id"" = cu.""ChatId"" 
-               cross JOIN LATERAL get_user_permission({userId}, cu.""ChatId"", null) perm
+               LEFT JOIN LATERAL get_user_permission({userId}, cu.""ChatId"", null) perm ON true
                WHERE cu.""UserId"" = {userId} AND cu.""JoinedAt"" > {after}
                GROUP BY c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name"""
            ).ToListAsync();
