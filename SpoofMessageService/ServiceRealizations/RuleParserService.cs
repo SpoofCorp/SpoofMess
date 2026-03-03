@@ -23,7 +23,7 @@ public class RuleParserService : IRuleParserService
 
     public Rules Parse(Rule rule)
     {
-        return (Permissions)rule.PermissionId switch
+        return (Permissions)rule.RuleId switch
         {
             Permissions.SendTexts => Rules.SendTexts,
             Permissions.SendAudios => Rules.SendAudios,
@@ -36,7 +36,7 @@ public class RuleParserService : IRuleParserService
             Permissions.ShareMessage => Rules.ShareMessage,
             Permissions.DeleteMessage => Rules.DeleteMessage,
             Permissions.EditMessage => Rules.EditMessage,
-            _ => throw new ArgumentOutOfRangeException($"Permission with id {rule.PermissionId} is not supported.")
+            _ => throw new ArgumentOutOfRangeException($"Permission with id {rule.RuleId} is not supported.")
         };
     }
 }

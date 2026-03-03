@@ -20,17 +20,17 @@ public class ChatHub(
     private readonly IChatUserService _chatUserService = chatUserService;
     private readonly IMessageService _messageService = messageService;
     private readonly IUserService _userService = userService;
-    private readonly ConcurrentDictionary<Guid, List<UserConnection>> Users = [];
+    private readonly static ConcurrentDictionary<Guid, ConcurrentDictionary<Guid, UserConnection>> Users = [];
     public override async Task OnConnectedAsync()
     {
         Guid userId = ClaimService.GetUserId(Context.User);
         Guid sessionId = ClaimService.GetSessionId(Context.User);
 
         await _userService.ChangeConnectionState(userId, true);
-        if (Users.TryGetValue(userId, out List<UserConnection>? sessions))
-            sessions.Add(new(Context.ConnectionId, sessionId));
+        if (Users.TryGetValue(userId, out ConcurrentDictionary<Guid, UserConnection>? sessions))
+            sessions.TryAdd(sessionId, new(Context.ConnectionId, sessionId));
         else
-            Users.TryAdd(userId, [new(Context.ConnectionId, sessionId)]);
+            Users.TryAdd(userId, new() { [sessionId] = new(Context.ConnectionId, sessionId) });
         await base.OnConnectedAsync();
     }
 
@@ -40,8 +40,8 @@ public class ChatHub(
         Guid sessionId = ClaimService.GetSessionId(Context.User);
 
         await _userService.ChangeConnectionState(userId, false);
-        if (Users.TryGetValue(userId, out List<UserConnection>? sessions))
-            sessions.Remove(new(Context.ConnectionId, sessionId));
+        if (Users.TryGetValue(userId, out ConcurrentDictionary<Guid, UserConnection>? sessions))
+            sessions.TryRemove(sessionId, out _);
 
         await base.OnDisconnectedAsync(exception);
     }
@@ -52,23 +52,20 @@ public class ChatHub(
         Guid userId = ClaimService.GetUserId(Context.User);
 
         Result<MessageDTO> result = await _messageService.SendMessage(request, userId);
-        _ = Task.Run(async () =>
-        {
-            if (!result.Success)
-                return;
-            Result<List<ChatUser>> users = await _chatUserService.GetMembers(result.Body!.ChatId);
-            if (users.Success)
-                await Parallel.ForEachAsync(users.Body!, async (user, token) =>
+        if (!result.Success)
+            return;
+        Result<List<ChatUser>> users = await _chatUserService.GetMembers(result.Body!.ChatId);
+        if (users.Success)
+            await Parallel.ForEachAsync(users.Body!, async (user, token) =>
+            {
+                if (Users.TryGetValue(user.Key2, out ConcurrentDictionary<Guid, UserConnection>? connections))
                 {
-                    if (Users.TryGetValue(user.Key2, out List<UserConnection>? connections))
+                    foreach (var connection in connections.Values)
                     {
-                        foreach (var connection in connections)
-                        {
-                            await Clients.Client(connection.Ip).SendAsync("new-message", result.Body, token);
-                        }
+                        await Clients.Client(connection.Ip).SendAsync("new-message", result.Body, token);
                     }
-                });
-        });
+                }
+            });
     }
 
     public async Task DeleteMessage(DeleteMessageRequest request)

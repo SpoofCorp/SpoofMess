@@ -58,8 +58,10 @@ public class MessageRepository(
         await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Messages
             .Include(x => x.User)
+            .Include(x => x.Chat)
+            .ThenInclude(x => x.ChatUsers)
             .Where(x => 
-                x.UserId == userId 
+                x.Chat.ChatUsers.Any(cu => cu.Key2 == userId)
                 && x.SentAt >= after
             ).Take(take)
             .ToListAsync();
