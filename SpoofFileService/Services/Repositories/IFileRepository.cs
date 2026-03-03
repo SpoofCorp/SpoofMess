@@ -5,4 +5,5 @@ namespace SpoofFileService.Services.Repositories;
 
 public interface IFileRepository : ISoftDeletableIdentifiedRepository<FileObject, byte[]>
 {
+    public Task<bool> Save(FileObject fileObject);
 }

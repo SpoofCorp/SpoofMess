@@ -46,7 +46,8 @@ public partial class SpoofFileServiceContext : DbContext
 
             entity.ToTable("FileObject");
 
-            entity.HasIndex(e => new { e.PreFingerprint, e.Size }, "IX_FileObject_Fast_Check");
+            entity.HasIndex(e => new { e.L1, e.Size }, "IX_FileObject_Fast_Check_L1");
+            entity.HasIndex(e => new { e.L2, e.Size }, "IX_FileObject_Fast_Check_L2");
 
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")

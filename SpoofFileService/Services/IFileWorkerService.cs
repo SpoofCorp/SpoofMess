@@ -7,4 +7,6 @@ public interface IFileWorkerService
     public Task<bool> Delete(string filePath);
 
     public Task<FileStream?> Get(string filePath);
+
+    public Task Move(string filePath, string newFilePath);
 }

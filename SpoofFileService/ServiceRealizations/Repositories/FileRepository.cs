@@ -16,4 +16,9 @@ public class FileRepository(
         processQueueTasks
     ), IFileRepository
 {
+    public async Task<bool> Save(FileObject fileObject)
+    {
+        await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.Database.SqlQuery<bool>($@"SELECT ""FindOrCreateFile""({fileObject.Id},{fileObject.L1},{fileObject.L2},{fileObject.CategoryId},{fileObject.ExtensionId}, {fileObject.Path}, {fileObject.Size}) AS ""Value""").SingleAsync();
+    }
 }

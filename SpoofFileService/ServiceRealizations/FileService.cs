@@ -1,6 +1,7 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Requests.Files;
 using CommonObjects.Results;
+using SecurityLibrary;
 using SpoofFileService.Models;
 using SpoofFileService.Services;
 using SpoofFileService.Services.Repositories;
@@ -8,12 +9,13 @@ using SpoofFileService.Services.Validators;
 
 namespace SpoofFileService.ServiceRealizations;
 
-public class FileService(ILoggerService loggerService, IFileRepository fileRepository, IFileValidator fileValidator, IFileWorkerService fileWorkerService) : IFileService
+public class FileService(ILoggerService loggerService, IFileRepository fileRepository, IFileValidator fileValidator, IFileWorkerService fileWorkerService, IFingerprintService fingerprintService) : IFileService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IFileRepository _fileRepository = fileRepository;
     private readonly IFileValidator _fileValidator = fileValidator;
     private readonly IFileWorkerService _fileWorkerService = fileWorkerService;
+    private readonly IFingerprintService _fingerprintService = fingerprintService;
 
     public async Task<Result<Guid>> ExistL1(FingerprintExist request)
     {
@@ -71,30 +73,57 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async Task<Result> SaveFile(IFormFile file, byte[] fileId)
+    public async Task<Result<byte[]>> SaveFile(IFormFile file)
     {
         try
         {
             if (file == null || file.Length == 0)
-                return Result.BadRequest("No file uploaded");
-
-            string filePath = await _fileWorkerService.Save(file);
-
-            FileObject fileObject = new()
+                return Result<byte[]>.BadRequest("No file uploaded");
+            FileObject fileObject;
+            string firstPath;
+            if (file.Length > 50 * 1024 * 1024)
             {
-                Id = fileId,
-                Path = filePath,
-                IsDeleted = false,
-                LastModified = DateTime.UtcNow,
-            };
+                Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(file);
+                if (!fingerprintResult.Success)
+                    return Result<byte[]>.From(fingerprintResult);
+                fileObject = new()
+                {
+                    Id = fingerprintResult.Body!.FileResult.Fingerprint,
+                    Path = Convert.ToHexString(fingerprintResult.Body!.FileResult.Fingerprint),
+                    IsDeleted = false,
+                    LastModified = DateTime.UtcNow,
+                    L1 = fingerprintResult.Body!.L1,
+                    L2 = fingerprintResult.Body!.L2,
+                    CategoryId = 1,
+                    ExtensionId = 1
+                };
+                firstPath = fingerprintResult.Body.FileResult.FilePath;
+            }
+            else
+            {
+                Result<FileResult> fingerprintResult = await _fingerprintService.ExistFull(file);
+                if (!fingerprintResult.Success)
+                    return Result<byte[]>.From(fingerprintResult);
+                fileObject = new()
+                {
+                    Id = fingerprintResult.Body!.Fingerprint,
+                    Path = Convert.ToHexString(fingerprintResult.Body!.Fingerprint),
+                    IsDeleted = false,
+                    LastModified = DateTime.UtcNow,
+                    CategoryId = 1,
+                    ExtensionId = 1
+                };
+                firstPath = fingerprintResult.Body.FilePath;
+            }
+            if (!await _fileRepository.Save(fileObject))
+                await _fileWorkerService.Move(firstPath, fileObject.Path);
 
-            await _fileRepository.AddAsync(fileObject);
-            return Result.OkResult();
+            return Result<byte[]>.OkResult(fileObject.Id);
         }
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result.ErrorResult("Internal server error");
+            return Result<byte[]>.ErrorResult("Internal server error");
         }
     }
 }

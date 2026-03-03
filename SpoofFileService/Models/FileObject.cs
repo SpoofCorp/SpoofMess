@@ -4,7 +4,9 @@ namespace SpoofFileService.Models;
 
 public partial class FileObject : IdentifiedSoftDeletableChangeableEntity<byte[]>
 {
-    public long? PreFingerprint { get; set; }
+    public byte[]? L1 { get; set; }
+
+    public byte[]? L2 { get; set; }
 
     public short CategoryId { get; set; }
 

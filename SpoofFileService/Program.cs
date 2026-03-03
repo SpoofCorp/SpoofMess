@@ -1,4 +1,5 @@
 using SettingsHelper;
+using SpoofFileService;
 using SpoofFileService.Models;
 using SpoofFileService.ServiceRealizations;
 using SpoofFileService.ServiceRealizations.Repositories;
@@ -12,12 +13,15 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.SetBaseSettings<SpoofFileServiceContext>();
+builder.SetBaseSettingsWithFactory<SpoofFileServiceContext>();
+builder.Services.Configure<FileSettings>(
+    builder.Configuration.GetSection("FileSettings"));
 
 builder.Services.AddTransient<IFileValidator, FileValidator>();
 builder.Services.AddTransient<IFileRepository, FileRepository>();
 builder.Services.AddTransient<IFileService, FileService>();
 builder.Services.AddTransient<IFileWorkerService, LocalFileWorkerService>();
+builder.Services.AddTransient<IFingerprintService, FingerprintService>();
 
 WebApplication app = builder.Build();
 

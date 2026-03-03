@@ -1,5 +1,5 @@
-﻿using CommonObjects.Requests.Files;
-using CommonObjects.Results;
+﻿using CommonObjects.Results;
+using SecurityLibrary;
 using SpoofFileService.Services;
 
 namespace SpoofFileService.ServiceRealizations;
@@ -7,19 +7,30 @@ namespace SpoofFileService.ServiceRealizations;
 public class FingerprintService : IFingerprintService
 {
 
-
-    public Task<Result<Guid>> ExistL1(FingerprintExistL1 request)
+    public async Task<Result<byte[]>> ExistL1(string filePath)
     {
-        throw new NotImplementedException();
+        return Result<byte[]>.OkResult(await Fingerprinter.GetFingerPrintL1(filePath));
     }
 
-    public Task<Result<Guid>> ExistL2(FingerprintExistL2 request)
+    public async Task<Result<byte[]>> ExistL2(string filePath)
     {
-        throw new NotImplementedException();
+        return Result<byte[]>.OkResult(await Fingerprinter.GetFingerPrintL2(filePath));
     }
 
-    public Task<Result<Guid>> ExistL3(FingerprintExistL3 request)
+    public async Task<Result<FileResult>> ExistFull(IFormFile file)
     {
-        throw new NotImplementedException();
+        using Stream stream = file.OpenReadStream();
+        return Result<FileResult>.OkResult(await Fingerprinter.GetFingerPrint(file));
+    }
+    public async Task<Result<FingerprintFull>> GetFull(IFormFile file)
+    {
+        using Stream stream = file.OpenReadStream();
+        FileResult result = await Fingerprinter.GetFingerPrint(file);
+        return Result<FingerprintFull>.OkResult(
+            new(
+            await Fingerprinter.GetFingerPrintL1(result.FilePath),
+            await Fingerprinter.GetFingerPrintL2(result.FilePath),
+            result
+            ));
     }
 }
