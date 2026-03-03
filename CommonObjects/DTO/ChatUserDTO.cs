@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace CommonObjects.DTO;
 
-public class ChatUserDto
+public class ChatUserDTO
 {
     public Guid Id { get; set; }
     public int ChatTypeId { get; set; }

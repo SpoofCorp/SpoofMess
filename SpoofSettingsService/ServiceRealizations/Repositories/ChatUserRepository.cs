@@ -37,12 +37,6 @@ public class ChatUserRepository(
     public async Task<List<ChatUserDTO>> GetUserChatsAfterDate(Guid userId, DateTime after)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
-        var result = context.Database.SqlQuery<PermissionResult>(
-            $@"select * from get_user_permission('019caa3c-f136-73e4-a3bb-a88fdfe0c517', '019caa6c-237d-74f0-9e8a-704df800faeb', null)").ToArray();
-        foreach(var perm in result)
-        {
-            Console.WriteLine(perm.RuleId);
-        }
         return await context.Database.SqlQuery<ChatUserDTO>(
             $@"SELECT c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name"",
                jsonb_agg(perm::permission_result) AS ""RulesJson""

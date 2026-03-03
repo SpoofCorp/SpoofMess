@@ -6,18 +6,19 @@ namespace SpoofFileService.ServiceRealizations;
 
 public class FingerprintService : IFingerprintService
 {
-
+    [Obsolete("Idk why this is neccesary. Soon it can be deleted")]
     public async Task<Result<byte[]>> ExistL1(string filePath)
     {
         return Result<byte[]>.OkResult(await Fingerprinter.GetFingerPrintL1(filePath));
     }
 
+    [Obsolete("Idk why this is neccesary. Soon it can be deleted")]
     public async Task<Result<byte[]>> ExistL2(string filePath)
     {
         return Result<byte[]>.OkResult(await Fingerprinter.GetFingerPrintL2(filePath));
     }
-
-    public async Task<Result<FileResult>> ExistFull(IFormFile file)
+    
+    public async Task<Result<FileResult>> GetOnlyFullFingerprint(IFormFile file)
     {
         using Stream stream = file.OpenReadStream();
         return Result<FileResult>.OkResult(await Fingerprinter.GetFingerPrint(file));

@@ -1,6 +1,6 @@
 ﻿namespace CommunicationLibrary.Communication;
 
 public record Rule(
-    short PermissionId, 
+    short RuleId, 
     bool IsPermission
     );

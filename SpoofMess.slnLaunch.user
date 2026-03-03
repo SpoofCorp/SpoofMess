@@ -63,5 +63,30 @@
         "DebugTarget": "https"
       }
     ]
+  },
+  {
+    "Name": "SSS/SMS/SES/SFS",
+    "Projects": [
+      {
+        "Path": "SpoofEntranceService\\SpoofEntranceService.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "SpoofFileService\\SpoofFileService.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "SpoofMessageService\\SpoofMessageService.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "SpoofSettingsService\\SpoofSettingsService.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      }
+    ]
   }
 ]

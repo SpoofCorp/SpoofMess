@@ -101,7 +101,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
             }
             else
             {
-                Result<FileResult> fingerprintResult = await _fingerprintService.ExistFull(file);
+                Result<FileResult> fingerprintResult = await _fingerprintService.GetOnlyFullFingerprint(file);
                 if (!fingerprintResult.Success)
                     return Result<byte[]>.From(fingerprintResult);
                 fileObject = new()

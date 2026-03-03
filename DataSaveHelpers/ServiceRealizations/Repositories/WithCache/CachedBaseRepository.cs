@@ -4,7 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
-public abstract class CachedBaseRepository<T>(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedRepository<T> where T : class
+public abstract class CachedBaseRepository<T>(
+        ICacheService cache, 
+        DbContext context, 
+        IProcessQueueTasksService processQueueTasks
+    ) : CachedRepository<T> where T : class
 {
     protected readonly IProcessQueueTasksService _processQueueTasks = processQueueTasks;
     protected readonly ICacheService _cache = cache;

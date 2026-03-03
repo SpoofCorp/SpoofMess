@@ -5,7 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
-public abstract class CachedSoftDeletableRepository<T>(ICacheService cache, DbContext context, IProcessQueueTasksService processQueueTasks) : CachedBaseRepository<T>(cache, context, processQueueTasks), ISoftDeletableRepository<T> where T : SoftDeletableEntity
+public abstract class CachedSoftDeletableRepository<T>(
+    ICacheService cache,
+    DbContext context,
+    IProcessQueueTasksService processQueueTasks
+    ) : CachedBaseRepository<T>(
+        cache,
+        context, 
+        processQueueTasks
+        ), ISoftDeletableRepository<T> where T : SoftDeletableEntity
 {
     public async Task SoftDeleteAsync(T entity)
     {
