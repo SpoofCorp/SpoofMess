@@ -21,8 +21,8 @@ public class CachedSoftDeletableIdentifiedRepository<T, TKey>(
         {
             entity.IsDeleted = true;
             _context.Entry(entity).State = EntityState.Modified;
-            await _cache.Save(GetKey(entity), entity);
             await _context.SaveChangesAsync();
+            await _cache.Save(GetKey(entity), entity);
         }
         catch (Exception ex)
         {

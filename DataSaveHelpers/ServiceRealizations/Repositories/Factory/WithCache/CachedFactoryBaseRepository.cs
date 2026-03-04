@@ -20,10 +20,9 @@ public abstract class CachedFactoryBaseRepository<T, TDbContext>(
         try
         {
             await using DbContext context = await _factory.CreateDbContextAsync();
-            DbSet<T> set = context.Set<T>();
-            await set.AddAsync(entity);
+            await context.Set<T>().AddAsync(entity);
             await context.SaveChangesAsync();
-            await _cache.Save(GetKey(entity), entity);
+            SaveToCache(GetKey(entity), entity);
         }
         catch (Exception ex)
         {
@@ -36,10 +35,9 @@ public abstract class CachedFactoryBaseRepository<T, TDbContext>(
         try
         {
             await using DbContext context = await _factory.CreateDbContextAsync();
-            DbSet<T> set = context.Set<T>();
-            await _cache.Delete(GetKey(entity));
-            set.Remove(entity);
+            context.Set<T>().Remove(entity);
             await context.SaveChangesAsync();
+            await _cache.Delete(GetKey(entity));
         }
         catch (Exception ex)
         {
@@ -52,10 +50,9 @@ public abstract class CachedFactoryBaseRepository<T, TDbContext>(
         try
         {
             await using DbContext context = await _factory.CreateDbContextAsync();
-            DbSet<T> set = context.Set<T>();
-            await _cache.Save(GetKey(entity), entity);
-            set.Update(entity);
+            context.Set<T>().Update(entity);
             await context.SaveChangesAsync();
+            SaveToCache(GetKey(entity), entity);
         }
         catch (Exception ex)
         {
@@ -68,10 +65,9 @@ public abstract class CachedFactoryBaseRepository<T, TDbContext>(
         try
         {
             await using DbContext context = await _factory.CreateDbContextAsync();
-            DbSet<T> set = context.Set<T>();
-            await _cache.SaveRange(GetKey, entities);
-            set.UpdateRange(entities);
+            context.Set<T>().UpdateRange(entities);
             await context.SaveChangesAsync();
+            await _cache.SaveRange(GetKey, entities);
         }
         catch (Exception ex)
         {
@@ -83,7 +79,7 @@ public abstract class CachedFactoryBaseRepository<T, TDbContext>(
     {
         T? entity = await function();
         if (entity is not null)
-            _processQueueTasks.AddTask(async () => await _cache.Save(key, entity));
+            SaveToCache(key, entity);
 
         return entity;
     }

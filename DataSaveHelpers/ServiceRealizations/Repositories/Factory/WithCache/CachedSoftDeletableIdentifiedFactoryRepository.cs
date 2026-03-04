@@ -23,8 +23,8 @@ public class CachedSoftDeletableIdentifiedFactoryRepository<T, TKey, TDbContext>
             entity.IsDeleted = true;
             await using DbContext context = await _factory.CreateDbContextAsync();
             context.Entry(entity).State = EntityState.Modified;
-            await _cache.Save(GetKey(entity), entity);
             await context.SaveChangesAsync();
+            await _cache.Save(GetKey(entity), entity);
         }
         catch (Exception ex)
         {

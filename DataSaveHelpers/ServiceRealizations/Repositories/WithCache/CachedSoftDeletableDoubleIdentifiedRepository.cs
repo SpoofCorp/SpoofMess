@@ -18,9 +18,9 @@ public class CachedSoftDeletableDoubleIdentifiedRepository<T, TKey1, TKey2>(
     public async Task SoftDeleteAsync(T entity)
     {
         entity.IsDeleted = true;
-        await _cache.Save(GetKey(entity), entity);
         _set.Update(entity);
         await _context.SaveChangesAsync();
+        await _cache.Save(GetKey(entity), entity);
     }
 
     public async Task<bool> SoftDeleteAsync(TKey1 key1, TKey2 key2)

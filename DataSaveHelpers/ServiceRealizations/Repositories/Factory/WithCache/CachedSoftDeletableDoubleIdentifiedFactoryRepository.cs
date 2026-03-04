@@ -22,10 +22,10 @@ public class CachedSoftDeletableDoubleIdentifiedFactoryRepository<T, TKey1, TKey
         try
         {
             entity.IsDeleted = true;
-            await _cache.Save(GetKey(entity), entity);
             await using DbContext context = await _factory.CreateDbContextAsync();
             context.Set<T>().Update(entity);
             await context.SaveChangesAsync();
+            await _cache.Save(GetKey(entity), entity);
         }
         catch (Exception ex)
         {

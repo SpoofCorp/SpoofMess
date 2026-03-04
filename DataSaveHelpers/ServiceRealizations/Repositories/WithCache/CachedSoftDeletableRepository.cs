@@ -20,9 +20,9 @@ public abstract class CachedSoftDeletableRepository<T>(
         try
         {
             entity.IsDeleted = true;
-            await _cache.Save(GetKey(entity), entity);
             _set.Update(entity);
             await _context.SaveChangesAsync();
+            await _cache.Save(GetKey(entity), entity);
         }
         catch (Exception ex)
         {

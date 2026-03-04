@@ -1,6 +1,7 @@
 ﻿using DataSaveHelpers.Services;
 using DataSaveHelpers.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DataSaveHelpers.ServiceRealizations.Repositories.WithCache;
 
@@ -20,7 +21,7 @@ public abstract class CachedBaseRepository<T>(
         {
             await _set.AddAsync(entity);
             await _context.SaveChangesAsync();
-            await _cache.Save(GetKey(entity), entity);
+            SaveToCache(GetKey(entity), entity);
         }
         catch (Exception ex)
         {
@@ -46,9 +47,9 @@ public abstract class CachedBaseRepository<T>(
     {
         try
         {
-            await _cache.Save(GetKey(entity), entity);
             _set.Update(entity);
             await _context.SaveChangesAsync();
+            SaveToCache(GetKey(entity), entity);
         }
         catch (Exception ex)
         {
@@ -60,9 +61,9 @@ public abstract class CachedBaseRepository<T>(
     {
         try
         {
-            await _cache.SaveRange(GetKey, entities);
             _set.UpdateRange(entities);
             await _context.SaveChangesAsync();
+            await _cache.SaveRange(GetKey, entities);
         }
         catch (Exception ex)
         {
@@ -74,7 +75,7 @@ public abstract class CachedBaseRepository<T>(
     {
         T? entity = await function();
         if (entity is not null)
-            _processQueueTasks.AddTask(async () => await _cache.Save(key, entity));
+            SaveToCache(key, entity);
 
         return entity;
     }
