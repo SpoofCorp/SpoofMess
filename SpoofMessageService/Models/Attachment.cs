@@ -15,7 +15,9 @@ public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<
     /// </summary>
 
     [Column("FileMetadataId")]
-    public new byte[] Key2 { get; set; }
+    public new byte[] Key2 { get; set; } = null!;
+
+    public string OriginalFileName { get; set; } = null!;
 
     public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = [];
 

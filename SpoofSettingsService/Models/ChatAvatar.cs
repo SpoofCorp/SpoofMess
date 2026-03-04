@@ -17,6 +17,8 @@ public partial class ChatAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<
     [Column("FileId")]
     public new byte[] Key2 { get; set; } = null!;
 
+    public string OriginalFileName { get; set; } = null!;
+
     public bool IsActive { get; set; }
 
     public virtual Chat Chat { get; set; } = null!;

@@ -8,6 +8,8 @@ public partial class User : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public string Login { get; set; } = null!;
 
+    public string? OriginalFileName { get; set; }
+
     public string Name { get; set; } = null!;
 
     public bool IsConnected { get; set; }

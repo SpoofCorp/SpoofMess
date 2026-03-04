@@ -8,6 +8,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public string UniqueName { get; set; } = null!;
 
+    public string? OriginalFileName { get; set; }
+
     public string? Name { get; set; }
 
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];

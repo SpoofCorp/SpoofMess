@@ -22,7 +22,7 @@ public static class MessageSetter
                     OperationStatusId = (short)operationsStatus 
                 }], 
             Attachments = [..
-                request.Attachments.Select(x => x.Set(operationsStatus))
+                request.Attachments.Select(x => x.Set())
                 ], 
             Text = request.Text 
         };

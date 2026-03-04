@@ -18,6 +18,8 @@ public partial class UserAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<
 
     public bool IsActive { get; set; }
 
+    public string OriginalFileName { get; set; } = null!;
+
     public virtual FileMetadatum File { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

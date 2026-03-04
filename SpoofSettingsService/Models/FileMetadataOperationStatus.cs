@@ -4,7 +4,7 @@ namespace SpoofSettingsService.Models;
 
 public partial class FileMetadataOperationStatus : IdentifiedEntity<long>
 {
-    public byte[] FileMetadataId { get; set; }
+    public byte[] FileMetadataId { get; set; } = null!;
 
     public short OperationStatusId { get; set; }
 
