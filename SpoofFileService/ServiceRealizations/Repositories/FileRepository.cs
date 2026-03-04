@@ -1,4 +1,5 @@
-﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
+﻿using CommonObjects.Requests.Files;
+using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofFileService.Models;
@@ -20,5 +21,16 @@ public class FileRepository(
     {
         await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Database.SqlQuery<bool>($@"SELECT ""FindOrCreateFile""({fileObject.Id},{fileObject.L1},{fileObject.L2},{fileObject.CategoryId},{fileObject.ExtensionId}, {fileObject.Path}, {fileObject.Size}) AS ""Value""").SingleAsync();
+    }
+    public async Task<bool> ExistByL3(FingerprintExistL3 l3)
+    {
+        await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.FileObjects.AnyAsync(x => x.Id == l3.Fingerprint && x.Size == l3.FileSize);
+    }
+
+    public async Task<bool> PreExistByL1AndL2(FingerprintExistL1L2 fingerprint)
+    {
+        await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.FileObjects.AnyAsync(x => x.L1 == fingerprint.L1 && x.L2 == fingerprint.L2 && x.Size == fingerprint.FileSize);
     }
 }

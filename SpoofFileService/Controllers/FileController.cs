@@ -14,6 +14,23 @@ public class FileController(IFileService fileService) : ControllerBase
 {
     private readonly IFileService _fileService = fileService;
 
+    [HttpGet("check-L1")]
+    public IActionResult CheckL1()
+    {
+        Result < byte[]> result = _fileService.
+    }
+
+    [HttpGet("check-L2")]
+    public IActionResult CheckL2()
+    {
+        return Ok("L1 access granted");
+    }
+    [HttpGet("check-L3")]
+    public IActionResult CheckL3()
+    {
+        return Ok("L1 access granted");
+    }
+
     [HttpGet("upload")]
     public async Task<IActionResult> Upload(byte[] fileId)
     {

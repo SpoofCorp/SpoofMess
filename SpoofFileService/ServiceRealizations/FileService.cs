@@ -17,18 +17,50 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
     private readonly IFileWorkerService _fileWorkerService = fileWorkerService;
     private readonly IFingerprintService _fingerprintService = fingerprintService;
 
-    public async Task<Result<Guid>> ExistL1(FingerprintExist request)
+    public async Task<Result<string>> GetUploadFileUrl(byte[] l3)
     {
         try
         {
-            FileObject? fileObject = await _fileRepository.GetByIdAsync(request.Fingerprint);
 
-            return Result<Guid>.OkResult(new Guid());
         }
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result<Guid>.ErrorResult("Internal server error");
+            return Result<string>.InternalServerError();
+        }
+    }
+
+    public async Task<Result> ExistL1(FingerprintExistL1L2 request)
+    {
+        try
+        {
+            bool exist = await _fileRepository.PreExistByL1AndL2(request);
+
+            return exist 
+                ? Result.BadRequest("Collision")
+                : Result.OkResult();
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("Database error", ex);
+            return Result.InternalServerError();
+        }
+    }
+
+    public async Task<Result<byte[]>> ExistL3(FingerprintExistL3 request)
+    {
+        try
+        {
+            FileObject? fileObject = await _fileRepository.GetByIdAsync(request.Fingerprint);
+            Result result = _fileValidator.IsAvailable(fileObject);
+            return result.Success
+                ? Result<byte[]>.OkResult(fileObject!.Id)
+                : Result<byte[]>.From(result);
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("Database error", ex);
+            return Result<byte[]>.InternalServerError();
         }
     }
 
@@ -49,7 +81,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result.ErrorResult("Internal server error");
+            return Result.InternalServerError();
         }
     }
 
@@ -69,7 +101,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result<FileStream>.ErrorResult("Internal server error");
+            return Result<FileStream>.InternalServerError();
         }
     }
 
@@ -123,7 +155,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result<byte[]>.ErrorResult("Internal server error");
+            return Result<byte[]>.InternalServerError();
         }
     }
 }
