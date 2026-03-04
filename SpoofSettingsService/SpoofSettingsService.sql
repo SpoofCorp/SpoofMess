@@ -169,6 +169,7 @@ create table "StickerPack"
 	"Id" bigserial constraint "PK_StickerPack_Id" primary key,
 	"AuthorId" uuid not null constraint "FK_StickerPack_AuthorId" references "User"("Id") on delete cascade,
 	"PreviewId" bytea not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
+	"OriginalFileName" text not null,
 	"Title" varchar(100),
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
@@ -181,6 +182,7 @@ create table "Sticker"
 	"Id" uuid constraint "PK_Sticker_Id" primary key default uuidv7(),
 	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
 	"FileId" bytea not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
+	"OriginalFileName" text not null,
 	"Title" varchar(50) not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
@@ -190,6 +192,7 @@ create table "UserAvatar"
 (
 	"UserId" uuid not null constraint "FK_UserAvatar_UserId" references "User"("Id") on delete cascade,
 	"FileId" bytea not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
+	"OriginalFileName" text not null,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -200,6 +203,7 @@ create table "ChatAvatar"
 (
 	"ChatId" uuid not null constraint "FK_ChatAvatar_ChatId" references "Chat"("Id") on delete cascade,
 	"FileId" bytea not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
+	"OriginalFileName" text not null,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,

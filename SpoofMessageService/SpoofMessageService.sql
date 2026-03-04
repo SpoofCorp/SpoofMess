@@ -8,6 +8,7 @@ create table "User"
 (
 	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
 	"AvatarId" bytea,
+	"OriginalFileName" text,
 	"Login" varchar(100) unique not null,
 	"Name" varchar(100) not null,
 	"IsConnected" boolean not null default false,
@@ -19,6 +20,7 @@ create table "Chat"
 (
 	"Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
 	"AvatarId" bytea,
+	"OriginalFileName" text,
 	"UniqueName" varchar(100) unique not null,
 	"Name" varchar(100),
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -88,6 +90,7 @@ create table "Attachment"
 (
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
 	"FileMetadataId" bytea not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
+	"OriginalFileName" text not null,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	constraint "PK_Attachment_Id" primary key("MessageId", "FileMetadataId")
