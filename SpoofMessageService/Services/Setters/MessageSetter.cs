@@ -27,7 +27,7 @@ public static class MessageSetter
             Text = request.Text 
         };
 
-    public static MessageDTO Set(this Message message) =>
+    public static MessageDTO Set(this Message message, List<byte[]> attachments) =>
         new(
             message.Id, 
             message.ChatId, 
@@ -35,6 +35,7 @@ public static class MessageSetter
             message.User.Name,
             message.User.AvatarId,
             message.Text, 
-            message.SentAt
+            message.SentAt,
+            attachments
             );
 }

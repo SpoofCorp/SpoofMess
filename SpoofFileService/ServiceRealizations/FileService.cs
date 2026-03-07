@@ -2,33 +2,30 @@
 using CommonObjects.Requests.Files;
 using CommonObjects.Results;
 using SecurityLibrary;
+using SecurityLibrary.Tokens;
 using SpoofFileService.Models;
 using SpoofFileService.Services;
 using SpoofFileService.Services.Repositories;
 using SpoofFileService.Services.Validators;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace SpoofFileService.ServiceRealizations;
 
-public class FileService(ILoggerService loggerService, IFileRepository fileRepository, IFileValidator fileValidator, IFileWorkerService fileWorkerService, IFingerprintService fingerprintService) : IFileService
+public class FileService(
+    ILoggerService loggerService, 
+    IFileRepository fileRepository, 
+    IFileValidator fileValidator,
+    IFileWorkerService fileWorkerService,
+    IFingerprintService fingerprintService,
+    IFileTokenService fileTokenService) : IFileService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IFileRepository _fileRepository = fileRepository;
     private readonly IFileValidator _fileValidator = fileValidator;
     private readonly IFileWorkerService _fileWorkerService = fileWorkerService;
     private readonly IFingerprintService _fingerprintService = fingerprintService;
-
-    public async Task<Result<string>> GetUploadFileUrl(byte[] l3)
-    {
-        try
-        {
-
-        }
-        catch (Exception ex)
-        {
-            _loggerService.Error("Database error", ex);
-            return Result<string>.InternalServerError();
-        }
-    }
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
 
     public async Task<Result> ExistL1(FingerprintExistL1L2 request)
     {
@@ -47,14 +44,14 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async Task<Result<byte[]>> ExistL3(FingerprintExistL3 request)
+    public async Task<Result<byte[]>> ExistL3(FingerprintExistL3 request, Guid userId)
     {
         try
         {
             FileObject? fileObject = await _fileRepository.GetByIdAsync(request.Fingerprint);
             Result result = _fileValidator.IsAvailable(fileObject);
             return result.Success
-                ? Result<byte[]>.OkResult(fileObject!.Id)
+                ? Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject!.Id))
                 : Result<byte[]>.From(result);
         }
         catch (Exception ex)
@@ -85,11 +82,14 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async ValueTask<Result<FileStream>> GetFile(byte[] fileId, Guid userId)
+    public async ValueTask<Result<FileStream>> GetFile(byte[] token, Guid userId)
     {
         try
         {
-            FileObject? fileObject = await _fileRepository.GetByIdAsync(fileId);
+            if(!_fileTokenService.IsValid(token, userId, out SecurityLibrary.Tokens.FileAccess access))
+                return Result<FileStream>.Forbidden("Invalid token");
+            byte[] l3 = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<L3, byte>(ref access.L3), 32).ToArray();
+            FileObject? fileObject = await _fileRepository.GetByIdAsync(l3);
             Result result = _fileValidator.IsAvailable(fileObject);
             if (!result.Success)
                 return Result<FileStream>.From(result);
@@ -105,7 +105,7 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
         }
     }
 
-    public async Task<Result<byte[]>> SaveFile(IFormFile file)
+    public async Task<Result<byte[]>> SaveFile(IFormFile file, Guid userId)
     {
         try
         {
@@ -147,10 +147,11 @@ public class FileService(ILoggerService loggerService, IFileRepository fileRepos
                 };
                 firstPath = fingerprintResult.Body.FilePath;
             }
+
             if (!await _fileRepository.Save(fileObject))
                 await _fileWorkerService.Move(firstPath, fileObject.Path);
 
-            return Result<byte[]>.OkResult(fileObject.Id);
+            return Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject.Id));
         }
         catch (Exception ex)
         {

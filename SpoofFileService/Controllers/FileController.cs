@@ -1,4 +1,5 @@
-﻿using CommonObjects.Results;
+﻿using CommonObjects.Requests.Files;
+using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityLibrary;
@@ -14,21 +15,22 @@ public class FileController(IFileService fileService) : ControllerBase
 {
     private readonly IFileService _fileService = fileService;
 
-    [HttpGet("check-L1")]
-    public IActionResult CheckL1()
+    [HttpGet("first-check")]
+    public async Task<IActionResult> CheckL1(FingerprintExistL1L2 request)
     {
-        Result < byte[]> result = _fileService.
+        Result result = await _fileService.ExistL1(request);
+        return StatusCode(result.StatusCode, result.Success
+            ? "L1 access granted" 
+            : result.Error);
     }
-
-    [HttpGet("check-L2")]
-    public IActionResult CheckL2()
+    [HttpGet("full-check")]
+    public async Task<IActionResult> CheckL3(FingerprintExistL3 request)
     {
-        return Ok("L1 access granted");
-    }
-    [HttpGet("check-L3")]
-    public IActionResult CheckL3()
-    {
-        return Ok("L1 access granted");
+        Guid userId = ClaimService.GetUserId(User);
+        Result<byte[]> result = await _fileService.ExistL3(request, userId);
+        return StatusCode(result.StatusCode, result.Success
+            ? result.Body
+            : result.Error);
     }
 
     [HttpGet("upload")]
@@ -48,7 +50,8 @@ public class FileController(IFileService fileService) : ControllerBase
     [HttpPost("save")]
     public async Task<IActionResult> Save(IFormFile file)
     {
-        Result<byte[]> result = await _fileService.SaveFile(file);
+        Guid userId = ClaimService.GetUserId(User);
+        Result<byte[]> result = await _fileService.SaveFile(file, userId);
 
         return StatusCode(
             result.StatusCode,

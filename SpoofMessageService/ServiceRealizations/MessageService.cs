@@ -2,6 +2,7 @@
 using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
+using SecurityLibrary.Tokens;
 using SpoofMessageService.Models;
 using SpoofMessageService.Models.Enums;
 using SpoofMessageService.Services;
@@ -15,13 +16,15 @@ public class MessageService(
         ILoggerService loggerService,
         IMessageRepository messageRepository,
         IMessageValidator messageValidator,
-        IChatUserService chatUserService
+        IChatUserService chatUserService,
+        IFileTokenService fileTokenService
     ) : IMessageService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IMessageRepository _messageRepository = messageRepository;
     private readonly IMessageValidator _messageValidator = messageValidator;
     private readonly IChatUserService _chatUserService = chatUserService;
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
 
     public async Task<Result> DeleteMessage(
             DeleteMessageRequest request,
@@ -119,7 +122,7 @@ public class MessageService(
                 );
             await _messageRepository.AddAsync(message);
             message.User = chatUserResult.Body!.User;
-            return Result<MessageDTO>.OkResult(message.Set());
+            return Result<MessageDTO>.OkResult(message.Set([..message.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]));
         }
         catch (Exception ex)
         {
@@ -150,7 +153,7 @@ public class MessageService(
                     chatId,
                     date,
                     take
-                    )).Select(x => x.Set())]
+                    )).Select(x => x.Set([..x.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]))]
                 );
         }
         catch (Exception ex)
@@ -182,7 +185,7 @@ public class MessageService(
                     chatId,
                     date,
                     take
-                    )).Select(x => x.Set())]
+                    )).Select(x => x.Set([..x.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]))]
                 );
         }
         catch (Exception ex)
@@ -206,7 +209,7 @@ public class MessageService(
                 return Result<List<MessageDTO>>.From(result);
 
             return Result<List<MessageDTO>>.OkResult(
-                [.. messages.Select(x => x.Set())]
+                [.. messages.Select(x => x.Set([.. x.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]))]
                 );
         }
         catch (Exception ex)

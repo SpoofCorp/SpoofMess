@@ -26,6 +26,8 @@ public class MessageRepository(
         await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Messages.OrderByDescending(x => x.SentAt)
             .Include(x => x.User)
+            .Include(x => x.Attachments)
+            .ThenInclude(x => x.FileMetadata)
             .Where(m =>
                 m.ChatId == chatId
                 && m.SentAt >= after
@@ -42,6 +44,8 @@ public class MessageRepository(
         await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Messages.OrderByDescending(x => x.SentAt)
             .Include(x => x.User)
+            .Include(x => x.Attachments)
+            .ThenInclude(x => x.FileMetadata)
             .Where(m =>
                 m.ChatId == chatId
                 && m.SentAt <= before
@@ -58,6 +62,8 @@ public class MessageRepository(
         await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Messages
             .Include(x => x.User)
+            .Include(x => x.Attachments)
+            .ThenInclude(x => x.FileMetadata)
             .Include(x => x.Chat)
             .ThenInclude(x => x.ChatUsers)
             .Where(x => 
