@@ -2,5 +2,5 @@
 
 public record FingerprintExistL3(
         byte[] Fingerprint,
-        long FileSize
+        FileMetadata Metadata
     );

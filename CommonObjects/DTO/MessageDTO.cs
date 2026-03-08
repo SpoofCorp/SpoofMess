@@ -7,5 +7,6 @@ public record MessageDTO(
         string UserName,
         byte[]? UserAvatarId,
         string Text,
-        DateTime SendAt
+        DateTime SendAt,
+        List<byte[]> Attachments
     );

@@ -100,35 +100,11 @@ create table "ChatRoleRules"
     constraint "PK_ChatRoleRules_Id" primary key("ChatRoleId", "PermissionId")
 );
 
-create table "Extension"
-(
-    "Id" smallserial constraint "PK_Extension_Id" primary key,
-    "FileCategory" smallint not null,
-	"IsDeleted" boolean not null default false,
-    "Name" varchar(50) not null
-);
-
 create table "FileMetadata" (
-    "Id" bytea constraint "PK_FileMetadata_Id" primary key,
+    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
 	"IsDeleted" boolean not null default false,
     "Size" bigint not null,
-	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
-);
-
-create table "OperationStatus"
-(
-	"Id" smallint constraint "PK_OperationStatus_Id" primary key,
-	"Name" varchar(50) not null
-);
-
-create table "FileMetadataOperationStatus"
-(
-	"Id" bigserial constraint "PK_FileMetadataOperationStatus_Id" primary key,
-	"FileMetadataId" bytea not null constraint "FK_FileMetadataOperationStatus_MessageId" references "FileMetadata"("Id") on delete cascade,
-	"OperationStatusId" smallint not null constraint "FK_FileMetadataOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
-	"Description" text,
-	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
-	"IsActual" boolean not null default true
+	"Extension" varchar(20) not null
 );
 
 create TABLE "ChatUser"
@@ -168,7 +144,7 @@ create table "StickerPack"
 (
 	"Id" bigserial constraint "PK_StickerPack_Id" primary key,
 	"AuthorId" uuid not null constraint "FK_StickerPack_AuthorId" references "User"("Id") on delete cascade,
-	"PreviewId" bytea not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
+	"PreviewId" uuid not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"Title" varchar(100),
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -181,7 +157,7 @@ create table "Sticker"
 (
 	"Id" uuid constraint "PK_Sticker_Id" primary key default uuidv7(),
 	"StickerPackId" bigint not null constraint "FK_Sticker_StickerPackId" references "StickerPack"("Id") on delete cascade,
-	"FileId" bytea not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
+	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"Title" varchar(50) not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
@@ -191,7 +167,7 @@ create table "Sticker"
 create table "UserAvatar"
 (
 	"UserId" uuid not null constraint "FK_UserAvatar_UserId" references "User"("Id") on delete cascade,
-	"FileId" bytea not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
+	"FileId" uuid not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
@@ -202,7 +178,7 @@ create table "UserAvatar"
 create table "ChatAvatar"
 (
 	"ChatId" uuid not null constraint "FK_ChatAvatar_ChatId" references "Chat"("Id") on delete cascade,
-	"FileId" bytea not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
+	"FileId" uuid not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
@@ -210,7 +186,13 @@ create table "ChatAvatar"
     constraint "PK_ChatAvatar_Id" primary key("ChatId", "FileId")
 );
 
-create type outbox_status as enum ('Delete', 'Create', 'Update', 'Rollback');
+create type "OutboxStatus" as enum 
+(
+    'Delete',
+	'Create',
+	'Update',
+	'Rollback'
+);
 
 create table "ChatUserOutbox"
 (
@@ -221,7 +203,7 @@ create table "ChatUserOutbox"
 	"LastTryDate" timestamptz not null default CURRENT_TIMESTAMP,
 	"CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"Data" jsonb not null,
-	"Status" outbox_status not null,
+	"Status" OutboxStatus not null,
 	constraint "FK_ChatUserOutbox_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade
 );
 

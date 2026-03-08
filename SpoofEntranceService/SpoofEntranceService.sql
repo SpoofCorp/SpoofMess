@@ -8,20 +8,24 @@ create table "UserEntry"
 
 create index "IX_UserEntry_UniqueName" on "UserEntry"("UniqueName");
 
-create table "OperationStatus"
+create type "OutboxStatus" as enum 
 (
-	"Id" smallint constraint "PK_OperationStatus_Id" primary key,
-	"Name" varchar(50) not null
+    'Pending',
+    'Error', 
+    'Success',
+    'Rejected',
+    'Deleting'
 );
 
-create table "UserEntryOperationStatus"
+create table "UserEntryOutbox"
 (
-	"Id" bigserial constraint "PK_UserEntryOperationStatus_Id" primary key,
-	"UserEntryId" uuid not null constraint "FK_UserEntryOperationStatus_UserEntryId" references "UserEntry"("Id") on delete cascade,
-	"OperationStatusId" smallint not null constraint "FK_UserEntryOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
-	"Description" text,
-	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
-	"IsActual" boolean not null default true
+	"Id" uuid constraint "PK_UserEntryOutbox_Id" primary key default uuidv7(),
+    "UserEntryId" uuid not null constraint "FK_UserEntryOutbox_UserEntryId" references "UserEntry"("Id") on delete cascade,
+	"IsSynced" boolean not null default false,
+	"LastTryDate" timestamptz not null default CURRENT_TIMESTAMP,
+	"CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
+	"Data" jsonb not null,
+	"Status" OutboxStatus not null
 );
 
 create table "SessionInfo"

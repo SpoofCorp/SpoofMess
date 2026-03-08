@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 
 public class CachedSoftDeletableDoubleIdentifiedFactoryRepository<T, TKey1, TKey2, TDbContext>(
-    ICacheService cache, 
+    ICacheService cache,
     IDbContextFactory<TDbContext> factory,
     IProcessQueueTasksService processQueueTasks
     ) : CachedDoubleIdentifiedFactoryRepository<T, TKey1, TKey2, TDbContext>(

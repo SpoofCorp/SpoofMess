@@ -7,8 +7,6 @@ using SpoofFileService.Models;
 using SpoofFileService.Services;
 using SpoofFileService.Services.Repositories;
 using SpoofFileService.Services.Validators;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace SpoofFileService.ServiceRealizations;
 
@@ -48,7 +46,7 @@ public class FileService(
     {
         try
         {
-            FileObject? fileObject = await _fileRepository.GetByIdAsync(request.Fingerprint);
+            FileObject? fileObject = await _fileRepository.GetByL3(request.Fingerprint, request.Metadata);
             Result result = _fileValidator.IsAvailable(fileObject);
             return result.Success
                 ? Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject!.Id))
@@ -61,11 +59,12 @@ public class FileService(
         }
     }
 
-    public async Task<Result> DeleteFile(byte[] fileId)
+    public async Task<Result> DeleteFile(byte[] fileId,
+        FileMetadata Metadata)
     {
         try
         {
-            FileObject? fileObject = await _fileRepository.GetByIdAsync(fileId);
+            FileObject? fileObject = await _fileRepository.GetByL3(fileId, Metadata);
             Result result = _fileValidator.IsAvailableAndFileExists(fileObject);
             if (!result.Success)
                 return result;
@@ -86,10 +85,10 @@ public class FileService(
     {
         try
         {
-            if(!_fileTokenService.IsValid(token, userId, out SecurityLibrary.Tokens.FileAccess access))
+            if(!_fileTokenService.IsValid(token, userId, out Guid fileId))
                 return Result<FileStream>.Forbidden("Invalid token");
-            byte[] l3 = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<L3, byte>(ref access.L3), 32).ToArray();
-            FileObject? fileObject = await _fileRepository.GetByIdAsync(l3);
+
+            FileObject? fileObject = await _fileRepository.GetByIdAsync(fileId);
             Result result = _fileValidator.IsAvailable(fileObject);
             if (!result.Success)
                 return Result<FileStream>.From(result);
@@ -113,6 +112,8 @@ public class FileService(
                 return Result<byte[]>.BadRequest("No file uploaded");
             FileObject fileObject;
             string firstPath;
+            Guid fileId = Guid.CreateVersion7();
+            //TODO: Need find extension and category by metadata
             if (file.Length > 50 * 1024 * 1024)
             {
                 Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(file);
@@ -120,12 +121,13 @@ public class FileService(
                     return Result<byte[]>.From(fingerprintResult);
                 fileObject = new()
                 {
-                    Id = fingerprintResult.Body!.FileResult.Fingerprint,
-                    Path = Convert.ToHexString(fingerprintResult.Body!.FileResult.Fingerprint),
+                    Id = fileId,
+                    Path = fileId.ToString(),
                     IsDeleted = false,
                     LastModified = DateTime.UtcNow,
                     L1 = fingerprintResult.Body!.L1,
                     L2 = fingerprintResult.Body!.L2,
+                    L3 = fingerprintResult.Body!.FileResult.Fingerprint,
                     CategoryId = 1,
                     ExtensionId = 1
                 };
@@ -138,8 +140,9 @@ public class FileService(
                     return Result<byte[]>.From(fingerprintResult);
                 fileObject = new()
                 {
-                    Id = fingerprintResult.Body!.Fingerprint,
-                    Path = Convert.ToHexString(fingerprintResult.Body!.Fingerprint),
+                    Id = fileId,
+                    L3 = fingerprintResult.Body!.Fingerprint,
+                    Path = fileId.ToString(),
                     IsDeleted = false,
                     LastModified = DateTime.UtcNow,
                     CategoryId = 1,

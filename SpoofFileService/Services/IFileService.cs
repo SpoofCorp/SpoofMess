@@ -9,7 +9,7 @@ public interface IFileService
 
     public Task<Result<byte[]>> SaveFile(IFormFile file, Guid userId);
 
-    public Task<Result> DeleteFile(byte[] token);
+    public Task<Result> DeleteFile(byte[] token, FileMetadata Metadata);
     public Task<Result> ExistL1(FingerprintExistL1L2 request);
     public Task<Result<byte[]>> ExistL3(FingerprintExistL3 request, Guid userId);
 }

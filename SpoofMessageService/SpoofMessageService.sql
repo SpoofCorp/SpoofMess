@@ -1,13 +1,7 @@
-create table "OperationStatus"
-(
-	"Id" smallint constraint "PK_OperationStatus_Id" primary key,
-	"Name" varchar(50) not null
-);
-
 create table "User"
 (
 	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
-	"AvatarId" bytea,
+	"AvatarId" uuid,
 	"OriginalFileName" text,
 	"Login" varchar(100) unique not null,
 	"Name" varchar(100) not null,
@@ -19,7 +13,7 @@ create table "User"
 create table "Chat"
 (
 	"Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
-	"AvatarId" bytea,
+	"AvatarId" uuid,
 	"OriginalFileName" text,
 	"UniqueName" varchar(100) unique not null,
 	"Name" varchar(100),
@@ -49,36 +43,11 @@ create table "Message"
 	"IsDeleted" boolean not null default false
 );
 
-create table "MessageOperationStatus"
-(
-	"Id" bigserial constraint "PK_MessageOperationStatus_Id" primary key,
-	"MessageId" uuid not null constraint "FK_MessageOperationStatus_MessageId" references "Message"("Id") on delete cascade,
-	"OperationStatusId" smallint not null constraint "FK_MessageOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
-	"Description" text,
-	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
-	"IsActual" boolean not null default true
-);
-
-create table "FileType"
-(
-    "Id" smallserial constraint "PK_FileType_Id" primary key,
-	"IsDeleted" boolean not null default false,
-    "Name" varchar(50) not null
-);
-
-create table "Extension"
-(
-    "Id" smallserial constraint "PK_Extension_Id" primary key,
-    "FileCategory" smallint not null,
-	"IsDeleted" boolean not null default false,
-    "Name" varchar(50) not null
-);
-
 create table "FileMetadata" (
-    "Id" bytea constraint "PK_FileMetadata_Id" primary key,
+    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
     "Size" bigint not null,
 	"IsDeleted" boolean not null default false,
-	"ExtensionId" smallint not null constraint "PK_FileMetadata_ExtensionId" references "Extension"("Id") on delete cascade
+	"Extension" varchar(20) not null
 );
 
 create index "IX_Message_LastMessages" on "Message"("ChatId", "SentAt") include ("Text");
@@ -89,23 +58,11 @@ create index "IX_Message_SentAt" on "Message"("SentAt");
 create table "Attachment"
 (
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
-	"FileMetadataId" bytea not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
+	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	constraint "PK_Attachment_Id" primary key("MessageId", "FileMetadataId")
-);
-
-create table "AttachmentOperationStatus"
-(
-	"Id" bigserial constraint "PK_AttachmentOperationStatus_Id" primary key,
-	"MessageId"	uuid not null, 
-	"FileMetadataId" bytea not null,
-	"OperationStatusId" smallint not null constraint "FK_AttachmentOperationStatus_OperationStatusId" references "OperationStatus"("Id") on delete cascade,
-	"Description" text,
-	"TimeSet" timestamptz not null default CURRENT_TIMESTAMP,
-	"IsActual" boolean not null default true,
-	constraint "FK_AttachmentOperationStatus_AttachmentId" foreign key ("MessageId", "FileMetadataId") references "Attachment"("MessageId", "FileMetadataId") on delete cascade
 );
 
 create table "ViewMessage"
@@ -120,15 +77,6 @@ create table "ViewMessage"
 
 create index "IX_ViewMessage_MessageId" on "ViewMessage"("MessageId");
 create index "IX_ViewMessage_UserId" on "ViewMessage"("UserId");
-
-
-insert into "OperationStatus"("Id", "Name")
-values 
-(0, 'Pending'),
-(1, 'Error'),
-(2, 'Success'),
-(3, 'Rejected'),
-(4, 'Deleting');
 
 create or replace function "Fnc_ViewMessage_Count"()
 returns trigger as

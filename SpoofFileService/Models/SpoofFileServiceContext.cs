@@ -38,6 +38,11 @@ public partial class SpoofFileServiceContext : DbContext
             entity.ToTable("Extension");
 
             entity.Property(e => e.Name).HasMaxLength(20);
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Extensions)
+                .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Extension_CategoryId");
         });
 
         modelBuilder.Entity<FileObject>(entity =>
@@ -46,17 +51,13 @@ public partial class SpoofFileServiceContext : DbContext
 
             entity.ToTable("FileObject");
 
-            entity.HasIndex(e => new { e.L1, e.Size }, "IX_FileObject_Fast_Check_L1");
-            entity.HasIndex(e => new { e.L2, e.Size }, "IX_FileObject_Fast_Check_L2");
+            entity.HasIndex(e => new { e.L1, e.Size, e.ExtensionId }, "IX_FileObject_Fast_Check_L1");
+            entity.HasIndex(e => new { e.L2, e.Size, e.ExtensionId }, "IX_FileObject_Fast_Check_L2");
+            entity.HasIndex(e => new { e.L3, e.Size, e.ExtensionId }, "IX_FileObject_Check_L3");
 
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.FileObjects)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FileObject_CategoryId");
 
             entity.HasOne(d => d.Extension).WithMany(p => p.FileObjects)
                 .HasForeignKey(d => d.ExtensionId)
