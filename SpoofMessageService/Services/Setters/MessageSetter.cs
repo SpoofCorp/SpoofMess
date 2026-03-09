@@ -7,20 +7,15 @@ namespace SpoofMessageService.Services.Setters;
 
 public static class MessageSetter
 {
-    public static void Set(this Message message, EditMessageRequest request, OperationsStatus operationsStatus)
+    public static void Set(this Message message, EditMessageRequest request)
     {
         message.Text = request.Text ?? message.Text;
-        message.MessageOperationStatuses.Add(new() { OperationStatusId = (short)operationsStatus });
         //message.Attachments = request.Attachments?.Select(x => x.Set(operationsStatus)).ToList() ?? message.Attachments;
     }
-    public static Message Set(this CreateMessageRequest request, Guid userId, OperationsStatus operationsStatus) =>
+    public static Message Set(this CreateMessageRequest request, Guid userId) =>
         new() { 
             ChatId = request.ChatId,
             UserId = userId,
-            MessageOperationStatuses = [
-                new() { 
-                    OperationStatusId = (short)operationsStatus 
-                }], 
             Attachments = [..
                 request.Attachments.Select(x => x.Set())
                 ], 

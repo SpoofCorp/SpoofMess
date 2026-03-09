@@ -114,6 +114,7 @@ public class FileService(
             string firstPath;
             Guid fileId = Guid.CreateVersion7();
             //TODO: Need find extension and category by metadata
+            Path.GetExtension(file.FileName);
             if (file.Length > 50 * 1024 * 1024)
             {
                 Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(file);
@@ -128,7 +129,6 @@ public class FileService(
                     L1 = fingerprintResult.Body!.L1,
                     L2 = fingerprintResult.Body!.L2,
                     L3 = fingerprintResult.Body!.FileResult.Fingerprint,
-                    CategoryId = 1,
                     ExtensionId = 1
                 };
                 firstPath = fingerprintResult.Body.FileResult.FilePath;
@@ -145,7 +145,6 @@ public class FileService(
                     Path = fileId.ToString(),
                     IsDeleted = false,
                     LastModified = DateTime.UtcNow,
-                    CategoryId = 1,
                     ExtensionId = 1
                 };
                 firstPath = fingerprintResult.Body.FilePath;

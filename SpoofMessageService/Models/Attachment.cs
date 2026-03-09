@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
 
-public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, byte[]>
+public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
 {
     /// <summary>
     /// MessageId
@@ -15,11 +15,9 @@ public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<
     /// </summary>
 
     [Column("FileMetadataId")]
-    public new byte[] Key2 { get; set; } = null!;
+    public new Guid Key2 { get; set; }
 
     public string OriginalFileName { get; set; } = null!;
-
-    public virtual ICollection<AttachmentOperationStatus> AttachmentOperationStatuses { get; set; } = [];
 
     public virtual FileMetadatum FileMetadata { get; set; } = null!;
 

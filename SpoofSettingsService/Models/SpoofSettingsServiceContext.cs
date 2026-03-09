@@ -36,15 +36,9 @@ public partial class SpoofSettingsServiceContext : DbContext
 
     public virtual DbSet<ChatUserRule> ChatUserRules { get; set; }
 
-    public virtual DbSet<Extension> Extensions { get; set; }
-
-    public virtual DbSet<FileMetadataOperationStatus> FileMetadataOperationStatuses { get; set; }
-
     public virtual DbSet<FileMetadatum> FileMetadata { get; set; }
 
     public virtual DbSet<GlobalPermission> GlobalPermissions { get; set; }
-
-    public virtual DbSet<OperationStatus> OperationStatuses { get; set; }
 
     public virtual DbSet<Permission> Permissions { get; set; }
 
@@ -65,7 +59,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasNoKey();
         });
 
-        modelBuilder.HasPostgresEnum<OutboxStatus>(name: "outbox_status");
+        modelBuilder.HasPostgresEnum<OutboxStatus>(name: "OutboxStatus");
         
         modelBuilder.Entity<Chat>(entity =>
         {
@@ -256,42 +250,12 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasConstraintName("FK_ChatUserPermission_ChatUserId");
         });
 
-        modelBuilder.Entity<Extension>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_Extension_Id");
-
-            entity.ToTable("Extension");
-
-            entity.Property(e => e.Name).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<FileMetadataOperationStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_FileMetadataOperationStatus_Id");
-
-            entity.ToTable("FileMetadataOperationStatus");
-
-            entity.Property(e => e.IsActual).HasDefaultValue(true);
-            entity.Property(e => e.TimeSet).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            entity.HasOne(d => d.FileMetadata).WithMany(p => p.FileMetadataOperationStatuses)
-                .HasForeignKey(d => d.FileMetadataId)
-                .HasConstraintName("FK_FileMetadataOperationStatus_MessageId");
-
-            entity.HasOne(d => d.OperationStatus).WithMany(p => p.FileMetadataOperationStatuses)
-                .HasForeignKey(d => d.OperationStatusId)
-                .HasConstraintName("FK_FileMetadataOperationStatus_OperationStatusId");
-        });
-
         modelBuilder.Entity<FileMetadatum>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_FileMetadata_Id");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Extension).WithMany(p => p.FileMetadata)
-                .HasForeignKey(d => d.ExtensionId)
-                .HasConstraintName("PK_FileMetadata_ExtensionId");
+            entity.Property(e => e.Extension).HasMaxLength(20);
         });
 
         modelBuilder.Entity<GlobalPermission>(entity =>
@@ -319,16 +283,6 @@ public partial class SpoofSettingsServiceContext : DbContext
                         j.HasKey("GlobalPermissionId", "UserId").HasName("PK_UserGlobalPermission_Id");
                         j.ToTable("UserGlobalPermission");
                     });
-        });
-
-        modelBuilder.Entity<OperationStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_OperationStatus_Id");
-
-            entity.ToTable("OperationStatus");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Permission>(entity =>

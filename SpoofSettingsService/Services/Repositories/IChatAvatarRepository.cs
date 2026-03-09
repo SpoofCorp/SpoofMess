@@ -3,11 +3,11 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Repositories;
 
-public interface IChatAvatarRepository : IDoubleIdentifiedRepository<ChatAvatar, Guid, byte[]>
+public interface IChatAvatarRepository : IDoubleIdentifiedRepository<ChatAvatar, Guid, Guid>
 {
     public Task<ChatAvatar?> GetActualChatAvatarById(Guid chatId);
 
     public Task<List<ChatAvatar>?> GetChatAvatarsById(Guid chatId);
 
-    public Task<bool> TryDeleteAvatarByIds(Guid chatId, byte[] fileId);
+    public Task<bool> TryDeleteAvatarByIds(Guid chatId, Guid fileId);
 }

@@ -10,5 +10,5 @@ public partial class UserEntry : IdentifiedSoftDeletableEntity<Guid>
 
     public virtual ICollection<SessionInfo> SessionInfos { get; set; } = [];
 
-    public virtual ICollection<UserEntryOperationStatus> UserEntryOperationStatuses { get; set; } = [];
+    public virtual ICollection<UserEntryOutbox> UserEntryOutboxes { get; set; } = [];
 }

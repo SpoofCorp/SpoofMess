@@ -4,11 +4,11 @@ namespace SpoofMessageService.Models;
 
 public partial class User : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
-    public byte[]? AvatarId { get; set; }
-
-    public string Login { get; set; } = null!;
+    public Guid? AvatarId { get; set; }
 
     public string? OriginalFileName { get; set; }
+
+    public string Login { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 

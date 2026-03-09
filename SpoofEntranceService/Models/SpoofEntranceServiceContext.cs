@@ -14,29 +14,15 @@ public partial class SpoofEntranceServiceContext : DbContext
     {
     }
 
-    public virtual DbSet<OperationStatus> OperationStatuses { get; set; }
-
     public virtual DbSet<SessionInfo> SessionInfos { get; set; }
 
     public virtual DbSet<Token> Tokens { get; set; }
 
     public virtual DbSet<UserEntry> UserEntries { get; set; }
 
-    public virtual DbSet<UserEntryOperationStatus> UserEntryOperationStatuses { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("uuid-ossp");
-
-        modelBuilder.Entity<OperationStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK_OperationStatus_Id");
-
-            entity.ToTable("OperationStatus");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(50);
-        });
+        modelBuilder.HasPostgresEnum("OutboxStatus", ["Pending", "Error", "Success", "Rejected", "Deleting"]);
 
         modelBuilder.Entity<SessionInfo>(entity =>
         {
@@ -95,24 +81,21 @@ public partial class SpoofEntranceServiceContext : DbContext
             entity.Property(e => e.UniqueName).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<UserEntryOperationStatus>(entity =>
+        modelBuilder.Entity<UserEntryOutbox>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK_UserEntryOperationStatus_Id");
+            entity.HasKey(e => e.Id).HasName("PK_UserEntryOutbox_Id");
 
-            entity.ToTable("UserEntryOperationStatus");
+            entity.ToTable("UserEntryOutbox");
 
-            entity.Property(e => e.IsActual).HasDefaultValue(true);
-            entity.Property(e => e.TimeSet).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Data).HasColumnType("jsonb");
+            entity.Property(e => e.LastTryDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            entity.HasOne(d => d.OperationStatus).WithMany(p => p.UserEntryOperationStatuses)
-                .HasForeignKey(d => d.OperationStatusId)
-                .HasConstraintName("FK_UserEntryOperationStatus_OperationStatusId");
-
-            entity.HasOne(d => d.UserEntry).WithMany(p => p.UserEntryOperationStatuses)
+            entity.HasOne(d => d.UserEntry).WithMany(p => p.UserEntryOutboxes)
                 .HasForeignKey(d => d.UserEntryId)
-                .HasConstraintName("FK_UserEntryOperationStatus_UserEntryId");
+                .HasConstraintName("FK_UserEntryOutbox_UserEntryId");
         });
-
         OnModelCreatingPartial(modelBuilder);
     }
 

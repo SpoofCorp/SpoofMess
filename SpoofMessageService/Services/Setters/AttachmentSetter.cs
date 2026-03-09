@@ -7,12 +7,12 @@ namespace SpoofMessageService.Services.Setters;
 public static class AttachmentSetter
 {
     public static Attachment Set(this FileMetadata fileMetadata, OperationsStatus operationsStatus) =>
-        new() { FileMetadata = fileMetadata.SetMetadata(), AttachmentOperationStatuses = [new() { OperationStatusId = (short)operationsStatus }] };
+        new() { FileMetadata = fileMetadata.SetMetadata() };
 
     public static FileMetadatum SetMetadata(this FileMetadata fileMetadata) =>
         new() { Id = fileMetadata.Id, Size = fileMetadata.Size };
 
     public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment) =>
-        new() { Key2 = attachment.Fingerprint, OriginalFileName = attachment.OriginalFileName };
+        new() { Key2 = attachment.FileId, OriginalFileName = attachment.OriginalFileName };
 
 }

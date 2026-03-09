@@ -10,7 +10,7 @@ public class ChatAvatarRepository(
     ICacheService cache,
     IDbContextFactory<SpoofSettingsServiceContext> factory,
     IProcessQueueTasksService tasksService
-    ) : CachedSoftDeletableDoubleIdentifiedFactoryRepository<ChatAvatar, Guid, byte[], SpoofSettingsServiceContext>(
+    ) : CachedSoftDeletableDoubleIdentifiedFactoryRepository<ChatAvatar, Guid, Guid, SpoofSettingsServiceContext>(
         cache,
         factory,
         tasksService
@@ -36,7 +36,7 @@ public class ChatAvatarRepository(
             ).ToListAsync();
     }
 
-    public async Task<bool> TryDeleteAvatarByIds(Guid chatId, byte[] fileId)
+    public async Task<bool> TryDeleteAvatarByIds(Guid chatId, Guid fileId)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
         ChatAvatar? avatar = await context.ChatAvatars.FirstOrDefaultAsync(x => 

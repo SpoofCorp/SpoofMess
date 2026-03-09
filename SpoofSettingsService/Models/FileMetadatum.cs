@@ -2,17 +2,13 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class FileMetadatum : IdentifiedSoftDeletableEntity<byte[]>
+public partial class FileMetadatum : IdentifiedSoftDeletableEntity<Guid>
 {
     public long Size { get; set; }
 
-    public short ExtensionId { get; set; }
+    public string Extension { get; set; } = null!;
 
     public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = [];
-
-    public virtual Extension Extension { get; set; } = null!;
-
-    public virtual ICollection<FileMetadataOperationStatus> FileMetadataOperationStatuses { get; set; } = [];
 
     public virtual ICollection<StickerPack> StickerPacks { get; set; } = [];
 

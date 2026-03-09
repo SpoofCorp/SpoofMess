@@ -6,11 +6,11 @@ public partial class StickerPack : IdentifiedSoftDeletableChangeableEntity<long>
 {
     public Guid AuthorId { get; set; }
 
-    public byte[] PreviewId { get; set; } = null!;
-
-    public string? Title { get; set; }
+    public Guid PreviewId { get; set; }
 
     public string OriginalFileName { get; set; } = null!;
+
+    public string? Title { get; set; }
 
     public virtual User Author { get; set; } = null!;
 

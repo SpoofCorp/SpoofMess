@@ -4,7 +4,7 @@ namespace SpoofFileService.Models;
 
 public partial class Extension : IdentifiedSoftDeletableEntity<short>
 {
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public short CategoryId { get; set; }
 

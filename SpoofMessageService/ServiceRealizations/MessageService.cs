@@ -86,8 +86,7 @@ public class MessageService(
                 return result;
 
             messageTask.Result!.Set(
-                    request,
-                    OperationsStatus.Pending
+                    request
                 );
             await _messageRepository.UpdateAsync(messageTask.Result!);
 
@@ -117,8 +116,7 @@ public class MessageService(
 
 
             Message message = request.Set(
-                    userId,
-                    OperationsStatus.Pending
+                    userId
                 );
             await _messageRepository.AddAsync(message);
             message.User = chatUserResult.Body!.User;

@@ -14,6 +14,10 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public DateTime CreatedAt { get; set; }
 
+    public long? BaseRoleId { get; set; }
+
+    public virtual ChatRole? BaseRole { get; set; }
+
     public virtual ICollection<ChatAvatar> ChatAvatars { get; set; } = [];
 
     public virtual ICollection<ChatRole> ChatRoles { get; set; } = [];

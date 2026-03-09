@@ -6,11 +6,11 @@ public partial class Sticker : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public long StickerPackId { get; set; }
 
-    public byte[] FileId { get; set; } = null!;
-
-    public string Title { get; set; } = null!;
+    public Guid FileId { get; set; }
 
     public string OriginalFileName { get; set; } = null!;
+
+    public string Title { get; set; } = null!;
 
     public virtual FileMetadatum File { get; set; } = null!;
 

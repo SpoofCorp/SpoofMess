@@ -67,12 +67,6 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
                 PasswordHash = password.Result,
             };
 
-            newUser.UserEntryOperationStatuses.Add(new()
-            {
-                IsActual = true,
-                OperationStatusId = (short)OperationsStatus.Pending,
-            });
-
             await _repository.Change(user);
             await _sessionService.StartSession(context, newUser, sessionInfo);
             _ = Task.Run(() => _userPublisherService.Create(new(newUser.Id, request.Name, newUser.UniqueName)));
@@ -118,7 +112,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
         await ChangeStatus(userId, true);
         await _userPublisherService.Delete(new(userId, "", ""));
     }
-
+    [Obsolete("Need change logic")]
     public async Task ChangeStatus(Guid userId, bool isDeleted)
     {
         try
@@ -129,12 +123,7 @@ public class UserEntryService(IUserEntryRepository repository, IUserPublisherSer
             if (!result.Success)
                 return;
             user!.IsDeleted = isDeleted;
-            user.UserEntryOperationStatuses.Add(new()
-            {
-                IsActual = true,
-                OperationStatusId = (short)OperationsStatus.Success,
-                TimeSet = DateTime.UtcNow
-            });
+
             await _repository.UpdateAsync(user);
         }
         catch (Exception ex)

@@ -16,5 +16,7 @@ public partial class ChatRole : IdentifiedSoftDeletableEntity<long>
 
     public virtual ICollection<ChatUserChatRole> ChatUserChatRoles { get; set; } = [];
 
+    public virtual ICollection<Chat> Chats { get; set; } = [];
+
     public virtual RoleRank RoleRank { get; set; } = null!;
 }
