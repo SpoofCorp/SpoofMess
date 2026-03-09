@@ -203,7 +203,7 @@ create table "ChatUserOutbox"
 	"LastTryDate" timestamptz not null default CURRENT_TIMESTAMP,
 	"CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"Data" jsonb not null,
-	"Status" OutboxStatus not null,
+	"Status" "OutboxStatus" not null,
 	constraint "FK_ChatUserOutbox_ChatUserId" foreign key("ChatId", "UserId") references "ChatUser"("ChatId", "UserId") on delete cascade
 );
 
@@ -212,15 +212,6 @@ values
 (0, 'Private'),
 (1, 'Group'),
 (2, 'Channel');
-
-
-insert into "OperationStatus"("Id", "Name")
-values 
-(0, 'Pending'),
-(1, 'Error'),
-(2, 'Success'),
-(3, 'Rejected'),
-(4, 'Deleting');
 
 insert into "Permission"("Id", "Name")
 values
@@ -251,25 +242,6 @@ values
 (330, 'ChangeSettings'),
 (331, 'ChangeAvatar'),
 (332, 'DeleteAvatar');
-
-create or replace function "FileMetadataOperationStatus_OnceActual"()
-returns trigger as
-$$
-begin
-	if not new."IsActive" then
-		return new;
-	end if;
-
-	update "FileMetadataOperationStatus" 
-		set "IsActual" = false
-	where "FileMetadataId" = new."FileMetadataId"
-		and "IsActual" = true
-		and "Id" != new."Id";
-
-	return new;
-end;
-$$ language plpgsql;
-
 
 create or replace function "LogChatUserToOutbox"()
 returns trigger as $$
@@ -396,10 +368,6 @@ $$ language plpgsql;
 create trigger "Trg_ChatRoleRules_Outbox"
 after update on "ChatRoleRules"
 for each row execute function "LogChatRoleRulesToOutbox"();
-
-create trigger "Trg_FileMetadataOperationStatus_After_Insert" after insert on "FileMetadataOperationStatus"
-for each row
-execute function "FileMetadataOperationStatus_OnceActual"();
 
 create or replace function "CreateRolesAfterChat"()
 returns trigger as

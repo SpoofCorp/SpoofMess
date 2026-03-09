@@ -10,7 +10,7 @@ create table "Extension"
 	"Id" smallint generated always as identity constraint "PK_Extension_Id" primary key,
 	"CategoryId" smallint not null constraint "FK_Extension_CategoryId" references "Category"("Id"),
 	"IsDeleted" boolean not null default false,
-	"Name" varchar(20) no null constraint "UQ_Extension_Name" unique,
+	"Name" varchar(20) not null constraint "UQ_Extension_Name" unique
 );
 
 create index "IX_Extension_Name" on "Extension" ("Name") where not "IsDeleted";

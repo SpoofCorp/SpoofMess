@@ -25,7 +25,7 @@ create table "UserEntryOutbox"
 	"LastTryDate" timestamptz not null default CURRENT_TIMESTAMP,
 	"CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"Data" jsonb not null,
-	"Status" OutboxStatus not null
+	"Status" "OutboxStatus" not null
 );
 
 create table "SessionInfo"
@@ -73,27 +73,6 @@ create index "IX_Token_SessionInfoId"
 create index "IX_Token_ValidTo" 
     on "Token"("RefreshTokenHash") 
     where "IsDeleted" = false;
-
-insert into "OperationStatus"("Id", "Name")
-values 
-(0, 'Pending'),
-(1, 'Error'),
-(2, 'Success'),
-(3, 'Rejected'),
-(4, 'Deleting');
-
-create or replace function "UserEntryOperationStatus_Update_Trigger_Fnc"()
-returns trigger as
-$$
-begin
-	update "UserEntryOperationStatus" set "IsActual" = false where "UserEntryId" = new."UserEntryId" and "Id" != new."Id";
-    RETURN NEW;
-end;
-$$ language plpgsql;
-
-create trigger "UserEntryOperationStatus_After_Insert" after insert on "UserEntryOperationStatus"
-for each row
-execute function "UserEntryOperationStatus_Update_Trigger_Fnc"();
 
 create or replace function "TokenOnceInsert_Trigger_Fnc"()
 returns trigger as
