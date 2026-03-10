@@ -32,4 +32,10 @@
     <ProjectReference Include="..\SettingsHelper\SettingsHelper.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="SpoofFileInfo">
+      <HintPath>..\..\SpoofFileInfo\SpoofFileInfo\bin\Debug\net10.0\SpoofFileInfo.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

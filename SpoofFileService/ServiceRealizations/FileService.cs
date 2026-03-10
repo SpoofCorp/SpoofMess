@@ -16,8 +16,10 @@ public class FileService(
     IFileValidator fileValidator,
     IFileWorkerService fileWorkerService,
     IFingerprintService fingerprintService,
+    IExtensionService extensionService,
     IFileTokenService fileTokenService) : IFileService
 {
+    private readonly IExtensionService _extensionService = extensionService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IFileRepository _fileRepository = fileRepository;
     private readonly IFileValidator _fileValidator = fileValidator;
@@ -112,14 +114,18 @@ public class FileService(
                 return Result<byte[]>.BadRequest("No file uploaded");
             FileObject fileObject;
             string firstPath;
+            Result<Extension> fileExtension;
             Guid fileId = Guid.CreateVersion7();
-            //TODO: Need find extension and category by metadata
-            Path.GetExtension(file.FileName);
             if (file.Length > 50 * 1024 * 1024)
             {
                 Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(file);
                 if (!fingerprintResult.Success)
                     return Result<byte[]>.From(fingerprintResult);
+
+                firstPath = fingerprintResult.Body.FileResult.FilePath;
+                fileExtension = await _extensionService.GetByFile(firstPath);
+                if (!fileExtension.Success)
+                    return Result<byte[]>.From(fileExtension);
                 fileObject = new()
                 {
                     Id = fileId,
@@ -129,15 +135,18 @@ public class FileService(
                     L1 = fingerprintResult.Body!.L1,
                     L2 = fingerprintResult.Body!.L2,
                     L3 = fingerprintResult.Body!.FileResult.Fingerprint,
-                    ExtensionId = 1
+                    ExtensionId = fileExtension.Body!.Id
                 };
-                firstPath = fingerprintResult.Body.FileResult.FilePath;
             }
             else
             {
                 Result<FileResult> fingerprintResult = await _fingerprintService.GetOnlyFullFingerprint(file);
                 if (!fingerprintResult.Success)
                     return Result<byte[]>.From(fingerprintResult);
+                firstPath = fingerprintResult.Body.FilePath;
+                fileExtension = await _extensionService.GetByFile(firstPath);
+                if(!fileExtension.Success)
+                    return Result<byte[]>.From(fileExtension);
                 fileObject = new()
                 {
                     Id = fileId,
@@ -145,9 +154,8 @@ public class FileService(
                     Path = fileId.ToString(),
                     IsDeleted = false,
                     LastModified = DateTime.UtcNow,
-                    ExtensionId = 1
+                    ExtensionId = fileExtension.Body!.Id
                 };
-                firstPath = fingerprintResult.Body.FilePath;
             }
 
             if (!await _fileRepository.Save(fileObject))
