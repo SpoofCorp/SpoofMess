@@ -1,5 +1,7 @@
 using RuleRoleHelper.ServiceRealizations;
 using RuleRoleHelper.Services;
+using SecurityLibrary;
+using SecurityLibrary.Tokens;
 using SettingsHelper;
 using SpoofMessageService;
 using SpoofMessageService.Models;
@@ -28,17 +30,25 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IFileMetadatumService, FileMetadatumService>();
 
 builder.Services.AddScoped<IMessageValidator, MessageValidator>();
 builder.Services.AddScoped<IChatUserValidator, ChatUserValidator>();
 builder.Services.AddScoped<IRuleParserService, RuleParserService>();
+builder.Services.AddScoped<IFileMetadatumValidator, FileMetadatumValidator>();
 
 builder.Services.AddScoped<IRuleService, RuleService>();
 
 builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
+builder.Services.AddScoped<IFileMetadatumRepository, FileMetadatumRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddTransient<IFileTokenService, FileTokenService>();
+
+builder.Services.AddSingleton(
+    builder.Configuration.GetSection("TokenHeader")
+    .Get<TokenHeaderCover>()!);
 
 WebApplication app = builder.Build();
 app.MapHub<ChatHub>("/chat");

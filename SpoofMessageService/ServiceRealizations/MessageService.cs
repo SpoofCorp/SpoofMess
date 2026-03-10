@@ -17,9 +17,11 @@ public class MessageService(
         IMessageRepository messageRepository,
         IMessageValidator messageValidator,
         IChatUserService chatUserService,
-        IFileTokenService fileTokenService
+        IFileTokenService fileTokenService,
+        IFileMetadatumService fileMetadatumService
     ) : IMessageService
 {
+    private readonly IFileMetadatumService _fileMetadatumService = fileMetadatumService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IMessageRepository _messageRepository = messageRepository;
     private readonly IMessageValidator _messageValidator = messageValidator;
@@ -88,6 +90,7 @@ public class MessageService(
             messageTask.Result!.Set(
                     request
                 );
+
             await _messageRepository.UpdateAsync(messageTask.Result!);
 
             return Result.OkResult();
@@ -118,9 +121,19 @@ public class MessageService(
             Message message = request.Set(
                     userId
                 );
+            CancellationTokenSource tokenSource = new();
+            await Parallel.ForEachAsync(request.Attachments, async (attachment, cancellationToken) =>
+            {
+                if (!_fileTokenService.IsValid(attachment.Token, userId, out Guid fileId))
+                    tokenSource.Cancel();
+                Result<FileMetadatum> result = await _fileMetadatumService.Get(fileId);
+                if (!result.Success)
+                    tokenSource.Cancel();
+                message.Attachments.Add(attachment.Set(fileId));
+            });
             await _messageRepository.AddAsync(message);
             message.User = chatUserResult.Body!.User;
-            return Result<MessageDTO>.OkResult(message.Set([..message.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]));
+            return Result<MessageDTO>.OkResult(message.Set([.. message.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]));
         }
         catch (Exception ex)
         {

@@ -12,7 +12,7 @@ public static class AttachmentSetter
     public static FileMetadatum SetMetadata(this FileMetadata fileMetadata) =>
         new() { Id = fileMetadata.Id, Size = fileMetadata.Size };
 
-    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment) =>
-        new() { Key2 = attachment.FileId, OriginalFileName = attachment.OriginalFileName };
+    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId) =>
+        new() { Key2 = fileId, OriginalFileName = attachment.OriginalFileName };
 
 }

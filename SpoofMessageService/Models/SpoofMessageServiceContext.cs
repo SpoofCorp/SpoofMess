@@ -60,6 +60,10 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UniqueName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Avatar).WithMany(p => p.Chats)
+                .HasForeignKey(d => d.AvatarId)
+                .HasConstraintName("FK_Chat_AvatarId");
         });
 
         modelBuilder.Entity<ChatUser>(entity =>
@@ -130,6 +134,10 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Login).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasOne(d => d.Avatar).WithMany(p => p.Users)
+                .HasForeignKey(d => d.AvatarId)
+                .HasConstraintName("FK_User_AvatarId");
         });
 
         modelBuilder.Entity<ViewMessage>(entity =>

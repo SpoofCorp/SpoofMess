@@ -14,6 +14,8 @@ public partial class User : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public bool IsConnected { get; set; }
 
+    public virtual FileMetadatum? Avatar { get; set; }
+
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 
     public virtual ICollection<Message> Messages { get; set; } = [];

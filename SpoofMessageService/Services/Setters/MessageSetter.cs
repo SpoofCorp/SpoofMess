@@ -1,7 +1,6 @@
 ﻿using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using SpoofMessageService.Models;
-using SpoofMessageService.Models.Enums;
 
 namespace SpoofMessageService.Services.Setters;
 
@@ -16,9 +15,6 @@ public static class MessageSetter
         new() { 
             ChatId = request.ChatId,
             UserId = userId,
-            Attachments = [..
-                request.Attachments.Select(x => x.Set())
-                ], 
             Text = request.Text 
         };
 
