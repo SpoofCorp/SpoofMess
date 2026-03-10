@@ -15,16 +15,16 @@ create table "User"
 create table "ChatType"
 (
     "Id" serial constraint "PK_ChatType_Id" primary key,
-	"IsDeleted" boolean not null default false,
     "Name" varchar(50) not null unique
+	"IsDeleted" boolean not null default false,
 );
 
 create table "ChatProperty"
 (
     "Id" smallserial constraint "PK_ChatProperty_Id" primary key,
     "Name" varchar(50) not null,
-	"IsDeleted" boolean not null default false,
     "Description" varchar(100)
+	"IsDeleted" boolean not null default false,
 );
 
 create table "ChatTypeChatProperty"

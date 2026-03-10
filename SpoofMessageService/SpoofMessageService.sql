@@ -1,7 +1,7 @@
 create table "User"
 (
 	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
-	"AvatarId" uuid,
+	"AvatarId" uuid not null constraint "FK_Attachment_AvatarId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text,
 	"Login" varchar(100) unique not null,
 	"Name" varchar(100) not null,
@@ -13,7 +13,7 @@ create table "User"
 create table "Chat"
 (
 	"Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
-	"AvatarId" uuid,
+	"AvatarId" uuid not null constraint "FK_Attachment_AvatarId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text,
 	"UniqueName" varchar(100) unique not null,
 	"Name" varchar(100),
@@ -46,8 +46,8 @@ create table "Message"
 create table "FileMetadata" (
     "Id" uuid constraint "PK_FileMetadata_Id" primary key,
     "Size" bigint not null,
-	"IsDeleted" boolean not null default false,
 	"Extension" varchar(20) not null
+	"IsDeleted" boolean not null default false,
 );
 
 create index "IX_Message_LastMessages" on "Message"("ChatId", "SentAt") include ("Text");
@@ -60,8 +60,8 @@ create table "Attachment"
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
 	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
-	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false,
 	constraint "PK_Attachment_Id" primary key("MessageId", "FileMetadataId")
 );
 
@@ -70,8 +70,8 @@ create table "ViewMessage"
 	"UserId" uuid not null constraint "FK_ViewMessage_UserId" references "User"("Id") on delete cascade,
 	"MessageId"	uuid not null constraint "FK_ViewMessage_MessageId" references "Message"("Id") on delete cascade, 
 	"ViewTime" timestamptz not null default CURRENT_TIMESTAMP,
-	"IsDeleted" boolean not null default false,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
+	"IsDeleted" boolean not null default false,
 	constraint "PK_ViewMessage_Id" primary key("MessageId", "UserId")
 );
 
