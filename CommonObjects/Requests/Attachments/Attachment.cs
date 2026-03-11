@@ -1,7 +1,7 @@
 ﻿namespace CommonObjects.Requests.Attachments;
 
 public record Attachment(
-        byte[] Fingerprint,
+        byte[] Token,
         string OriginalFileName,
         long Size
     );

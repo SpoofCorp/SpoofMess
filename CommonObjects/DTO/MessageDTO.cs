@@ -5,7 +5,7 @@ public record MessageDTO(
         Guid ChatId,
         Guid UserId,
         string UserName,
-        byte[]? UserAvatarId,
+        Guid? UserAvatarId,
         string Text,
         DateTime SendAt,
         List<byte[]> Attachments

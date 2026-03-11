@@ -4,5 +4,5 @@ public record UserDTO(
         Guid Id,
         string Name,
         string Login,
-        byte[]? FingerPrintAvatar
+        Guid? FileId
     );
