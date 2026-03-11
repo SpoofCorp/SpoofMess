@@ -1,5 +1,7 @@
 ﻿namespace CommunicationLibrary.Communication;
 
 public record CreateFile(
-    byte[] FileId
+        Guid FileId,
+        long Size,
+        string Extension
     );
