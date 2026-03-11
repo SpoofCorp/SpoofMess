@@ -17,10 +17,12 @@ public class FileService(
     IFileWorkerService fileWorkerService,
     IFingerprintService fingerprintService,
     IExtensionService extensionService,
-    IFileTokenService fileTokenService) : IFileService
+    IFileTokenService fileTokenService,
+    IFilePublisherService filePublisherService) : IFileService
 {
     private readonly IExtensionService _extensionService = extensionService;
     private readonly ILoggerService _loggerService = loggerService;
+    private readonly IFilePublisherService _filePublisherService = filePublisherService;
     private readonly IFileRepository _fileRepository = fileRepository;
     private readonly IFileValidator _fileValidator = fileValidator;
     private readonly IFileWorkerService _fileWorkerService = fileWorkerService;
@@ -114,6 +116,7 @@ public class FileService(
                 return Result<byte[]>.BadRequest("No file uploaded");
             FileObject fileObject;
             string firstPath;
+            string extension;
             Result<Extension> fileExtension;
             Guid fileId = Guid.CreateVersion7();
             if (file.Length > 50 * 1024 * 1024)
@@ -126,6 +129,7 @@ public class FileService(
                 fileExtension = await _extensionService.GetByFile(firstPath);
                 if (!fileExtension.Success)
                     return Result<byte[]>.From(fileExtension);
+                extension = fileExtension.Body!.Name;
                 fileObject = new()
                 {
                     Id = fileId,
@@ -135,7 +139,8 @@ public class FileService(
                     L1 = fingerprintResult.Body!.L1,
                     L2 = fingerprintResult.Body!.L2,
                     L3 = fingerprintResult.Body!.FileResult.Fingerprint,
-                    ExtensionId = fileExtension.Body!.Id
+                    ExtensionId = fileExtension.Body!.Id,
+                    Size = fingerprintResult.Body.FileResult.Size,
                 };
             }
             else
@@ -147,6 +152,7 @@ public class FileService(
                 fileExtension = await _extensionService.GetByFile(firstPath);
                 if(!fileExtension.Success)
                     return Result<byte[]>.From(fileExtension);
+                extension = fileExtension.Body!.Name;
                 fileObject = new()
                 {
                     Id = fileId,
@@ -154,12 +160,16 @@ public class FileService(
                     Path = fileId.ToString(),
                     IsDeleted = false,
                     LastModified = DateTime.UtcNow,
-                    ExtensionId = fileExtension.Body!.Id
+                    ExtensionId = fileExtension.Body!.Id,
+                    Size = fingerprintResult.Body.Size,
                 };
             }
 
-            if (!await _fileRepository.Save(fileObject))
+            if (await _fileRepository.Save(fileObject) is Guid id)
+            {
                 await _fileWorkerService.Move(firstPath, fileObject.Path);
+                await _filePublisherService.Create(new(id, fileObject.Size, extension));
+            }
 
             return Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject.Id));
         }

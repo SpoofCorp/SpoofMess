@@ -1,4 +1,3 @@
-using CommunicationLibrary;
 using SecurityLibrary;
 using SecurityLibrary.Tokens;
 using SettingsHelper;
@@ -21,16 +20,21 @@ builder.SetBaseSettingsWithFactory<SpoofFileServiceContext>();
 builder.Services.Configure<FileSettings>(
     builder.Configuration.GetSection("FileSettings"));
 
-builder.Services.AddTransient<IFileValidator, FileValidator>();
 builder.Services.AddTransient<IFileRepository, FileRepository>();
-builder.Services.AddTransient<IFileService, FileService>();
-builder.Services.AddTransient<IFileClassifier, FileClassifier>();
-builder.Services.AddTransient<IExtensionService, ExtensionService>();
-builder.Services.AddTransient<IExtensionValidator, ExtensionValidator>();
 builder.Services.AddTransient<IExtensionRepository, ExtensionRepository>();
+builder.Services.AddTransient<IFilePublisherService, FilePublisherService>();
+
+builder.Services.AddTransient<IFileService, FileService>();
+builder.Services.AddTransient<IExtensionService, ExtensionService>();
+
+builder.Services.AddTransient<IFileValidator, FileValidator>();
+builder.Services.AddTransient<IExtensionValidator, ExtensionValidator>();
+builder.Services.AddTransient<IExtensionValidator, ExtensionValidator>();
+
 builder.Services.AddTransient<IFileWorkerService, LocalFileWorkerService>();
 builder.Services.AddTransient<IFingerprintService, FingerprintService>();
 builder.Services.AddTransient<IFileTokenService, FileTokenService>();
+builder.Services.AddTransient<IFileClassifier, FileClassifier>();
 
 builder.Services.AddSingleton(
     builder.Configuration.GetSection("TokenHeader")

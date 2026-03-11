@@ -15,7 +15,7 @@ public class FileController(IFileService fileService) : ControllerBase
 {
     private readonly IFileService _fileService = fileService;
 
-    [HttpGet("first-check")]
+    [HttpPost("first-check")]
     public async Task<IActionResult> CheckL1(FingerprintExistL1L2 request)
     {
         Result result = await _fileService.ExistL1(request);
@@ -23,7 +23,7 @@ public class FileController(IFileService fileService) : ControllerBase
             ? "L1 access granted" 
             : result.Error);
     }
-    [HttpGet("full-check")]
+    [HttpPost("full-check")]
     public async Task<IActionResult> CheckL3(FingerprintExistL3 request)
     {
         Guid userId = ClaimService.GetUserId(User);
@@ -33,11 +33,11 @@ public class FileController(IFileService fileService) : ControllerBase
             : result.Error);
     }
 
-    [HttpGet("upload")]
-    public async Task<IActionResult> Upload(byte[] fileId)
+    [HttpPost("upload")]
+    public async Task<IActionResult> Upload(byte[] token)
     {
         Guid userId = ClaimService.GetUserId(User);
-        Result<FileStream> result = await _fileService.GetFile(fileId, userId);
+        Result<FileStream> result = await _fileService.GetFile(token, userId);
 
         return StatusCode(
             result.StatusCode,

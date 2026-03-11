@@ -17,10 +17,10 @@ public class FileRepository(
         processQueueTasks
     ), IFileRepository
 {
-    public async Task<bool> Save(FileObject fileObject)
+    public async Task<Guid?> Save(FileObject fileObject)
     {
         await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.Database.SqlQuery<bool>($@"SELECT ""FindOrCreateFile""({fileObject.Id},{fileObject.L1},{fileObject.L2},{fileObject.ExtensionId}, {fileObject.Path}, {fileObject.Size}) AS ""Value""").SingleAsync();
+        return await context.Database.SqlQuery<Guid?>(@$"SELECT ""FindOrCreateFile""({fileObject.Id},{fileObject.L1},{fileObject.L2},{fileObject.L3},{fileObject.ExtensionId}, {fileObject.Path}, {fileObject.Size}) AS ""Value""").SingleAsync();
     }
     public async Task<bool> ExistByL3(FingerprintExistL3 l3)
     {
@@ -30,7 +30,7 @@ public class FileRepository(
             .AnyAsync(x => 
                 x.L3 == l3.Fingerprint 
                 && x.Size == l3.Metadata.Size
-                && x.ExtensionId == l3.Metadata.ExtentisionId
+                && x.ExtensionId == l3.Metadata.ExtensionId
             );
     }
 
@@ -43,7 +43,7 @@ public class FileRepository(
                 x.L1 == fingerprint.L1 
                 && x.L2 == fingerprint.L2 
                 && x.Size == fingerprint.Metadata.Size
-                && x.ExtensionId == fingerprint.Metadata.ExtentisionId
+                && x.ExtensionId == fingerprint.Metadata.ExtensionId
             );
     }
 
@@ -54,8 +54,6 @@ public class FileRepository(
             .Include(x => x.Extension)
             .FirstOrDefaultAsync(x => 
                 x.L3 == l3 
-                && x.Size == metadata.Size
-                && x.ExtensionId == metadata.ExtentisionId
             );
     }
 }

@@ -40,7 +40,7 @@ public class ExtensionService(
     {
         try
         {
-            return await GetByName(_fileClassifier.GetExtension(filePath));
+            return await GetByName(_fileClassifier.GetExtensionName(filePath));
         }
         catch (Exception ex)
         {
