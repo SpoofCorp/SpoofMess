@@ -1,12 +1,10 @@
 ﻿using CommonObjects.Results;
 using CommunicationLibrary.Communication;
-using SpoofMessageService.Models;
 
-namespace SpoofMessageService.Services;
+namespace SpoofSettingsService.Services;
 
 public interface IFileMetadatumService
 {
-    public Task<Result<FileMetadatum>> Get(Guid fileId);
     public Task<Result> Save(CreateFile createFile);
     public Task<Result> Delete(DeleteFile deleteFile);
 }

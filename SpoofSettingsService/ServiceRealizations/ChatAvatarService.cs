@@ -5,7 +5,6 @@ using CommonObjects.Results;
 using RuleRoleHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
-using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
@@ -14,14 +13,12 @@ namespace SpoofSettingsService.ServiceRealizations;
 
 public class ChatAvatarService(
         ILoggerService loggerService,
-        IChatAvatarPublisherService chatAvatarPublisherService, 
         IChatAvatarRepository chatAvatarRepository, 
         IChatAvatarValidator chatAvatarValidator,
         IRuleService ruleService
     ) : IChatAvatarService
 {
     private readonly ILoggerService _loggerService = loggerService;
-    private readonly IChatAvatarPublisherService _chatAvatarPublisherService = chatAvatarPublisherService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
     private readonly IRuleService _ruleService = ruleService;
@@ -35,7 +32,7 @@ public class ChatAvatarService(
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
-            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.Key2, FileMetadata = avatar.File!.Set() });
+            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName) });
         }
         catch (Exception ex)
         {
@@ -59,7 +56,7 @@ public class ChatAvatarService(
             for (int i = 0; i < avatars!.Count; i++)
             {
                 avatar = avatars[i];
-                response.Add(new() { FileId = avatars[i].Key2, FileMetadata = avatars[i].File!.Set() });
+                response.Add(new() { FileId = avatar.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName) });
             }
 
             return Result<List<AvatarResponse>>.OkResult(response);
@@ -84,7 +81,6 @@ public class ChatAvatarService(
                 return ruleResult;
 
             bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
-            _ = Task.Run(async () => await _chatAvatarPublisherService.Delete(new(request.FileId)));
 
             return result ? Result.OkResult() : Result.BadRequest("Invalid id");
         }
@@ -110,13 +106,12 @@ public class ChatAvatarService(
             ChatAvatar chatAvatar = new()
             {
                 Key1 = request.ChatId,
-                File = request.Metadata.Set()
+                OriginalFileName = request.Metadata.OriginalName,
+                Key2 = request.Metadata.Id,
             };
             chatAvatar.File.Id = request.FileId;
 
             await _chatAvatarRepository.AddAsync(chatAvatar);
-
-            _ = Task.Run(async () => await _chatAvatarPublisherService.Create(new(request.FileId)));
 
             return Result.OkResult();
         }

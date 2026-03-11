@@ -32,7 +32,7 @@ public class UserAvatarService(
             return Result<AvatarResponse>.OkResult(
                 new() { 
                     FileId = avatar!.Key2,
-                    FileMetadata = avatar.File!.Set() 
+                    FileMetadata = avatar.File!.Set(avatar.OriginalFileName) 
                 });
         }
         catch (Exception ex)
@@ -57,7 +57,7 @@ public class UserAvatarService(
             for (int i = 0; i < avatars!.Count; i++)
             {
                 avatar = avatars[i];
-                response.Body!.Add(new() { FileId = avatars[i].Key2, FileMetadata = avatars[i].File!.Set() });
+                response.Body!.Add(new() { FileId = avatar.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName) });
             }
 
             return response;

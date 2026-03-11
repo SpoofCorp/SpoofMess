@@ -30,10 +30,10 @@ builder.Services.AddDbContextFactory<SpoofSettingsServiceContext>(x => x.UseNpgs
 }));
 
 builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
-builder.Services.AddSingleton<IChatAvatarPublisherService, ChatAvatarPublisherService>();
 builder.Services.AddSingleton<IChatUserPublisherService, ChatUserPublisherService>();
 builder.Services.AddSingleton<IChatPublisherService, ChatPublisherService>();
 
+builder.Services.AddHostedService<FileMetadatumConsumerService>();
 builder.Services.AddHostedService<UserConsumerService>();
 builder.Services.AddHostedService<ChatUserOutboxer>();
 
@@ -59,6 +59,7 @@ builder.Services.AddScoped<IRuleRepository, RuleRepository>();
 builder.Services.AddScoped<IChatUserOutboxRepository, ChatUserOutboxRepository>();
 
 builder.Services.AddScoped<IChatAvatarService, ChatAvatarService>();
+builder.Services.AddScoped<IFileMetadatumService, FileMetadatumService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatTypeService, ChatTypeService>();
 builder.Services.AddScoped<IChatUserService, ChatUserService>();
