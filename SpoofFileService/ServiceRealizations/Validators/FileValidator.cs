@@ -7,6 +7,12 @@ namespace SpoofFileService.ServiceRealizations.Validators;
 
 public class FileValidator : SoftDeletableValidator<FileObject>, IFileValidator
 {
+    public Result IsFound(FileObject? file)
+    {
+        if (file is null)
+            return Result.NotFoundResult("File not found");
+        return Result.OkResult();
+    }
     public Result IsAvailableAndFileExists(FileObject? obj)
     {
         Result result = IsAvailable(obj);

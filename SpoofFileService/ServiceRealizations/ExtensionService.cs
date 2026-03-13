@@ -19,11 +19,11 @@ public class ExtensionService(
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IExtensionRepository _extensionRepository = extensionRepository;
 
-    public async Task<Result<Extension>> Get(string name)
+    public async Task<Result<Extension>> Get(FileExtension2 fileExtension2)
     {
         try
         {
-            Extension? extension = await _extensionRepository.GetByName(name);
+            Extension? extension = await _extensionRepository.GetByName(fileExtension2);
             Result result = _extensionValidator.IsAvailable(extension);
             if (!result.Success)
                 return Result<Extension>.From(result);
@@ -40,7 +40,7 @@ public class ExtensionService(
     {
         try
         {
-            return await GetByName(_fileClassifier.GetExtensionName(filePath));
+            return await GetByName(_fileClassifier.GetExtension(filePath));
         }
         catch (Exception ex)
         {
@@ -49,11 +49,11 @@ public class ExtensionService(
         }
     }
 
-    public async Task<Result<Extension>> GetByName(string name)
+    public async Task<Result<Extension>> GetByName(FileExtension2 fileExtension2)
     {
         try
         {
-            Extension? extension = await _extensionRepository.GetByName(name);
+            Extension? extension = await _extensionRepository.GetByName(fileExtension2);
             Result result = _extensionValidator.IsAvailable(extension);
             if (!result.Success)
                 return Result<Extension>.From(result);

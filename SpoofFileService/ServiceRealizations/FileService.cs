@@ -51,7 +51,7 @@ public class FileService(
         try
         {
             FileObject? fileObject = await _fileRepository.GetByL3(request.Fingerprint, request.Metadata);
-            Result result = _fileValidator.IsAvailable(fileObject);
+            Result result = _fileValidator.IsFound(fileObject);
             return result.Success
                 ? Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject!.Id))
                 : Result<byte[]>.From(result);
