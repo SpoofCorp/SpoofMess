@@ -103,6 +103,9 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
         AsyncEventingBasicConsumer consumer = new(channel);
         consumer.ReceivedAsync += async (sender, args) =>
         {
+#if DEBUG
+            _loggerService.Debug($"Start handle message queue: {queueName} routing key: {routingKey}");
+#endif
             try
             {
                 await handler(

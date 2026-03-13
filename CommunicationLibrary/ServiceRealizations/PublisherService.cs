@@ -68,6 +68,9 @@ public abstract class PublisherService
         string type = ExchangeType.Direct
         )
     {
+#if DEBUG
+        _loggerService.Debug($"Start publish message exchange: {Exchange} routing key: {routingKey}");
+#endif
         if (!_channels.TryGetValue(
             Exchange,
             out IChannel? channel
