@@ -222,7 +222,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.ToTable("ChatUserOutbox");
 
             entity.Property(e => e.Status)
-                .HasColumnType("outbox_status");
+                .HasColumnType("OutboxStatus");
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");

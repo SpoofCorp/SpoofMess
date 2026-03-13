@@ -23,7 +23,7 @@ public class FileMetadatumConsumerService(
     protected async Task ConfirmDeleted()
     {
         await ConsumeFromQueueAsync<DeleteFile>(
-            "success",
+            "success.deleted",
             "file.success.deleted",
             (obj) => _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IFileMetadatumService>().Delete(obj));
     }
@@ -31,7 +31,7 @@ public class FileMetadatumConsumerService(
     protected async Task ConfirmAdded()
     {
         await ConsumeFromQueueAsync<CreateFile>(
-            "success",
+            "success.created",
             "file.success.created",
             (obj) => _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<IFileMetadatumService>().Save(obj));
 
