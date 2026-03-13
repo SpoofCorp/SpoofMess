@@ -1,13 +1,13 @@
 create table "Category"
 (
-	"Id" smallserial constraint "PK_Category_Id" primary key,
+	"Id" smallint generated always as identity constraint "PK_Category_Id" primary key,
 	"IsDeleted" boolean not null default false,
-	"Name" varchar(20)
+	"Name" varchar(20) not null constraint "UQ_Category_Name" unique
 );
 
 create table "Extension"
 (
-	"Id" smallint generated always as identity constraint "PK_Extension_Id" primary key,
+	"Id" smallint constraint "PK_Extension_Id" primary key,
 	"CategoryId" smallint not null constraint "FK_Extension_CategoryId" references "Category"("Id"),
 	"IsDeleted" boolean not null default false,
 	"Name" varchar(20) not null constraint "UQ_Extension_Name" unique
@@ -33,27 +33,54 @@ create table "FileObject"
 create index "IX_FileObject_Fast_Check_L1" on "FileObject"("L1", "Size", "ExtensionId");
 create index "IX_FileObject_Fast_Check_L2" on "FileObject"("L2", "Size", "ExtensionId");
 
+
+CREATE OR REPLACE FUNCTION "FindOrCreateExtension"(
+	extensionId smallint,
+	extensionName varchar(20),
+	categoryName varchar(20)
+)
+RETURNS "Extension" AS
+$$
+DECLARE
+    selectionResult "Extension";
+	categoryId smallint;
+BEGIN
+	SELECT * INTO selectionResult FROM "Extension" WHERE "Id" = extensionId LIMIT 1;
+	IF selectionResult IS NULL THEN
+		SELECT "Id" INTO categoryId FROM "Category" WHERE "Name" = categoryName;
+		IF categoryId IS NULL THEN
+			INSERT INTO "Category"("Name")
+			VALUES (categoryName)
+			ON CONFLICT ("Name") DO UPDATE SET "Name" = EXCLUDED."Name"
+			RETURNING "Id" INTO categoryId;
+		END IF;
+		INSERT INTO "Extension"("Id", "Name", "CategoryId")
+		VALUES (extensionId, extensionName, categoryId)
+		ON CONFLICT ("Name") DO UPDATE SET "Name" = EXCLUDED."Name"
+		RETURNING * INTO selectionResult;
+	END IF;
+	RETURN selectionResult;
+END;
+$$ language plpgsql;
+
 create or replace function "FindOrCreateFile"(
-	fingerprint bytea, 
+	id uuid,
 	l1 bytea, 
 	l2 bytea, 
+	l3 bytea, 
 	extensionId smallint, 
 	filePath text, 
 	fileSize bigint)
-returns boolean as
+returns uuid as
 $$
 declare
-	inserted_id bytea;
+	inserted_id uuid;
 begin
-	INSERT INTO "FileObject"("L3", "L1", "L2", "CategoryId", "ExtensionId", "Path", "Size")
-    VALUES (fingerprint, l1, l2, categoryId, extensionId, filePath, fileSize)
-    ON CONFLICT ("L3") DO NOTHING
-    RETURNING "L3" INTO inserted_id;
+	INSERT INTO "FileObject"("Id", "L1", "L2", "L3", "ExtensionId", "Path", "Size")
+    VALUES (id, l1, l2, l3, extensionId, filePath, fileSize)
+    ON CONFLICT ("L3", "Size", "ExtensionId") DO NOTHING
+    RETURNING "Id" INTO inserted_id;
 
-    IF inserted_id IS NULL THEN
-        RETURN true;
-    ELSE
-        RETURN false;
-    END IF;
+    RETURN inserted_id; 
 end;
 $$ language plpgsql;
