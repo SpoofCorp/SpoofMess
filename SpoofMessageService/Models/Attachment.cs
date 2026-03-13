@@ -22,4 +22,7 @@ public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<
     public virtual FileMetadatum FileMetadata { get; set; } = null!;
 
     public virtual Message Message { get; set; } = null!;
+
+    [NotMapped]
+    public long Size { get; set; }
 }

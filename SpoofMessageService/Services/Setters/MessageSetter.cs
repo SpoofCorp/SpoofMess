@@ -18,13 +18,13 @@ public static class MessageSetter
             Text = request.Text 
         };
 
-    public static MessageDTO Set(this Message message, List<byte[]> attachments) =>
+    public static MessageDTO Set(this Message message, List<CommonObjects.Requests.Attachments.Attachment> attachments, byte[]? avatarToken) =>
         new(
             message.Id, 
             message.ChatId, 
-            message.UserId,
-            message.User.Name,
-            message.User.AvatarId,
+            message.User.Login,
+            message.User.Name, 
+            avatarToken,
             message.Text, 
             message.SentAt,
             attachments

@@ -20,7 +20,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
     {
         Guid userId = ClaimService.GetUserId(User);
 
-        Result<MessageDTO> result = await _messageService.SendMessage(request, userId);
+        Result<IntermediateMessage> result = await _messageService.SendMessage(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success 

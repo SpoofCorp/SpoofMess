@@ -30,8 +30,7 @@ public class MessageService(
 
     public async Task<Result> DeleteMessage(
             DeleteMessageRequest request,
-            Guid userId
-        )
+            Guid userId)
     {
         try
         {
@@ -65,8 +64,7 @@ public class MessageService(
 
     public async Task<Result> EditMessage(
             EditMessageRequest request,
-            Guid userId
-        )
+            Guid userId)
     {
         try
         {
@@ -102,10 +100,9 @@ public class MessageService(
         }
     }
 
-    public async Task<Result<MessageDTO>> SendMessage(
+    public async Task<Result<IntermediateMessage>> SendMessage(
             CreateMessageRequest request,
-            Guid userId
-        )
+            Guid userId)
     {
         try
         {
@@ -115,7 +112,7 @@ public class MessageService(
                     Rules.SendTexts
                 );
             if (!chatUserResult.Success)
-                return Result<MessageDTO>.From(chatUserResult);
+                return Result<IntermediateMessage>.From(chatUserResult);
 
 
             Message message = request.Set(
@@ -125,20 +122,34 @@ public class MessageService(
             await Parallel.ForEachAsync(request.Attachments, async (attachment, cancellationToken) =>
             {
                 if (!_fileTokenService.IsValid(attachment.Token, userId, out Guid fileId))
+                {
                     tokenSource.Cancel();
+                    return;
+                }
                 Result<FileMetadatum> result = await _fileMetadatumService.Get(fileId);
                 if (!result.Success)
+                {
                     tokenSource.Cancel();
-                message.Attachments.Add(attachment.Set(fileId));
+                    return;
+                }
+                message.Attachments.Add(attachment.Set(fileId, result.Body!));
             });
             await _messageRepository.AddAsync(message);
             message.User = chatUserResult.Body!.User;
-            return Result<MessageDTO>.OkResult(message.Set([.. message.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]));
+            return Result<IntermediateMessage>.OkResult(new(
+                message.Id, 
+                message.ChatId, 
+                chatUserResult.Body.User.Login, 
+                chatUserResult.Body.User.Name, 
+                chatUserResult.Body.User.AvatarId, 
+                message.Text, 
+                message.SentAt, 
+                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.Size, x.Key2))]));
         }
         catch (Exception ex)
         {
             _loggerService.Error("DataBase error", ex);
-            return Result<MessageDTO>.ErrorResult("Internal server error");
+            return Result<IntermediateMessage>.ErrorResult("Internal server error");
         }
     }
 
@@ -151,20 +162,28 @@ public class MessageService(
     {
         try
         {
-            Result<ChatUser> resultCHatUser = await _chatUserService.GetAndCheckPermission(
+            Result<ChatUser> resultChatUser = await _chatUserService.GetAndCheckPermission(
                     chatId,
                     userId,
                     Rules.DeleteMessage
                 );
-            if (!resultCHatUser.Success)
-                return Result<List<MessageDTO>>.From(resultCHatUser);
+            if (!resultChatUser.Success)
+                return Result<List<MessageDTO>>.From(resultChatUser);
 
             return Result<List<MessageDTO>>.OkResult(
                 [.. (await _messageRepository.GetMessagesAfterDate(
                     chatId,
                     date,
                     take
-                    )).Select(x => x.Set([..x.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]))]
+                    )).Select(x => x.Set([..x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
+                        _fileTokenService.CreateToken(
+                            userId, 
+                            x.FileMetadata.Id),
+                        x.OriginalFileName, 
+                        x.FileMetadata.Size))],
+                        x.User.AvatarId is null 
+                            ? null
+                            : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value)))]
                 );
         }
         catch (Exception ex)
@@ -196,7 +215,15 @@ public class MessageService(
                     chatId,
                     date,
                     take
-                    )).Select(x => x.Set([..x.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]))]
+                    )).Select(x => x.Set([..x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
+                        _fileTokenService.CreateToken(
+                            userId,
+                            x.FileMetadata.Id),
+                        x.OriginalFileName,
+                        x.FileMetadata.Size))],
+                        x.User.AvatarId is null
+                            ? null
+                            : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value)))]
                 );
         }
         catch (Exception ex)
@@ -220,7 +247,15 @@ public class MessageService(
                 return Result<List<MessageDTO>>.From(result);
 
             return Result<List<MessageDTO>>.OkResult(
-                [.. messages.Select(x => x.Set([.. x.Attachments.Select(x => _fileTokenService.CreateToken(userId, x.FileMetadata.Id))]))]
+                [.. messages.Select(x => x.Set([..x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
+                    _fileTokenService.CreateToken(
+                        userId,
+                        x.FileMetadata.Id),
+                    x.OriginalFileName,
+                    x.FileMetadata.Size))],
+                    x.User.AvatarId is null
+                        ? null
+                        : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value)))]
                 );
         }
         catch (Exception ex)

@@ -4,6 +4,7 @@ using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SecurityLibrary;
+using SecurityLibrary.Tokens;
 using SpoofMessageService.Models;
 using SpoofMessageService.Services;
 using System.Collections.Concurrent;
@@ -14,12 +15,14 @@ namespace SpoofMessageService;
 public class ChatHub(
         IMessageService messageService,
         IUserService userService,
-        IChatUserService chatUserService
+        IChatUserService chatUserService,
+        IFileTokenService fileTokenService
     ) : Hub
 {
     private readonly IChatUserService _chatUserService = chatUserService;
     private readonly IMessageService _messageService = messageService;
     private readonly IUserService _userService = userService;
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly static ConcurrentDictionary<Guid, ConcurrentDictionary<Guid, UserConnection>> Users = [];
     public override async Task OnConnectedAsync()
     {
@@ -51,10 +54,20 @@ public class ChatHub(
     {
         Guid userId = ClaimService.GetUserId(Context.User);
 
-        Result<MessageDTO> result = await _messageService.SendMessage(request, userId);
+        Result<IntermediateMessage> result = await _messageService.SendMessage(request, userId);
         if (!result.Success)
             return;
         Result<List<ChatUser>> users = await _chatUserService.GetMembers(result.Body!.ChatId);
+        MessageDTO message = new(
+                result.Body!.Id,
+                result.Body.ChatId,
+                result.Body.SenderLogin,
+                result.Body.SenderName,
+                null,
+                result.Body.Text,
+                result.Body.SendAt,
+                []
+            );
         if (users.Success)
             await Parallel.ForEachAsync(users.Body!, async (user, token) =>
             {
@@ -62,7 +75,15 @@ public class ChatHub(
                 {
                     foreach (var connection in connections.Values)
                     {
-                        await Clients.Client(connection.Ip).SendAsync("new-message", result.Body, token);
+                        await Clients.Client(connection.Ip).SendAsync("new-message", message with
+                        {
+                            UserAvatarId = result.Body.SenderAvatar is null
+                            ? null
+                            : _fileTokenService.CreateToken(
+                                user.Key2,
+                                result.Body.SenderAvatar.Value),
+                            Attachments = [.. result.Body.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(_fileTokenService.CreateToken(user.Key2, x.Id), x.OriginalFileName, x.FileSize))]
+                        }, token);
                     }
                 }
             });

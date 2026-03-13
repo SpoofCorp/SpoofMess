@@ -15,4 +15,7 @@ public static class AttachmentSetter
     public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId) =>
         new() { Key2 = fileId, OriginalFileName = attachment.OriginalFileName };
 
+    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId, FileMetadatum metadatum) =>
+        new() { Key2 = fileId, OriginalFileName = attachment.OriginalFileName, Size = metadatum.Size };
+
 }
