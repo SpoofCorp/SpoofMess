@@ -15,16 +15,16 @@ create table "User"
 create table "ChatType"
 (
     "Id" serial constraint "PK_ChatType_Id" primary key,
-    "Name" varchar(50) not null unique
-	"IsDeleted" boolean not null default false,
+    "Name" varchar(50) not null unique,
+	"IsDeleted" boolean not null default false
 );
 
 create table "ChatProperty"
 (
     "Id" smallserial constraint "PK_ChatProperty_Id" primary key,
     "Name" varchar(50) not null,
-    "Description" varchar(100)
-	"IsDeleted" boolean not null default false,
+    "Description" varchar(100),
+	"IsDeleted" boolean not null default false
 );
 
 create table "ChatTypeChatProperty"
@@ -38,9 +38,9 @@ create table "ChatTypeChatProperty"
 create table "GlobalPermission"
 (
     "Id" serial constraint "PK_GlobalPermission_Id" primary key,
-	"IsDeleted" boolean not null default false,
     "Name" varchar(50) not null unique,
-    "Description" varchar(100)
+    "Description" varchar(100),
+	"IsDeleted" boolean not null default false
 );
 
 create table "Chat"
@@ -77,8 +77,8 @@ create table "ChatRole"
     "Id" bigserial constraint "PK_ChatRole_Id" primary key,
     "ChatId" uuid not null constraint "FK_ChatRole_ChatId" references "Chat"("Id") on delete cascade,
 	"RoleRankId" bigint not null constraint "FK_ChatRole_RoleRankId" references "RoleRank"("Id") on delete cascade,
-	"IsDeleted" boolean not null default false,
     "Name" varchar(50) not null,
+	"IsDeleted" boolean not null default false,
 	constraint "UQ_ChatRole_Chat_Name" unique ("ChatId", "Name")
 );
 
@@ -88,8 +88,8 @@ create table "Permission"
 (
     "Id" smallint constraint "PK_Permission_Id" primary key,
     "Name" varchar(50) not null,
-	"IsDeleted" boolean not null default false,
-    "Description" varchar(100)
+    "Description" varchar(100),
+	"IsDeleted" boolean not null default false
 );
 
 create table "ChatRoleRules"
@@ -102,9 +102,9 @@ create table "ChatRoleRules"
 
 create table "FileMetadata" (
     "Id" uuid constraint "PK_FileMetadata_Id" primary key,
-	"IsDeleted" boolean not null default false,
     "Size" bigint not null,
-	"Extension" varchar(20) not null
+	"Extension" varchar(20) not null,
+	"IsDeleted" boolean not null default false
 );
 
 create TABLE "ChatUser"

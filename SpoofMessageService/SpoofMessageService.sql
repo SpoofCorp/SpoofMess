@@ -1,7 +1,14 @@
+create table "FileMetadata" (
+    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
+    "Size" bigint not null,
+	"Extension" varchar(20) not null,
+	"IsDeleted" boolean not null default false
+);
+
 create table "User"
 (
 	"Id" uuid constraint "PK_User_Id" primary key default uuidv7(),
-	"AvatarId" uuid not null constraint "FK_Attachment_AvatarId" references "FileMetadata"("Id") on delete cascade,
+	"AvatarId" uuid constraint "FK_Attachment_AvatarId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text,
 	"Login" varchar(100) unique not null,
 	"Name" varchar(100) not null,
@@ -13,7 +20,7 @@ create table "User"
 create table "Chat"
 (
 	"Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
-	"AvatarId" uuid not null constraint "FK_Attachment_AvatarId" references "FileMetadata"("Id") on delete cascade,
+	"AvatarId" uuid constraint "FK_Attachment_AvatarId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text,
 	"UniqueName" varchar(100) unique not null,
 	"Name" varchar(100),
@@ -41,13 +48,6 @@ create table "Message"
 	"SentAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
-);
-
-create table "FileMetadata" (
-    "Id" uuid constraint "PK_FileMetadata_Id" primary key,
-    "Size" bigint not null,
-	"Extension" varchar(20) not null
-	"IsDeleted" boolean not null default false,
 );
 
 create index "IX_Message_LastMessages" on "Message"("ChatId", "SentAt") include ("Text");
