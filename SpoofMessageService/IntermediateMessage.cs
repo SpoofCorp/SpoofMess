@@ -12,6 +12,7 @@ public readonly record struct IntermediateMessage(
     );
 public readonly record struct MessageAttachment(
         string OriginalFileName,
+        string Category,
         long FileSize,
         Guid Id
     );

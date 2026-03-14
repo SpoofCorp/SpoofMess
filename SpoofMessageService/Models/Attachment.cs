@@ -1,4 +1,5 @@
-﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
+﻿using CommonObjects.DTO;
+using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
@@ -25,4 +26,6 @@ public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<
 
     [NotMapped]
     public long Size { get; set; }
+    [NotMapped]
+    public string Category { get; set;  } = string.Empty;
 }

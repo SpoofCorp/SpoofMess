@@ -14,5 +14,11 @@ public class FileMetadatumRepository(
         factory, 
         processQueueTasks), IFileMetadatumRepository
 {
-
+    public new async Task<FileMetadatum?> GetByIdAsync(Guid id)
+    {
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.FileMetadata
+            .Include(x => x.Category)
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
 }

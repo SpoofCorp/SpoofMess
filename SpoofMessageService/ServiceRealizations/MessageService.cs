@@ -119,6 +119,7 @@ public class MessageService(
                     userId
                 );
             CancellationTokenSource tokenSource = new();
+            List<Attachment> attachments = [];
             await Parallel.ForEachAsync(request.Attachments, async (attachment, cancellationToken) =>
             {
                 if (!_fileTokenService.IsValid(attachment.Token, userId, out Guid fileId))
@@ -132,6 +133,7 @@ public class MessageService(
                     tokenSource.Cancel();
                     return;
                 }
+                attachments.Add(attachment.Set(fileId, result.Body));
                 message.Attachments.Add(attachment.Set(fileId, result.Body!));
             });
             await _messageRepository.AddAsync(message);
@@ -144,7 +146,7 @@ public class MessageService(
                 chatUserResult.Body.User.AvatarId, 
                 message.Text, 
                 message.SentAt, 
-                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.Size, x.Key2))]));
+                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.FileMetadata.Category, x.Size, x.Key2))]));
         }
         catch (Exception ex)
         {
@@ -180,6 +182,7 @@ public class MessageService(
                             userId, 
                             x.FileMetadata.Id),
                         x.OriginalFileName, 
+                        x.Category,
                         x.FileMetadata.Size))],
                         x.User.AvatarId is null 
                             ? null
@@ -219,7 +222,8 @@ public class MessageService(
                         _fileTokenService.CreateToken(
                             userId,
                             x.FileMetadata.Id),
-                        x.OriginalFileName,
+                        x.OriginalFileName, 
+                        x.Category,
                         x.FileMetadata.Size))],
                         x.User.AvatarId is null
                             ? null
@@ -252,6 +256,7 @@ public class MessageService(
                         userId,
                         x.FileMetadata.Id),
                     x.OriginalFileName,
+                     x.Category,
                     x.FileMetadata.Size))],
                     x.User.AvatarId is null
                         ? null

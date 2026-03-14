@@ -41,7 +41,7 @@ public class FileMetadatumService(
             {
                 Id = createFile.FileId,
                 Size = createFile.Size,
-                Extension = createFile.Extension,
+                Category = createFile.Category,
             };
             await _fileMetadatumRepository.AddAsync(fileMetadatum);
             return Result.OkResult();

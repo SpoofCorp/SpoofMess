@@ -82,7 +82,7 @@ public class ChatHub(
                             : _fileTokenService.CreateToken(
                                 user.Key2,
                                 result.Body.SenderAvatar.Value),
-                            Attachments = [.. result.Body.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(_fileTokenService.CreateToken(user.Key2, x.Id), x.OriginalFileName, x.FileSize))]
+                            Attachments = [.. result.Body.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(_fileTokenService.CreateToken(user.Key2, x.Id), x.OriginalFileName, x.Category, x.FileSize))]
                         }, token);
                     }
                 }

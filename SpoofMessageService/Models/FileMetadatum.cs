@@ -6,7 +6,7 @@ public partial class FileMetadatum : IdentifiedSoftDeletableEntity<Guid>
 {
     public long Size { get; set; }
 
-    public string Extension { get; set; } = null!;
+    public string Category { get; set; } = null!;
 
     public virtual ICollection<Attachment> Attachments { get; set; } = [];
 
