@@ -1,12 +1,14 @@
-﻿namespace CommonObjects.DTO;
+﻿using CommonObjects.Requests.Attachments;
+
+namespace CommonObjects.DTO;
 
 public record MessageDTO(
         Guid Id,
         Guid ChatId,
-        Guid UserId,
-        string UserName,
-        Guid? UserAvatarId,
+        string SenderLogin,
+        string SenderName,
+        byte[]? UserAvatarId,
         string Text,
         DateTime SendAt,
-        List<byte[]> Attachments
+        List<Attachment> Attachments
     );
