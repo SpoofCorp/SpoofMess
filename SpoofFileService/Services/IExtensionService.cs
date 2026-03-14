@@ -6,6 +6,6 @@ namespace SpoofFileService.Services;
 
 public interface IExtensionService
 {
-    public Task<Result<Extension>> GetByName(FileExtension2 fileExtension2);
-    public Task<Result<Extension>> GetByFile(string filePath);
+    public Task<Result<ExtensionDto>> GetByName(FileExtension2 fileExtension2);
+    public Task<Result<ExtensionDto>> GetByFile(string filePath);
 }

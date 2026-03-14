@@ -22,6 +22,7 @@ public partial class SpoofFileServiceContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ExtensionDto>().HasNoKey();
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Category_Id");

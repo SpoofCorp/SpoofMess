@@ -19,24 +19,24 @@ public class ExtensionService(
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IExtensionRepository _extensionRepository = extensionRepository;
 
-    public async Task<Result<Extension>> Get(FileExtension2 fileExtension2)
+    public async Task<Result<ExtensionDto>> Get(FileExtension2 fileExtension2)
     {
         try
         {
-            Extension? extension = await _extensionRepository.GetByName(fileExtension2);
+            ExtensionDto? extension = await _extensionRepository.GetByName(fileExtension2);
             Result result = _extensionValidator.IsAvailable(extension);
             if (!result.Success)
-                return Result<Extension>.From(result);
-            return Result<Extension>.OkResult(extension!);
+                return Result<ExtensionDto>.From(result);
+            return Result<ExtensionDto>.OkResult(extension!);
         }
         catch(Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result<Extension>.InternalServerError();
+            return Result<ExtensionDto>.InternalServerError();
         }
     }
 
-    public async Task<Result<Extension>> GetByFile(string filePath)
+    public async Task<Result<ExtensionDto>> GetByFile(string filePath)
     {
         try
         {
@@ -45,24 +45,24 @@ public class ExtensionService(
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result<Extension>.InternalServerError();
+            return Result<ExtensionDto>.InternalServerError();
         }
     }
 
-    public async Task<Result<Extension>> GetByName(FileExtension2 fileExtension2)
+    public async Task<Result<ExtensionDto>> GetByName(FileExtension2 fileExtension2)
     {
         try
         {
-            Extension? extension = await _extensionRepository.GetByName(fileExtension2);
+            ExtensionDto? extension = await _extensionRepository.GetByName(fileExtension2);
             Result result = _extensionValidator.IsAvailable(extension);
             if (!result.Success)
-                return Result<Extension>.From(result);
-            return Result<Extension>.OkResult(extension!);
+                return Result<ExtensionDto>.From(result);
+            return Result<ExtensionDto>.OkResult(extension!);
         }
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result<Extension>.InternalServerError();
+            return Result<ExtensionDto>.InternalServerError();
         }
     }
 }

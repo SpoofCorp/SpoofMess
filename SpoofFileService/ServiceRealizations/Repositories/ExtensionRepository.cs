@@ -15,9 +15,11 @@ public class ExtensionRepository(
         factory,
         processQueueTasks), IExtensionRepository
 {
-    public async Task<Extension?> GetByName(FileExtension2 fileExtension2)
+    public async Task<ExtensionDto?> GetByName(FileExtension2 fileExtension2)
     {
         await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.Extensions.FromSql(@$"SELECT * FROM ""FindOrCreateExtension""({fileExtension2.Id}, {fileExtension2.Name}, {fileExtension2.Type.ToString()})").SingleAsync();
+        return await context.Set<ExtensionDto>()
+            .FromSqlInterpolated($@"SELECT * FROM ""FindOrCreateExtension""({fileExtension2.Id}, {fileExtension2.Name}, {fileExtension2.Type.ToString()})")
+            .SingleAsync();
     }
 }

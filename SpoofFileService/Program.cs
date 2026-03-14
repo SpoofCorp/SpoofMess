@@ -28,8 +28,8 @@ builder.Services.AddTransient<IFileService, FileService>();
 builder.Services.AddTransient<IExtensionService, ExtensionService>();
 
 builder.Services.AddTransient<IFileValidator, FileValidator>();
-builder.Services.AddTransient<IExtensionValidator, ExtensionValidator>();
-builder.Services.AddTransient<IExtensionValidator, ExtensionValidator>();
+builder.Services.AddTransient<IExtensionValidator, ExtensionDTOValidator>();
+builder.Services.AddTransient<IExtensionValidator, ExtensionDTOValidator>();
 
 builder.Services.AddTransient<IFileWorkerService, LocalFileWorkerService>();
 builder.Services.AddTransient<IFingerprintService, FingerprintService>();

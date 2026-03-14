@@ -5,5 +5,5 @@ namespace SpoofFileService.Services.Repositories;
 
 public interface IExtensionRepository
 {
-    public Task<Extension?> GetByName(FileExtension2 fileExtension2);
+    public Task<ExtensionDto?> GetByName(FileExtension2 fileExtension2);
 }

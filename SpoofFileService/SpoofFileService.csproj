@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AdditionalHelpers\AdditionalHelpers.csproj" />
     <ProjectReference Include="..\CommonObjects\CommonObjects.csproj" />
     <ProjectReference Include="..\DataSaveHelpers\DataSaveHelpers.csproj" />
