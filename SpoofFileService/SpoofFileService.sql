@@ -33,35 +33,39 @@ create table "FileObject"
 create index "IX_FileObject_Fast_Check_L1" on "FileObject"("L1", "Size", "ExtensionId");
 create index "IX_FileObject_Fast_Check_L2" on "FileObject"("L2", "Size", "ExtensionId");
 
-
 CREATE OR REPLACE FUNCTION "FindOrCreateExtension"(
-	extensionId smallint,
-	extensionName varchar(20),
-	categoryName varchar(20)
+	p_extensionId smallint,
+	p_extensionName varchar(20),
+	p_categoryName varchar(20)
 )
-RETURNS "Extension" AS
+RETURNS TABLE(
+	"ExtensionId" smallint,
+	"CategoryName" varchar(20)
+) AS
 $$
 DECLARE
-    selectionResult "Extension";
-	categoryId smallint;
+	v_categoryId smallint;
 BEGIN
-	SELECT * INTO selectionResult FROM "Extension" WHERE "Id" = extensionId LIMIT 1;
-	IF selectionResult IS NULL THEN
-		SELECT "Id" INTO categoryId FROM "Category" WHERE "Name" = categoryName;
-		IF categoryId IS NULL THEN
-			INSERT INTO "Category"("Name")
-			VALUES (categoryName)
-			ON CONFLICT ("Name") DO UPDATE SET "Name" = EXCLUDED."Name"
-			RETURNING "Id" INTO categoryId;
-		END IF;
-		INSERT INTO "Extension"("Id", "Name", "CategoryId")
-		VALUES (extensionId, extensionName, categoryId)
-		ON CONFLICT ("Name") DO UPDATE SET "Name" = EXCLUDED."Name"
-		RETURNING * INTO selectionResult;
-	END IF;
-	RETURN selectionResult;
+    INSERT INTO "Category" AS c ("Name")
+    VALUES (p_categoryName)
+    ON CONFLICT ("Name") DO UPDATE SET "Name" = EXCLUDED."Name"
+    RETURNING c."Id" INTO v_categoryId;
+
+    INSERT INTO "Extension" ("Id", "Name", "CategoryId")
+    VALUES (p_extensionId, p_extensionName, v_categoryId)
+    ON CONFLICT ("Id") DO UPDATE SET "Name" = EXCLUDED."Name";
+
+    RETURN QUERY 
+    SELECT 
+        e."Id" AS "ExtensionId", 
+        c."Name" AS "CategoryName"
+    FROM "Extension" e
+    JOIN "Category" c ON e."CategoryId" = c."Id"
+    WHERE e."Id" = p_extensionId
+	LIMIT 1;
 END;
 $$ language plpgsql;
+
 
 create or replace function "FindOrCreateFile"(
 	id uuid,

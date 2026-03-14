@@ -1,7 +1,7 @@
 create table "FileMetadata" (
     "Id" uuid constraint "PK_FileMetadata_Id" primary key,
     "Size" bigint not null,
-	"Extension" varchar(20) not null,
+	"Category" varchar(20) not null,
 	"IsDeleted" boolean not null default false
 );
 
