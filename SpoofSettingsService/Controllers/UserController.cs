@@ -43,11 +43,11 @@ public class UserController(IUserService userService) : ControllerBase
                 );
     }
     [HttpGet("info")]
-    public async Task<IActionResult> GetInfo()
+    public async Task<IActionResult> GetInfo(string login)
     {
         Guid userId = ClaimService.GetUserId(User);
 
-        Result<UserDTO> result = await _userService.GetInfo(userId);
+        Result<UserDTO> result = await _userService.GetInfo(login, userId);
         return StatusCode(
             result.StatusCode,
             result.Success

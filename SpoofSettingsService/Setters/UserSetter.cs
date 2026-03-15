@@ -16,11 +16,10 @@ public static class UserSetter
         user.ForwardMessage = request.ForwardMessage ?? user.ForwardMessage;
     }
 
-    public static UserDTO Set(this User user) =>
+    public static UserDTO Set(this User user, byte[]? avatarToken) =>
         new(
-            user.Id,
             user.Name,
             user.Login,
-            user.UserAvatars.FirstOrDefault(a => a.IsActive)?.Key2
+            avatarToken
         );
 }

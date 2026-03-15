@@ -3,6 +3,7 @@ using CommonObjects.DTO;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using CommunicationLibrary.Communication;
+using SecurityLibrary.Tokens;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.MessageBrokers;
@@ -12,8 +13,14 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class UserService(ILoggerService logger, IUserRepository userRepository, IUserValidator userValidator, IUserMessageBrokerService userMessageBrokerService) : IUserService
+public class UserService(
+    ILoggerService logger,
+    IUserRepository userRepository,
+    IUserValidator userValidator,
+    IUserMessageBrokerService userMessageBrokerService,
+    IFileTokenService fileTokenService) : IUserService
 {
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _logger = logger;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserValidator _userValidator = userValidator;
@@ -36,14 +43,25 @@ public class UserService(ILoggerService logger, IUserRepository userRepository, 
             return Result<User>.ErrorResult("Database error");
         }
     }
-    public async Task<Result<UserDTO>> GetInfo(Guid id)
+    public async Task<Result<UserDTO>> GetInfo(string login, Guid requesterId)
     {
         try
         {
-            Result<User> userResult = await Get(id);
-            return userResult.Success 
-                ? Result<UserDTO>.OkResult(userResult.Body!.Set()) 
-                : Result<UserDTO>.From(userResult);
+            User? user = await _userRepository.GetByLogin(login);
+            Result result = _userValidator.IsAvailable(user);
+
+            if (!result.Success) 
+                return Result<UserDTO>.From(result);
+
+            Guid? avatarId = user!.UserAvatars.FirstOrDefault(a => a.IsActive)?.Key2;
+            return Result<UserDTO>.OkResult(
+                user.Set(avatarId is null
+                    ? null
+                    : _fileTokenService.CreateToken(
+                        requesterId, 
+                        avatarId.Value)
+                    )
+                );
         }
         catch (Exception ex)
         {

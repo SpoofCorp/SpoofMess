@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SecurityLibrary;
+using SecurityLibrary.Tokens;
 using SettingsHelper;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.ServiceRealizations;
@@ -69,6 +71,10 @@ builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddTransient<IFileTokenService, FileTokenService>();
+builder.Services.AddSingleton(
+    builder.Configuration.GetSection("TokenHeader")
+    .Get<TokenHeaderCover>()!);
 
 builder.Services.AddEndpointsApiExplorer();
 

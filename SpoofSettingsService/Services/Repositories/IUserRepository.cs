@@ -5,4 +5,5 @@ namespace SpoofSettingsService.Services.Repositories;
 
 public interface IUserRepository : ISoftDeletableIdentifiedRepository<User, Guid>
 {
+    public Task<User?> GetByLogin(string login);
 }

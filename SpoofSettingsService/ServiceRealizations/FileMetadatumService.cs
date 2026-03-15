@@ -22,7 +22,7 @@ public class FileMetadatumService(
             {
                 Id = createFile.FileId,
                 Size = createFile.Size,
-                Extension = createFile.Extension,
+                Extension = createFile.Category,
             };
             await _fileMetadatumRepository.AddAsync(fileMetadatum);
             return Result.OkResult();

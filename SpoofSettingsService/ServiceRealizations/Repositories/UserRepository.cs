@@ -16,4 +16,9 @@ public class UserRepository(
         tasksService
     ), IUserRepository
 {
+    public async Task<User?> GetByLogin(string login)
+    {
+        await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.Users.FirstOrDefaultAsync(x => x.Login == login);
+    }
 }
