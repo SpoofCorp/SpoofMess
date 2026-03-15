@@ -19,25 +19,43 @@ public class JsonSerializerService : ISerializer
 
     public T Deserialize<T>(string text)
     {
+        T? obj;
         try
         {
-            return JsonSerializer.Deserialize<T>(text, Options) ?? throw new ArgumentNullException($"Data has been null: {text}");
+            obj = JsonSerializer.Deserialize<T>(text, Options);
         }
         catch
         {
             throw new InvalidDataException($"Invalid json for type: {typeof(T).Name} json: {text}");
         }
+        return obj ?? throw new ArgumentNullException($"Data has been null: {text}");
     }
 
     public T Deserialize<T>(byte[] body)
     {
+        T? obj;
         try
         {
-            return JsonSerializer.Deserialize<T>(body, Options) ?? throw new ArgumentNullException($"Data has been null: {body}");
+            obj = JsonSerializer.Deserialize<T>(body, Options);
         }
         catch
         {
             throw new InvalidDataException($"Invalid json for type: {typeof(T).Name} body: {body}");
         }
+        return obj ?? throw new ArgumentNullException($"Data has been null: {body}");
+    }
+
+    public async Task<T> Deserialize<T>(Stream body)
+    {
+        T? obj;
+        try
+        {
+            obj = JsonSerializer.Deserialize<T>(body, Options);
+        }
+        catch
+        {
+            throw new InvalidDataException($"Invalid json for type: {typeof(T).Name} body: {body}");
+        }
+        return obj ?? throw new ArgumentNullException($"Data has been null: {body}");
     }
 }

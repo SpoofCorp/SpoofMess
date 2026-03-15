@@ -7,4 +7,5 @@ public interface ISerializer
     public T Deserialize<T>(string text);
 
     public T Deserialize<T>(byte[] body);
+    public Task<T> Deserialize<T>(Stream body);
 }
