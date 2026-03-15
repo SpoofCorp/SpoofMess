@@ -3,5 +3,5 @@
 public record CreateFile(
         Guid FileId,
         long Size,
-        string Extension
+        string Category
     );
