@@ -146,7 +146,7 @@ public class MessageService(
                 chatUserResult.Body.User.AvatarId, 
                 message.Text, 
                 message.SentAt, 
-                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.FileMetadata.Category, x.Size, x.Key2))]));
+                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.Category, x.Size, x.Key2))]));
         }
         catch (Exception ex)
         {
@@ -182,7 +182,7 @@ public class MessageService(
                             userId, 
                             x.FileMetadata.Id),
                         x.OriginalFileName, 
-                        x.Category,
+                        x.FileMetadata.Category,
                         x.FileMetadata.Size))],
                         x.User.AvatarId is null 
                             ? null
@@ -222,8 +222,8 @@ public class MessageService(
                         _fileTokenService.CreateToken(
                             userId,
                             x.FileMetadata.Id),
-                        x.OriginalFileName, 
-                        x.Category,
+                        x.OriginalFileName,
+                        x.FileMetadata.Category,
                         x.FileMetadata.Size))],
                         x.User.AvatarId is null
                             ? null
@@ -256,7 +256,7 @@ public class MessageService(
                         userId,
                         x.FileMetadata.Id),
                     x.OriginalFileName,
-                     x.Category,
+                    x.FileMetadata.Category,
                     x.FileMetadata.Size))],
                     x.User.AvatarId is null
                         ? null
