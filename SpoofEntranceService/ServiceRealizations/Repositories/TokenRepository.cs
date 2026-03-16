@@ -48,8 +48,14 @@ public class TokenRepository(
     {
         await using SpoofEntranceServiceContext context = await _factory.CreateDbContextAsync();
         replaced.IsDeleted = true;
+        SessionInfo? session = replaced.SessionInfo;
+        SessionInfo? session2 = replacing.SessionInfo;
+        replaced.SessionInfo = null!;
+        replacing.SessionInfo = null!;
         context.Entry(replaced).State = EntityState.Modified;
         await context.Tokens.AddAsync(replacing);
         await context.SaveChangesAsync();
+        replaced.SessionInfo = session;
+        replacing.SessionInfo = session2;
     }
 }

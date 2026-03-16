@@ -20,6 +20,7 @@ public partial class Token : IdentifiedSoftDeletableEntity<string>
     {
         Id = tokenHash;
         SessionInfo = sessionInfo;
+        SessionInfoId = sessionInfo.Id;
         ValidTo = validTo;
     }
 }
