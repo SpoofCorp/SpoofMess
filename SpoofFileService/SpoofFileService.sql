@@ -25,6 +25,7 @@ create table "FileObject"
 	"IsDeleted" boolean not null default false,
 	"Path" text not null,
 	"Size" bigint not null,
+	"Metadata" jsonb,
 	"LastModified" timestamp not null default CURRENT_TIMESTAMP,
 	constraint "IX_FileObject_Check_L3" unique("L3", "Size", "ExtensionId"),
 	check(("L1" is null and "L2" is null and "Size" <= 50000000) or ("L1" is not null and "L2" is not null and "Size" > 50000000)) --50mb
