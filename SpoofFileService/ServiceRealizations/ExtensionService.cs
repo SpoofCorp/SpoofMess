@@ -1,6 +1,6 @@
 ﻿using AdditionalHelpers.Services;
 using CommonObjects.Results;
-using SpoofFileInfo;
+using SpoofFileParser;
 using SpoofFileService.Models;
 using SpoofFileService.Services;
 using SpoofFileService.Services.Repositories;
@@ -19,11 +19,11 @@ public class ExtensionService(
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IExtensionRepository _extensionRepository = extensionRepository;
 
-    public async Task<Result<ExtensionDto>> Get(FileExtension2 fileExtension2)
+    public async Task<Result<ExtensionDto>> Get(FileExtension fileExtension)
     {
         try
         {
-            ExtensionDto? extension = await _extensionRepository.GetByName(fileExtension2);
+            ExtensionDto? extension = await _extensionRepository.GetByName(fileExtension);
             Result result = _extensionValidator.IsAvailable(extension);
             if (!result.Success)
                 return Result<ExtensionDto>.From(result);
@@ -49,7 +49,7 @@ public class ExtensionService(
         }
     }
 
-    public async Task<Result<ExtensionDto>> GetByName(FileExtension2 fileExtension2)
+    public async Task<Result<ExtensionDto>> GetByName(FileExtension fileExtension2)
     {
         try
         {

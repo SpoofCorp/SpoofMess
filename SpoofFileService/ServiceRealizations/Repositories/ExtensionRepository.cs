@@ -1,7 +1,7 @@
 ﻿using DataSaveHelpers.ServiceRealizations.Repositories.Factory.WithCache;
 using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
-using SpoofFileInfo;
+using SpoofFileParser;
 using SpoofFileService.Models;
 using SpoofFileService.Services.Repositories;
 
@@ -15,11 +15,11 @@ public class ExtensionRepository(
         factory,
         processQueueTasks), IExtensionRepository
 {
-    public async Task<ExtensionDto?> GetByName(FileExtension2 fileExtension2)
+    public async Task<ExtensionDto?> GetByName(FileExtension fileExtension)
     {
         await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Set<ExtensionDto>()
-            .FromSqlInterpolated($@"SELECT * FROM ""FindOrCreateExtension""({fileExtension2.Id}, {fileExtension2.Name}, {fileExtension2.Type.ToString()})")
+            .FromSqlInterpolated($@"SELECT * FROM ""FindOrCreateExtension""({fileExtension.Id}, {fileExtension.Name}, {fileExtension.Type.ToString()})")
             .SingleAsync();
     }
 }

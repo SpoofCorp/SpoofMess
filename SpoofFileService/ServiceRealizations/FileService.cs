@@ -11,8 +11,8 @@ using SpoofFileService.Services.Validators;
 namespace SpoofFileService.ServiceRealizations;
 
 public class FileService(
-    ILoggerService loggerService, 
-    IFileRepository fileRepository, 
+    ILoggerService loggerService,
+    IFileRepository fileRepository,
     IFileValidator fileValidator,
     IFileWorkerService fileWorkerService,
     IFingerprintService fingerprintService,
@@ -35,7 +35,7 @@ public class FileService(
         {
             bool exist = await _fileRepository.PreExistByL1AndL2(request);
 
-            return exist 
+            return exist
                 ? Result.BadRequest("Collision")
                 : Result.OkResult();
         }
@@ -89,7 +89,7 @@ public class FileService(
     {
         try
         {
-            if(!_fileTokenService.IsValid(token, userId, out Guid fileId))
+            if (!_fileTokenService.IsValid(token, userId, out Guid fileId))
                 return Result<FileStream>.Forbidden("Invalid token");
 
             FileObject? fileObject = await _fileRepository.GetByIdAsync(fileId);
@@ -108,59 +108,33 @@ public class FileService(
         }
     }
 
-    public async Task<Result<byte[]>> SaveFile(IFormFile file, Guid userId)
+    public async Task<Result<byte[]>> SaveFile(Stream stream, Guid userId)
     {
         try
         {
-            if (file == null || file.Length == 0)
-                return Result<byte[]>.BadRequest("No file uploaded");
-            FileObject fileObject;
-            string firstPath;
-            Result<ExtensionDto> fileExtension;
             Guid fileId = Guid.CreateVersion7();
-            if (file.Length > 50 * 1024 * 1024)
-            {
-                Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(file);
-                if (!fingerprintResult.Success)
-                    return Result<byte[]>.From(fingerprintResult);
 
-                firstPath = fingerprintResult.Body.FileResult.FilePath;
-                fileExtension = await _extensionService.GetByFile(firstPath);
-                if (!fileExtension.Success)
-                    return Result<byte[]>.From(fileExtension);
-                fileObject = new()
-                {
-                    Id = fileId,
-                    Path = fileId.ToString(),
-                    IsDeleted = false,
-                    LastModified = DateTime.UtcNow,
-                    L1 = fingerprintResult.Body!.L1,
-                    L2 = fingerprintResult.Body!.L2,
-                    L3 = fingerprintResult.Body!.FileResult.Fingerprint,
-                    ExtensionId = fileExtension.Body!.ExtensionId,
-                    Size = fingerprintResult.Body.FileResult.Size,
-                };
-            }
-            else
+            Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(stream);
+            if (!fingerprintResult.Success)
+                return Result<byte[]>.From(fingerprintResult);
+
+            string firstPath = fingerprintResult.Body.FileResult.FilePath;
+            Result<ExtensionDto> fileExtension = await _extensionService.GetByFile(firstPath);
+            if (!fileExtension.Success)
+                return Result<byte[]>.From(fileExtension);
+
+            FileObject fileObject = new()
             {
-                Result<FileResult> fingerprintResult = await _fingerprintService.GetOnlyFullFingerprint(file);
-                if (!fingerprintResult.Success)
-                    return Result<byte[]>.From(fingerprintResult);
-                firstPath = fingerprintResult.Body.FilePath;
-                fileExtension = await _extensionService.GetByFile(firstPath);
-                if(!fileExtension.Success)
-                    return Result<byte[]>.From(fileExtension);
-                fileObject = new()
-                {
-                    Id = fileId,
-                    L3 = fingerprintResult.Body!.Fingerprint,
-                    Path = fileId.ToString(),
-                    IsDeleted = false,
-                    LastModified = DateTime.UtcNow,
-                    ExtensionId = fileExtension.Body!.ExtensionId,
-                    Size = fingerprintResult.Body.Size,
-                };
-            }
+                Id = fileId,
+                Path = fileId.ToString(),
+                IsDeleted = false,
+                LastModified = DateTime.UtcNow,
+                L1 = fingerprintResult.Body!.L1,
+                L2 = fingerprintResult.Body!.L2,
+                L3 = fingerprintResult.Body!.FileResult.Fingerprint,
+                ExtensionId = fileExtension.Body!.ExtensionId,
+                Size = fingerprintResult.Body.FileResult.Size,
+            };
 
             if (await _fileRepository.Save(fileObject) is Guid id)
             {

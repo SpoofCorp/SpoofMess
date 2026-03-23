@@ -1,9 +1,9 @@
-﻿using SpoofFileInfo;
+﻿using SpoofFileParser;
 using SpoofFileService.Models;
 
 namespace SpoofFileService.Services.Repositories;
 
 public interface IExtensionRepository
 {
-    public Task<ExtensionDto?> GetByName(FileExtension2 fileExtension2);
+    public Task<ExtensionDto?> GetByName(FileExtension fileExtension);
 }

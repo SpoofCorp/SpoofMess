@@ -6,7 +6,7 @@ namespace SpoofFileService.ServiceRealizations.Validators;
 
 public class ExtensionDTOValidator : IExtensionValidator
 {
-    public Result IsAvailable(ExtensionDto extensionDto)
+    public Result IsAvailable(ExtensionDto? extensionDto)
     {
         if (extensionDto is null)
             return Result.BadRequest("Invalid extension");

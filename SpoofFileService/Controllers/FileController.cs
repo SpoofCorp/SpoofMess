@@ -1,9 +1,13 @@
 ﻿using CommonObjects.Requests.Files;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
 using SecurityLibrary;
 using SpoofFileService.Services;
+using static System.Collections.Specialized.BitVector32;
 
 namespace SpoofFileService.Controllers;
 
@@ -20,7 +24,7 @@ public class FileController(IFileService fileService) : ControllerBase
     {
         Result result = await _fileService.ExistL1(request);
         return StatusCode(result.StatusCode, result.Success
-            ? "L1 access granted" 
+            ? "L1 access granted"
             : result.Error);
     }
     [HttpPost("full-check")]
@@ -48,16 +52,36 @@ public class FileController(IFileService fileService) : ControllerBase
     }
 
     [HttpPost("save")]
-    public async Task<IActionResult> Save(IFormFile file)
+    public async Task<IActionResult> Save()
     {
-        Guid userId = ClaimService.GetUserId(User);
-        Result<byte[]> result = await _fileService.SaveFile(file, userId);
+        if (Request.ContentType == null || !Request.ContentType.StartsWith("multipart/", StringComparison.OrdinalIgnoreCase))
+            return BadRequest("Неверный тип контента");
 
-        return StatusCode(
-            result.StatusCode,
-            result.Success
-                ? result.Body
-                : result.Error
-                );
+        Guid userId = ClaimService.GetUserId(User);
+        MultipartReader reader = new(
+            Request.GetMultipartBoundary(),
+            Request.Body);
+        MultipartSection? section = await reader.ReadNextSectionAsync();
+
+        while (section is not null)
+        {
+            if (ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition))
+            {
+                if (contentDisposition.IsFileDisposition())
+                {
+                    Result<byte[]> result = await _fileService.SaveFile(section.Body, userId);
+
+                    return StatusCode(
+                        result.StatusCode,
+                        result.Success
+                            ? result.Body
+                            : result.Error
+                            );
+                }
+            }
+
+            section = await reader.ReadNextSectionAsync();
+        }
+        return BadRequest("Invalid body");
     }
 }

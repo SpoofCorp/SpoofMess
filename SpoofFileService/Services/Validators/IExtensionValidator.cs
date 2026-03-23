@@ -5,5 +5,5 @@ namespace SpoofFileService.Services.Validators;
 
 public interface IExtensionValidator
 {
-    public Result IsAvailable(ExtensionDto extensionDto);
+    public Result IsAvailable(ExtensionDto? extensionDto);
 }
