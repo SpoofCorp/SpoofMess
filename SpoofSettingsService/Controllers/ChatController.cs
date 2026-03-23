@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
@@ -35,11 +36,11 @@ public class ChatController(IChatService chatService) : ControllerBase
     {
         Guid userId = ClaimService.GetUserId(User);
 
-        Result result = await _chatService.CreateChat(request, userId);
+        Result<ChatDTO> result = await _chatService.CreateChat(request, userId);
         return StatusCode(
             result.StatusCode,
             result.Success
-                ? result.Message 
+                ? result.Body 
                 : result.Error
                 );
     }

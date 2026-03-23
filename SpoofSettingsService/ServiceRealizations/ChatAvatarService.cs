@@ -3,6 +3,7 @@ using CommonObjects.Requests.Avatars;
 using CommonObjects.Responses;
 using CommonObjects.Results;
 using RuleRoleHelper;
+using SecurityLibrary.Tokens;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
@@ -15,15 +16,17 @@ public class ChatAvatarService(
         ILoggerService loggerService,
         IChatAvatarRepository chatAvatarRepository, 
         IChatAvatarValidator chatAvatarValidator,
-        IRuleService ruleService
+        IRuleService ruleService,
+        IFileTokenService fileTokenService
     ) : IChatAvatarService
 {
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
     private readonly IRuleService _ruleService = ruleService;
 
-    public async Task<Result<AvatarResponse>> GetAvatar(GetChatAvatarRequest request)
+    public async Task<Result<AvatarResponse>> GetAvatar(GetChatAvatarRequest request, Guid userId)
     {
         try
         {
@@ -32,7 +35,7 @@ public class ChatAvatarService(
             if (!result.Success)
                 return Result<AvatarResponse>.From(result);
 
-            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName) });
+            return Result<AvatarResponse>.OkResult(new() { FileId = avatar!.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName, _fileTokenService.CreateToken(userId, avatar.Key2)) });
         }
         catch (Exception ex)
         {
@@ -41,7 +44,7 @@ public class ChatAvatarService(
         }
     }
 
-    public async Task<Result<List<AvatarResponse>>> GetAvatars(GetChatAvatarRequest request)
+    public async Task<Result<List<AvatarResponse>>> GetAvatars(GetChatAvatarRequest request, Guid userId)
     {
         try
         {
@@ -56,7 +59,7 @@ public class ChatAvatarService(
             for (int i = 0; i < avatars!.Count; i++)
             {
                 avatar = avatars[i];
-                response.Add(new() { FileId = avatar.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName) });
+                response.Add(new() { FileId = avatar.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName, _fileTokenService.CreateToken(userId, avatar.Key2)) });
             }
 
             return Result<List<AvatarResponse>>.OkResult(response);
@@ -102,12 +105,14 @@ public class ChatAvatarService(
                 );
             if (!ruleResult.Success)
                 return ruleResult;
+            if (!_fileTokenService.IsValid(request.Metadata.Token, userId, out Guid fileId))
+                return Result.Forbidden("Invalid token");
 
             ChatAvatar chatAvatar = new()
             {
                 Key1 = request.ChatId,
                 OriginalFileName = request.Metadata.OriginalName,
-                Key2 = request.Metadata.Id,
+                Key2 = fileId,
             };
             chatAvatar.File.Id = request.FileId;
 

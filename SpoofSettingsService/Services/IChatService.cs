@@ -1,4 +1,5 @@
-﻿using CommonObjects.Requests;
+﻿using CommonObjects.DTO;
+using CommonObjects.Requests;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
 using SpoofSettingsService.Models;
@@ -12,10 +13,10 @@ public interface IChatService
         Guid userId
         );
 
-    public ValueTask<Result> CreateChat(
-        CreateChatRequest request, 
-        Guid userId
-        );
+
+    public Task<Result<ChatDTO>> CreateChat(
+        CreateChatRequest request,
+        Guid userId);
 
     public ValueTask<Result> DeleteChat(
         Guid chatId, 

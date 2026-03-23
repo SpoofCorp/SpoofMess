@@ -2,6 +2,7 @@
 using CommonObjects.Requests.Avatars;
 using CommonObjects.Responses;
 using CommonObjects.Results;
+using SecurityLibrary.Tokens;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
@@ -13,14 +14,16 @@ namespace SpoofSettingsService.ServiceRealizations;
 public class UserAvatarService(
         ILoggerService loggerService, 
         IUserAvatarRepository userAvatarRepository, 
-        IUserAvatarValidator userAvatarValidator
+        IUserAvatarValidator userAvatarValidator,
+        IFileTokenService fileTokenService
     ) : IUserAvatarService
 {
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAvatarRepository _userAvatarRepository = userAvatarRepository;
     private readonly IUserAvatarValidator _userAvatarValidator = userAvatarValidator;
 
-    public async Task<Result<AvatarResponse>> GetAvatar(GetUserAvatarRequest request)
+    public async Task<Result<AvatarResponse>> GetAvatar(GetUserAvatarRequest request, Guid userId)
     {
         try
         {
@@ -32,7 +35,12 @@ public class UserAvatarService(
             return Result<AvatarResponse>.OkResult(
                 new() { 
                     FileId = avatar!.Key2,
-                    FileMetadata = avatar.File!.Set(avatar.OriginalFileName) 
+                    FileMetadata = avatar.File!.Set(avatar.OriginalFileName,
+                        _fileTokenService.CreateToken(
+                            userId,
+                            avatar.Key2
+                            )
+                        ) 
                 });
         }
         catch (Exception ex)
@@ -42,7 +50,7 @@ public class UserAvatarService(
         }
     }
 
-    public async Task<Result<List<AvatarResponse>>> GetAvatars(GetUserAvatarRequest request)
+    public async Task<Result<List<AvatarResponse>>> GetAvatars(GetUserAvatarRequest request, Guid userId)
     {
         try
         {
@@ -57,7 +65,17 @@ public class UserAvatarService(
             for (int i = 0; i < avatars!.Count; i++)
             {
                 avatar = avatars[i];
-                response.Body!.Add(new() { FileId = avatar.Key2, FileMetadata = avatar.File!.Set(avatar.OriginalFileName) });
+                response.Body!.Add(new() 
+                { 
+                    FileId = avatar.Key2,
+                    FileMetadata = avatar.File!.Set(
+                        avatar.OriginalFileName,
+                        _fileTokenService.CreateToken(
+                            userId,
+                            avatar.Key2
+                            )
+                        ) 
+                });
             }
 
             return response;
@@ -88,10 +106,13 @@ public class UserAvatarService(
 
         try
         {
+            if (!_fileTokenService.IsValid(request.Metadata.Token, userId, out Guid fileId))
+                return Result.Forbidden("Invalid token");
+
             UserAvatar avatar = new()
             {
                 Key1 = userId,
-                File = request.Metadata.Set()
+                File = request.Metadata.Set(fileId)
             };
 
             await _userAvatarRepository.AddAsync(avatar);

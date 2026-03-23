@@ -1,4 +1,5 @@
 ﻿using AdditionalHelpers.Services;
+using CommonObjects.DTO;
 using CommonObjects.Requests;
 using CommonObjects.Requests.Changes;
 using CommonObjects.Results;
@@ -58,7 +59,7 @@ public class ChatService(
     }
 
 
-    public async ValueTask<Result> CreateChat(CreateChatRequest request, Guid userId)
+    public async Task<Result<ChatDTO>> CreateChat(CreateChatRequest request, Guid userId)
     {
         try
         {
@@ -72,14 +73,14 @@ public class ChatService(
                 );
 
             if (!taskUserResult.Result.Success)
-                return Result.From(taskUserResult.Result);
+                return Result<ChatDTO>.From(taskUserResult.Result);
 
             if (!taskChatTypeResult.Result.Success)
-                return Result.From(taskChatTypeResult.Result);
+                return Result<ChatDTO>.From(taskChatTypeResult.Result);
 
             Chat? repetition = await _chatRepository.GetByUniqueName(request.UniqueName);
             Result result = _chatValidator.ValidateHasChatUniqueName(repetition);
-            if (!result.Success) return result;
+            if (!result.Success) return Result<ChatDTO>.From(result);
 
             DateTime now = DateTime.UtcNow;
             Chat newChat = new(
@@ -100,12 +101,12 @@ public class ChatService(
                     newChat.Name
                     )
                 );
-            return Result.OkResult();
+            return Result<ChatDTO>.OkResult(newChat.Set());
         }
         catch (Exception ex)
         {
             _loggerService.Error("Database error", ex);
-            return Result.ErrorResult("Database error");
+            return Result<ChatDTO>.ErrorResult("Database error");
         }
     }
 

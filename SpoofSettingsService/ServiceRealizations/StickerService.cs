@@ -2,6 +2,7 @@
 using CommonObjects.Requests.Stickers;
 using CommonObjects.Responses;
 using CommonObjects.Results;
+using SecurityLibrary.Tokens;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
 using SpoofSettingsService.Services.Repositories;
@@ -10,8 +11,15 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class StickerService(ILoggerService loggerService, IStickerRepository stickerRepository, IStickerPackService stickerPackService, IStickerValidator stickerValidator, IStickerPackValidator stickerPackValidator) : IStickerService
+public class StickerService(
+    ILoggerService loggerService,
+    IStickerRepository stickerRepository,
+    IStickerPackService stickerPackService,
+    IStickerValidator stickerValidator, 
+    IFileTokenService fileTokenService,
+    IStickerPackValidator stickerPackValidator) : IStickerService
 {
+    private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IStickerRepository _stickerRepository = stickerRepository;
     private readonly IStickerPackService _stickerPackService = stickerPackService;
@@ -30,10 +38,17 @@ public class StickerService(ILoggerService loggerService, IStickerRepository sti
             if (!result.Success)
                 return result;
 
+            if (!_fileTokenService.IsValid(
+                request.FileMetadata.Token,
+                userId, 
+                out Guid fileId)
+                )
+                return Result.Forbidden("Invalid token");
+
             Sticker sticker = new()
             {
                 Id = Guid.CreateVersion7(),
-                File = request.FileMetadata.Set(),
+                File = request.FileMetadata.Set(fileId),
                 LastModified = DateTime.UtcNow,
                 IsDeleted = false,
                 StickerPackId = request.StickerPackId,
@@ -62,7 +77,9 @@ public class StickerService(ILoggerService loggerService, IStickerRepository sti
             if (!result.Success)
                 return result;
 
-            return await _stickerRepository.SoftDeleteAsync(request.StickerId) ? Result.OkResult() : Result.BadRequest("Invalid sticker id");
+            return await _stickerRepository.SoftDeleteAsync(request.StickerId) 
+                ? Result.OkResult() 
+                : Result.BadRequest("Invalid sticker id");
         }
         catch (Exception ex)
         {
@@ -80,7 +97,10 @@ public class StickerService(ILoggerService loggerService, IStickerRepository sti
             if (!result.Success)
                 return Result<GetStickerResponse>.From(result);
 
-            return Result<GetStickerResponse>.OkResult(new() { FileId = sticker!.FileId });
+            return Result<GetStickerResponse>.OkResult(new() 
+            { 
+                FileId = sticker!.FileId 
+            });
         }
         catch (Exception ex)
         {
