@@ -57,12 +57,12 @@ create index "IX_Message_SentAt" on "Message"("SentAt");
 
 create table "Attachment"
 (
+	"Id" uuid constraint "PK_Attachment_Id" primary key default uuidv7(),
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
 	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
-	"IsDeleted" boolean not null default false,
-	constraint "PK_Attachment_Id" primary key("MessageId", "FileMetadataId")
+	"IsDeleted" boolean not null default false
 );
 
 create table "ViewMessage"

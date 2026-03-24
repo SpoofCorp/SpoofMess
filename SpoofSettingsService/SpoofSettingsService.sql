@@ -166,24 +166,24 @@ create table "Sticker"
 
 create table "UserAvatar"
 (
+	"Id" uuid constraint "PK_UserAvatar_Id" primary key default uuidv7(),
 	"UserId" uuid not null constraint "FK_UserAvatar_UserId" references "User"("Id") on delete cascade,
 	"FileId" uuid not null constraint "FK_UserAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
-	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
-    constraint "PK_UserAvatar_Id" primary key("UserId", "FileId")
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP
 );
 
 create table "ChatAvatar"
 (
+	"Id" uuid constraint "PK_ChatAvatar_Id" primary key default uuidv7(),
 	"ChatId" uuid not null constraint "FK_ChatAvatar_ChatId" references "Chat"("Id") on delete cascade,
 	"FileId" uuid not null constraint "FK_ChatAvatar_FileId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"IsActive" boolean not null default true,
 	"IsDeleted" boolean not null default false,
-	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
-    constraint "PK_ChatAvatar_Id" primary key("ChatId", "FileId")
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP
 );
 
 create type "OutboxStatus" as enum 
