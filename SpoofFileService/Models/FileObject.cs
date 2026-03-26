@@ -14,6 +14,8 @@ public partial class FileObject : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public string Path { get; set; } = null!;
 
+    public string? Metadata { get; set; }
+
     public long Size { get; set; }
 
     public virtual Extension Extension { get; set; } = null!;

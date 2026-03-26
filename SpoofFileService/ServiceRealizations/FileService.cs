@@ -118,28 +118,26 @@ public class FileService(
             if (!fingerprintResult.Success)
                 return Result<byte[]>.From(fingerprintResult);
 
-            string firstPath = fingerprintResult.Body.FileResult.FilePath;
-            Result<ExtensionDto> fileExtension = await _extensionService.GetByFile(firstPath);
-            if (!fileExtension.Success)
-                return Result<byte[]>.From(fileExtension);
-
             FileObject fileObject = new()
             {
                 Id = fileId,
-                Path = fileId.ToString(),
+                Path = fingerprintResult.Body.FileResult.FilePath,
                 IsDeleted = false,
                 LastModified = DateTime.UtcNow,
                 L1 = fingerprintResult.Body!.L1,
                 L2 = fingerprintResult.Body!.L2,
                 L3 = fingerprintResult.Body!.FileResult.Fingerprint,
-                ExtensionId = fileExtension.Body!.ExtensionId,
-                Size = fingerprintResult.Body.FileResult.Size,
+                Size = fingerprintResult.Body.FileResult.Size
             };
+
+            Result<ExtensionDto> fileExtension = await _extensionService.GetByFile(fileObject);
+            if (!fileExtension.Success)
+                return Result<byte[]>.From(fileExtension);
 
             if (await _fileRepository.Save(fileObject) is Guid id)
             {
-                await _fileWorkerService.Move(firstPath, fileObject.Path);
-                await _filePublisherService.Create(new(id, fileObject.Size, fileExtension.Body!.CategoryName));
+                await _fileWorkerService.Move(fingerprintResult.Body.FileResult.FilePath, fileObject.Path);
+                await _filePublisherService.Create(new(id, fileObject.Size, fileExtension.Body!.CategoryName, fileObject.Metadata));
             }
 
             return Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject.Id));

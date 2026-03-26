@@ -20,7 +20,7 @@ public class FileRepository(
     public async Task<Guid?> Save(FileObject fileObject)
     {
         await using SpoofFileServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.Database.SqlQuery<Guid?>(@$"SELECT ""FindOrCreateFile""({fileObject.Id},{fileObject.L1},{fileObject.L2},{fileObject.L3},{fileObject.ExtensionId}, {fileObject.Path}, {fileObject.Size}) AS ""Value""").SingleAsync();
+        return await context.Database.SqlQuery<Guid?>(@$"SELECT ""FindOrCreateFile""({fileObject.Id},{fileObject.L1},{fileObject.L2},{fileObject.L3},{fileObject.ExtensionId}, {fileObject.Path}, {fileObject.Size}, {fileObject.Metadata}) AS ""Value""").SingleAsync();
     }
     public async Task<bool> ExistByL3(FingerprintExistL3 l3)
     {
