@@ -10,7 +10,7 @@ public class UserAvatarRepository(
         ICacheService cache,
         IDbContextFactory<SpoofSettingsServiceContext> factory,
         IProcessQueueTasksService tasksService
-    ) : CachedSoftDeletableDoubleIdentifiedFactoryRepository<UserAvatar, Guid, Guid, SpoofSettingsServiceContext>(
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<UserAvatar, Guid, SpoofSettingsServiceContext>(
         cache, 
         factory,
         tasksService
@@ -21,7 +21,7 @@ public class UserAvatarRepository(
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
         return await GetAsync(GetKey(userId), async () => 
             await context.UserAvatars.FirstOrDefaultAsync(x => 
-                x.Key1 == userId 
+                x.UserId == userId 
                 && x.IsActive
             )
         );
@@ -30,15 +30,15 @@ public class UserAvatarRepository(
     public async Task<List<UserAvatar>?> GetUserAvatarsById(Guid userId)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.UserAvatars.Where(x => x.Key1 == userId && !x.IsDeleted).ToListAsync();
+        return await context.UserAvatars.Where(x => x.UserId == userId && !x.IsDeleted).ToListAsync();
     }
 
     public async Task<bool> TryDeleteAvatarByIds(Guid userId, Guid fileId)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
         UserAvatar? avatar = await context.UserAvatars.FirstOrDefaultAsync(x =>
-            x.Key1 == userId 
-            && x.Key2 == fileId
+            x.UserId == userId 
+            && x.FileId == fileId
         );
         if (avatar is null)
             return false;
@@ -51,6 +51,6 @@ public class UserAvatarRepository(
         $"{typeof(UserAvatar).Name.ToLower()}:{userId}";
 
     protected override string GetKey(UserAvatar entity) =>
-        $"{typeof(UserAvatar).Name.ToLower()}:{entity.Key1}:{entity.Key2}";
+        $"{typeof(UserAvatar).Name.ToLower()}:{entity.UserId}:{entity.FileId}";
 
 }

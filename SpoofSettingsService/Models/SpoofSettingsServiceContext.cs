@@ -60,7 +60,7 @@ public partial class SpoofSettingsServiceContext : DbContext
         });
 
         modelBuilder.HasPostgresEnum<OutboxStatus>(name: "OutboxStatus");
-        
+
         modelBuilder.Entity<Chat>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Chat_Id");
@@ -87,7 +87,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
         modelBuilder.Entity<ChatAvatar>(entity =>
         {
-            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_ChatAvatar_Id");
+            entity.HasKey(e => e.Id).HasName("PK_ChatAvatar_Id");
 
             entity.ToTable("ChatAvatar");
 
@@ -95,11 +95,11 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.Chat).WithMany(p => p.ChatAvatars)
-                .HasForeignKey(d => d.Key1)
+                .HasForeignKey(d => d.ChatId)
                 .HasConstraintName("FK_ChatAvatar_ChatId");
 
             entity.HasOne(d => d.File).WithMany(p => p.ChatAvatars)
-                .HasForeignKey(d => d.Key2)
+                .HasForeignKey(d => d.FileId)
                 .HasConstraintName("FK_ChatAvatar_FileId");
         });
         modelBuilder.Entity<ChatProperty>(entity =>
@@ -255,7 +255,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK_FileMetadata_Id");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Extension).HasMaxLength(20);
+            entity.Property(e => e.Category).HasMaxLength(20);
         });
 
         modelBuilder.Entity<GlobalPermission>(entity =>
@@ -371,7 +371,7 @@ public partial class SpoofSettingsServiceContext : DbContext
 
         modelBuilder.Entity<UserAvatar>(entity =>
         {
-            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_UserAvatar_Id");
+            entity.HasKey(e => e.Id).HasName("PK_UserAvatar_Id");
 
             entity.ToTable("UserAvatar");
 
@@ -379,11 +379,11 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.File).WithMany(p => p.UserAvatars)
-                .HasForeignKey(d => d.Key2)
+                .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK_UserAvatar_FileId");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserAvatars)
-                .HasForeignKey(d => d.Key1)
+                .HasForeignKey(d => d.FileId)
                 .HasConstraintName("FK_UserAvatar_UserId");
         });
 

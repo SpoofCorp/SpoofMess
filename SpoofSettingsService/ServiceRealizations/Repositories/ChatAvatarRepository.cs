@@ -10,7 +10,7 @@ public class ChatAvatarRepository(
     ICacheService cache,
     IDbContextFactory<SpoofSettingsServiceContext> factory,
     IProcessQueueTasksService tasksService
-    ) : CachedSoftDeletableDoubleIdentifiedFactoryRepository<ChatAvatar, Guid, Guid, SpoofSettingsServiceContext>(
+    ) : CachedSoftDeletableIdentifiedFactoryRepository<ChatAvatar, Guid, SpoofSettingsServiceContext>(
         cache,
         factory,
         tasksService
@@ -22,7 +22,7 @@ public class ChatAvatarRepository(
         return await GetAsync(
                 GetKey(chatId),
                 async () => await context.ChatAvatars.FirstOrDefaultAsync(x =>
-                x.Key1 == chatId 
+                x.ChatId == chatId 
                 && x.IsActive)
             );
     }
@@ -31,7 +31,7 @@ public class ChatAvatarRepository(
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
         return await context.ChatAvatars.Where(x =>
-                x.Key1 == chatId 
+                x.ChatId == chatId 
                 && !x.IsDeleted
             ).ToListAsync();
     }
@@ -40,8 +40,8 @@ public class ChatAvatarRepository(
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
         ChatAvatar? avatar = await context.ChatAvatars.FirstOrDefaultAsync(x => 
-            x.Key1 == chatId 
-            && x.Key2 == fileId
+            x.ChatId == chatId 
+            && x.FileId == fileId
         );
         if (avatar is null)
             return false;

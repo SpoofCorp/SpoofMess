@@ -3,7 +3,7 @@ using SpoofSettingsService.Models;
 
 namespace SpoofSettingsService.Services.Repositories;
 
-public interface IUserAvatarRepository : IDoubleIdentifiedRepository<UserAvatar, Guid, Guid>
+public interface IUserAvatarRepository : IIdentifiedRepository<UserAvatar, Guid>
 {
     public Task<UserAvatar?> GetActualUserAvatarById(Guid userId);
 

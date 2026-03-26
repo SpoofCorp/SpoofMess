@@ -2,7 +2,7 @@
 using DataSaveHelpers.Services;
 using SpoofSettingsService.Models;
 
-namespace SpoofSettingsService.ServiceRealizations.Validators;
+namespace SpoofSettingsService.Services.Validators;
 
 public interface IChatUserRuleValidator : ISoftDeletableValidator<ChatUserRule>
 {

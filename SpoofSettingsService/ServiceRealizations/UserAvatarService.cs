@@ -2,9 +2,11 @@
 using CommonObjects.Requests.Avatars;
 using CommonObjects.Responses;
 using CommonObjects.Results;
+using SecurityLibrary;
 using SecurityLibrary.Tokens;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services;
+using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 using SpoofSettingsService.Services.Validators;
 using SpoofSettingsService.Setters;
@@ -15,9 +17,13 @@ public class UserAvatarService(
         ILoggerService loggerService, 
         IUserAvatarRepository userAvatarRepository, 
         IUserAvatarValidator userAvatarValidator,
-        IFileTokenService fileTokenService
+        IFileTokenService fileTokenService,
+        IUserAvatarPublisherService userAvatarPublisherService,
+        IFileMetadatumService fileMetadatumService
     ) : IUserAvatarService
 {
+    private readonly IUserAvatarPublisherService _userAvatarPublisherService = userAvatarPublisherService;
+    private readonly IFileMetadatumService _fileMetadatumService = fileMetadatumService;
     private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAvatarRepository _userAvatarRepository = userAvatarRepository;
@@ -34,12 +40,13 @@ public class UserAvatarService(
 
             return Result<AvatarResponse>.OkResult(
                 new() { 
-                    FileId = avatar!.Key2,
+                    FileId = avatar!.FileId,
                     FileMetadata = avatar.File!.Set(avatar.OriginalFileName,
                         _fileTokenService.CreateToken(
                             userId,
-                            avatar.Key2
-                            )
+                            avatar.FileId
+                            ),
+                        Hasher.GetKey(avatar.FileId.ToByteArray())
                         ) 
                 });
         }
@@ -67,14 +74,14 @@ public class UserAvatarService(
                 avatar = avatars[i];
                 response.Body!.Add(new() 
                 { 
-                    FileId = avatar.Key2,
+                    FileId = avatar.FileId,
                     FileMetadata = avatar.File!.Set(
                         avatar.OriginalFileName,
                         _fileTokenService.CreateToken(
                             userId,
-                            avatar.Key2
-                            )
-                        ) 
+                            avatar.FileId
+                            ),
+                        Hasher.GetKey(avatar.FileId.ToByteArray()))
                 });
             }
 
@@ -103,19 +110,27 @@ public class UserAvatarService(
 
     public async Task<Result> SetAvatar(SesUserAvatarRequest request, Guid userId)
     {
-
         try
         {
-            if (!_fileTokenService.IsValid(request.Metadata.Token, userId, out Guid fileId))
-                return Result.Forbidden("Invalid token");
+            Result<FileMetadatum> result = await _fileMetadatumService.GetByToken(
+                request.Metadata.Token,
+                userId,
+                CommonObjects.DTO.FileCategory.Image);
+            if (!result.Success)
+                return Result.From(result);
 
             UserAvatar avatar = new()
             {
-                Key1 = userId,
-                File = request.Metadata.Set(fileId)
+                UserId = userId,
+                FileId = result.Body!.Id,
+                OriginalFileName = request.Metadata.OriginalName
             };
 
             await _userAvatarRepository.AddAsync(avatar);
+            await _userAvatarPublisherService.Publish(new(
+                avatar.FileId,
+                avatar.UserId,
+                avatar.OriginalFileName));
             return Result.OkResult();
         }
         catch (Exception ex)

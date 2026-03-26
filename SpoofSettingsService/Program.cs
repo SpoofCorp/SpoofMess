@@ -34,11 +34,13 @@ builder.Services.AddDbContextFactory<SpoofSettingsServiceContext>(x => x.UseNpgs
 builder.Services.AddSingleton<IUserMessageBrokerService, UserPublisherService>();
 builder.Services.AddSingleton<IChatUserPublisherService, ChatUserPublisherService>();
 builder.Services.AddSingleton<IChatPublisherService, ChatPublisherService>();
+builder.Services.AddSingleton<IUserAvatarPublisherService, UserAvatarPublisherService>();
 
 builder.Services.AddHostedService<FileMetadatumConsumerService>();
 builder.Services.AddHostedService<UserConsumerService>();
 builder.Services.AddHostedService<ChatUserOutboxer>();
 
+builder.Services.AddTransient<IFileMetadatumValidator, FileMetadatumValidator>();
 builder.Services.AddTransient<IChatAvatarValidator, ChatAvatarValidator>();
 builder.Services.AddTransient<IChatValidator, ChatValidator>();
 builder.Services.AddTransient<IChatUserValidator, ChatUserValidator>();

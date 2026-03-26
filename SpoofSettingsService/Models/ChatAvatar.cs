@@ -1,21 +1,11 @@
-﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
-using System.ComponentModel.DataAnnotations.Schema;
-
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 namespace SpoofSettingsService.Models;
 
-public partial class ChatAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
+public partial class ChatAvatar : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
-    /// <summary>
-    /// ChatId
-    /// </summary>
-    [Column("ChatId")]
-    public new Guid Key1 { get; set; }
+    public Guid ChatId { get; set; }
 
-    /// <summary>
-    /// FileId
-    /// </summary>
-    [Column("FileId")]
-    public new Guid Key2 { get; set; } 
+    public Guid FileId { get; set; }
 
     public string OriginalFileName { get; set; } = null!;
 

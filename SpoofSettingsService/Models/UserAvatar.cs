@@ -1,20 +1,12 @@
-﻿using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 
 namespace SpoofSettingsService.Models;
 
-public partial class UserAvatar : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
-{    /// <summary>
-     /// UserId
-     /// </summary>
-    [Column("UserId")]
-    public new Guid Key1 { get; set; }
+public partial class UserAvatar : IdentifiedSoftDeletableChangeableEntity<Guid>
+{    
+    public Guid UserId { get; set; }
 
-    /// <summary>
-    /// FileId
-    /// </summary>
-    [Column("FileId")]
-    public new Guid Key2 { get; set; }
+    public Guid FileId { get; set; }
 
     public string OriginalFileName { get; set; } = null!;
 

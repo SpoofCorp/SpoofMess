@@ -53,7 +53,7 @@ public class UserService(
             if (!result.Success) 
                 return Result<UserDTO>.From(result);
 
-            Guid? avatarId = user!.UserAvatars.FirstOrDefault(a => a.IsActive)?.Key2;
+            Guid? avatarId = user!.UserAvatars.FirstOrDefault(a => a.IsActive)?.FileId;
             return Result<UserDTO>.OkResult(
                 user.Set(avatarId is null
                     ? null
