@@ -16,7 +16,23 @@ public class UserRepository(
         processQueueTasks
         ), IUserRepository
 {
-    public async Task<bool> ExecuteUpdate(Guid userId, bool isConnected)
+    public async Task<bool> ExecuteUpdateAvatar(Guid userId, Guid fileId, string originalFileName)
+    {
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        int count = await context.Users.Where(x => x.Id.Equals(userId)).ExecuteUpdateAsync(x =>
+            x.SetProperty(p => p.AvatarId, fileId)
+            .SetProperty(x => x.OriginalFileName, originalFileName)
+        );
+        User? user = await _cache.Get<User>(GetKey(userId));
+        if (user is null)
+            return count > 0;
+        user.AvatarId = fileId;
+        user.OriginalFileName = originalFileName;
+        await _cache.Save(GetKey(userId), user);
+        return count > 0;
+    }
+
+    public async Task<bool> ExecuteUpdateConnection(Guid userId, bool isConnected)
     {
         await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
         int count = await context.Users.Where(x => x.Id.Equals(userId)).ExecuteUpdateAsync(x =>

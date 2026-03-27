@@ -2,6 +2,7 @@
 using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using CommonObjects.Results;
+using SecurityLibrary;
 using SecurityLibrary.Tokens;
 using SpoofMessageService.Models;
 using SpoofMessageService.Models.Enums;
@@ -120,9 +121,9 @@ public class MessageService(
                 );
             CancellationTokenSource tokenSource = new();
             List<Attachment> attachments = [];
-            await Parallel.ForEachAsync(request.Attachments, async (attachment, cancellationToken) =>
+            await Parallel.ForEachAsync(request.Attachments, async (attachmentDTO, cancellationToken) =>
             {
-                if (!_fileTokenService.IsValid(attachment.Token, userId, out Guid fileId))
+                if (!_fileTokenService.IsValid(attachmentDTO.Token, userId, out Guid fileId))
                 {
                     tokenSource.Cancel();
                     return;
@@ -133,20 +134,21 @@ public class MessageService(
                     tokenSource.Cancel();
                     return;
                 }
-                attachments.Add(attachment.Set(fileId, result.Body));
-                message.Attachments.Add(attachment.Set(fileId, result.Body!));
+                Attachment attachment = attachmentDTO.Set(fileId, result.Body!);
+                attachments.Add(attachment);
+                message.Attachments.Add(attachment);
             });
             await _messageRepository.AddAsync(message);
             message.User = chatUserResult.Body!.User;
             return Result<IntermediateMessage>.OkResult(new(
-                message.Id, 
-                message.ChatId, 
-                chatUserResult.Body.User.Login, 
-                chatUserResult.Body.User.Name, 
-                chatUserResult.Body.User.AvatarId, 
-                message.Text, 
-                message.SentAt, 
-                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.Category, x.Size, x.Key2))]));
+                message.Id,
+                message.ChatId,
+                chatUserResult.Body.User.Login,
+                chatUserResult.Body.User.Name,
+                chatUserResult.Body.User.AvatarId,
+                message.Text,
+                message.SentAt,
+                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.Category, x.Size, x.FileMetadataId))]));
         }
         catch (Exception ex)
         {
@@ -177,16 +179,24 @@ public class MessageService(
                     chatId,
                     date,
                     take
-                    )).Select(x => x.Set([..x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
-                        _fileTokenService.CreateToken(
-                            userId, 
-                            x.FileMetadata.Id),
-                        x.OriginalFileName, 
-                        x.FileMetadata.Category,
-                        x.FileMetadata.Size))],
-                        x.User.AvatarId is null 
+                    )).Select(x => x.Set(
+                        [..
+                            x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
+                            Hasher.GetKey(x.FileMetadataId.ToByteArray()),
+                            _fileTokenService.CreateToken(
+                                userId,
+                                x.FileMetadata.Id),
+                            x.OriginalFileName,
+                            x.FileMetadata.Category,
+                            x.FileMetadata.Size))
+                        ],
+                        x.User.AvatarId is null
                             ? null
-                            : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value)))]
+                            : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value),
+                        x.User.AvatarId is null
+                            ? null
+                            : Hasher.GetKey(x.User.AvatarId.Value.ToByteArray())))
+                    ]
                 );
         }
         catch (Exception ex)
@@ -218,16 +228,24 @@ public class MessageService(
                     chatId,
                     date,
                     take
-                    )).Select(x => x.Set([..x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
-                        _fileTokenService.CreateToken(
-                            userId,
-                            x.FileMetadata.Id),
-                        x.OriginalFileName,
-                        x.FileMetadata.Category,
-                        x.FileMetadata.Size))],
+                    )).Select(x => x.Set(
+                        [..
+                            x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
+                            Hasher.GetKey(x.FileMetadataId.ToByteArray()),
+                            _fileTokenService.CreateToken(
+                                userId,
+                                x.FileMetadata.Id),
+                            x.OriginalFileName,
+                            x.FileMetadata.Category,
+                            x.FileMetadata.Size))
+                        ],
                         x.User.AvatarId is null
                             ? null
-                            : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value)))]
+                            : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value),
+                        x.User.AvatarId is null
+                            ? null
+                            : Hasher.GetKey(x.User.AvatarId.Value.ToByteArray())))
+                    ]
                 );
         }
         catch (Exception ex)
@@ -251,16 +269,24 @@ public class MessageService(
                 return Result<List<MessageDTO>>.From(result);
 
             return Result<List<MessageDTO>>.OkResult(
-                [.. messages.Select(x => x.Set([..x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
-                    _fileTokenService.CreateToken(
-                        userId,
-                        x.FileMetadata.Id),
-                    x.OriginalFileName,
-                    x.FileMetadata.Category,
-                    x.FileMetadata.Size))],
+                [.. messages.Select(x => x.Set(
+                    [..
+                        x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
+                        Hasher.GetKey(x.FileMetadataId.ToByteArray()),
+                        _fileTokenService.CreateToken(
+                            userId,
+                            x.FileMetadata.Id),
+                        x.OriginalFileName,
+                        x.FileMetadata.Category,
+                        x.FileMetadata.Size))
+                    ],
                     x.User.AvatarId is null
                         ? null
-                        : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value)))]
+                        : _fileTokenService.CreateToken(userId, x.User.AvatarId.Value),
+                    x.User.AvatarId is null
+                        ? null
+                        : Hasher.GetKey(x.User.AvatarId.Value.ToByteArray())))
+                    ]
                 );
         }
         catch (Exception ex)

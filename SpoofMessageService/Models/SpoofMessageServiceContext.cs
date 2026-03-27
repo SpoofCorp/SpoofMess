@@ -31,7 +31,7 @@ public partial class SpoofMessageServiceContext : DbContext
     {
         modelBuilder.Entity<Attachment>(entity =>
         {
-            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_Attachment_Id");
+            entity.HasKey(e => e.Id).HasName("PK_Attachment_Id");
 
             entity.ToTable("Attachment");
 
@@ -39,11 +39,11 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(d => d.FileMetadata).WithMany(p => p.Attachments)
-                .HasForeignKey(d => d.Key2)
+                .HasForeignKey(d => d.FileMetadataId)
                 .HasConstraintName("FK_Attachment_FileMetadataId");
 
             entity.HasOne(d => d.Message).WithMany(p => p.Attachments)
-                .HasForeignKey(d => d.Key1)
+                .HasForeignKey(d => d.MessageId)
                 .HasConstraintName("FK_Attachment_MessageId");
         });
 

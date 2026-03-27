@@ -1,22 +1,13 @@
-﻿using CommonObjects.DTO;
-using DataSaveHelpers.EntityTypesRealizations.DoubleIdentified;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
 
-public partial class Attachment : DoubleIdentifiedSoftDeletableChangeableEntity<Guid, Guid>
+public partial class Attachment : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
-    /// <summary>
-    /// MessageId
-    /// </summary>
-    [Column("MessageId")]
-    public new Guid Key1 { get; set; }
-    /// <summary>
-    /// FileMetadataId
-    /// </summary>
+    public Guid MessageId { get; set; }
 
-    [Column("FileMetadataId")]
-    public new Guid Key2 { get; set; }
+    public Guid FileMetadataId { get; set; }
 
     public string OriginalFileName { get; set; } = null!;
 

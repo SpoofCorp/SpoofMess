@@ -62,7 +62,7 @@ public class UserService(
     {
         try
         { 
-            return await _userRepository.ExecuteUpdate(userId, state)
+            return await _userRepository.ExecuteUpdateConnection(userId, state)
                 ? Result.OkResult()
                 : Result.BadRequest("Invalid id");
         }
@@ -71,6 +71,5 @@ public class UserService(
             _loggerService.Error("Database error", ex);
             return Result.ErrorResult("Database error");
         }
-
     }
 }

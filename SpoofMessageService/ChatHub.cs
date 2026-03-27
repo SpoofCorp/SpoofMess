@@ -64,6 +64,8 @@ public class ChatHub(
                 result.Body.SenderLogin,
                 result.Body.SenderName,
                 null,
+                null,
+                null,
                 result.Body.Text,
                 result.Body.SendAt,
                 []
@@ -77,12 +79,15 @@ public class ChatHub(
                     {
                         await Clients.Client(connection.Ip).SendAsync("new-message", message with
                         {
-                            UserAvatarId = result.Body.SenderAvatar is null
+                            UserAvatarToken = result.Body.SenderAvatar is null
                             ? null
                             : _fileTokenService.CreateToken(
                                 user.Key2,
                                 result.Body.SenderAvatar.Value),
-                            Attachments = [.. result.Body.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(_fileTokenService.CreateToken(user.Key2, x.Id), x.OriginalFileName, x.Category, x.FileSize))]
+                            UserAvatarId = result.Body.SenderAvatar is null
+                            ? null
+                            : Hasher.GetKey(result.Body.SenderAvatar.Value.ToByteArray()),
+                            Attachments = [.. result.Body.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(Hasher.GetKey(x.Id.ToByteArray()), _fileTokenService.CreateToken(user.Key2, x.Id), x.OriginalFileName, x.Category, x.FileSize))]
                         }, token);
                     }
                 }

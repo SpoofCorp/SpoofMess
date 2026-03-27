@@ -23,9 +23,11 @@ builder.SetBaseSettingsWithFactory<SpoofMessageServiceContext>();
 
 builder.Services.AddHostedService<ChatUserConsumerService>();
 builder.Services.AddHostedService<UserSESConsumerService>();
+builder.Services.AddHostedService<UserAvatarConsumerService>();
 builder.Services.AddHostedService<ChatConsumerService>();
 builder.Services.AddHostedService<FileMetadatumConsumerService>();
 
+builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
 builder.Services.AddScoped<IChatUserService, ChatUserService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMessageService, MessageService>();

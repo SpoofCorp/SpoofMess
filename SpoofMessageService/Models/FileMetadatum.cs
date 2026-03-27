@@ -8,6 +8,8 @@ public partial class FileMetadatum : IdentifiedSoftDeletableEntity<Guid>
 
     public string Category { get; set; } = null!;
 
+    public string? Metadata { get; set; }
+
     public virtual ICollection<Attachment> Attachments { get; set; } = [];
 
     public virtual ICollection<Chat> Chats { get; set; } = [];

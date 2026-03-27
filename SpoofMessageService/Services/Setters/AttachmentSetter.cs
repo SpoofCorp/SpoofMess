@@ -6,16 +6,33 @@ namespace SpoofMessageService.Services.Setters;
 
 public static class AttachmentSetter
 {
-    public static Attachment Set(this FileMetadata fileMetadata, OperationsStatus operationsStatus) =>
-        new() { FileMetadata = fileMetadata.SetMetadata() };
+    public static Attachment Set(this FileMetadata fileMetadata, Guid fileId, OperationsStatus operationsStatus) =>
+        new()
+        {
+            FileMetadata = fileMetadata.SetMetadata(fileId)
+        };
 
-    public static FileMetadatum SetMetadata(this FileMetadata fileMetadata) =>
-        new() { Id = fileMetadata.Id, Size = fileMetadata.Size };
+    public static FileMetadatum SetMetadata(this FileMetadata fileMetadata, Guid fileId) =>
+        new()
+        {
+            Id = fileId,
+            Size = fileMetadata.Size
+        };
 
     public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId) =>
-        new() { Key2 = fileId, OriginalFileName = attachment.OriginalFileName };
+        new()
+        {
+            FileMetadataId = fileId,
+            OriginalFileName = attachment.OriginalFileName
+        };
 
     public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId, FileMetadatum metadatum) =>
-        new() { Key2 = fileId, OriginalFileName = attachment.OriginalFileName, Size = metadatum.Size, Category = metadatum.Category };
+        new()
+        {
+            FileMetadataId = fileId,
+            OriginalFileName = attachment.OriginalFileName,
+            Size = metadatum.Size,
+            Category = metadatum.Category
+        };
 
 }
