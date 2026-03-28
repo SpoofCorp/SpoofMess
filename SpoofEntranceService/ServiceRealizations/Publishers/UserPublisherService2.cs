@@ -6,7 +6,7 @@ using SpoofEntranceService.Services.Publishers;
 
 namespace SpoofEntranceService.ServiceRealizations.Publishers;
 
-public class UserPublisherSMS(
+public class UserPublisherService2(
         RabbitMQSettings settings,
         ILoggerService loggerService,
         ISerializer serializer
@@ -14,9 +14,9 @@ public class UserPublisherSMS(
         settings,
         loggerService,
         serializer
-        ), ISMSUserPublisherService
+        ), IUserPublisherService
 {
-    protected override string Exchange => "message-service";
+    protected override string Exchange => "entrance-service";
 
     public async Task Create(CreateUser createUser)
     {

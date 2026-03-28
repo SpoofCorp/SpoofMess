@@ -19,7 +19,7 @@ public class UserSESConsumerService(
         )
 {
     protected readonly IInjectionService _injectionService = injectionService;
-    protected override string Exchange => "message-service";
+    protected override string Exchange => "entrance-service";
     protected override string BaseQueueName => "message.user";
 
     public override async Task Initialize()
@@ -29,10 +29,14 @@ public class UserSESConsumerService(
 
     public async Task ConfirmCreated()
     {
-        await ConsumeFromQueueAsync<CreateUser>("success.created", "user.success.created", async (createUser) =>
-        {
-            await _injectionService.Invoke<IUserService, Task>(async (userEntryService) => await userEntryService.Create(createUser));
-            _loggerService.Info($"{createUser.UserId} was created");
-        });
+        await ConsumeFromQueueAsync<CreateUser>(
+            "success.created", 
+            "user.success.created",
+            async (createUser) =>
+            {
+                await _injectionService.Invoke<IUserService, Task>(
+                    async (userEntryService) => await userEntryService.Create(createUser));
+                _loggerService.Info($"{createUser.UserId} was created");
+            });
     }
 }

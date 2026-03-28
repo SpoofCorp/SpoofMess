@@ -36,9 +36,7 @@ builder.Services.AddScoped<IUserEntryService, UserEntryService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 
-builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
-builder.Services.AddTransient<ISSSUserPublisherService, UserPublisherSSS>();
-builder.Services.AddTransient<ISMSUserPublisherService, UserPublisherSMS>();
+builder.Services.AddTransient<IUserPublisherService, UserPublisherService2>();
 builder.Services.AddHostedService<UserConsumerService>();
 
 WebApplication app = builder.Build();
