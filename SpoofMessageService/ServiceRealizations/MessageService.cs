@@ -10,6 +10,7 @@ using SpoofMessageService.Services;
 using SpoofMessageService.Services.Repositories;
 using SpoofMessageService.Services.Setters;
 using SpoofMessageService.Services.Validators;
+using System.Collections.Concurrent;
 
 namespace SpoofMessageService.ServiceRealizations;
 
@@ -120,25 +121,29 @@ public class MessageService(
                     userId
                 );
             CancellationTokenSource tokenSource = new();
-            List<Attachment> attachments = [];
+            _loggerService.Fatal(request.Attachments.Count.ToString());
+            ConcurrentBag<Attachment> attachments = [];
             await Parallel.ForEachAsync(request.Attachments, async (attachmentDTO, cancellationToken) =>
             {
                 if (!_fileTokenService.IsValid(attachmentDTO.Token, userId, out Guid fileId))
                 {
                     tokenSource.Cancel();
+                    _loggerService.Fatal($"Invalid token");
                     return;
                 }
                 Result<FileMetadatum> result = await _fileMetadatumService.Get(fileId);
                 if (!result.Success)
                 {
                     tokenSource.Cancel();
+                    _loggerService.Fatal(result.Error ?? result.Message);
                     return;
                 }
-                Attachment attachment = attachmentDTO.Set(fileId, result.Body!);
-                attachments.Add(attachment);
-                message.Attachments.Add(attachment);
+                attachments.Add(attachmentDTO.Set(fileId, result.Body!));
             });
+            foreach (var attachment in attachments)
+                message.Attachments.Add(attachment);
             await _messageRepository.AddAsync(message);
+            await _messageRepository.UploadAttachments(message);
             message.User = chatUserResult.Body!.User;
             return Result<IntermediateMessage>.OkResult(new(
                 message.Id,
@@ -148,7 +153,14 @@ public class MessageService(
                 chatUserResult.Body.User.AvatarId,
                 message.Text,
                 message.SentAt,
-                [.. message.Attachments.Select(x => new MessageAttachment(x.OriginalFileName, x.Category, x.Size, x.FileMetadataId))]));
+                [..
+                message.Attachments.Select(x => new MessageAttachment(
+                    x.OriginalFileName,
+                    x.FileMetadata.Category,
+                    x.Size,
+                    x.FileMetadata.Metadata,
+                    x.FileMetadataId))
+                ]));
         }
         catch (Exception ex)
         {
@@ -188,6 +200,7 @@ public class MessageService(
                                 x.FileMetadata.Id),
                             x.OriginalFileName,
                             x.FileMetadata.Category,
+                            x.FileMetadata.Metadata,
                             x.FileMetadata.Size))
                         ],
                         x.User.AvatarId is null
@@ -237,6 +250,7 @@ public class MessageService(
                                 x.FileMetadata.Id),
                             x.OriginalFileName,
                             x.FileMetadata.Category,
+                            x.FileMetadata.Metadata,
                             x.FileMetadata.Size))
                         ],
                         x.User.AvatarId is null
@@ -278,6 +292,7 @@ public class MessageService(
                             x.FileMetadata.Id),
                         x.OriginalFileName,
                         x.FileMetadata.Category,
+                        x.FileMetadata.Metadata,
                         x.FileMetadata.Size))
                     ],
                     x.User.AvatarId is null

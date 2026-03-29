@@ -72,4 +72,10 @@ public class MessageRepository(
             ).Take(take)
             .ToListAsync();
     }
+
+    public async Task UploadAttachments(Message message)
+    {
+        await using SpoofMessageServiceContext context = await _factory.CreateDbContextAsync();
+        message.Attachments = await context.Attachments.Include(x => x.FileMetadata).Where(x => x.MessageId == message.Id).ToListAsync();
+    }
 }
