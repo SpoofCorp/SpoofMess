@@ -10,7 +10,7 @@ public class ChatUserRuleValidator : SoftDeletableValidator<ChatUserRule>, IChat
     public Result IsAvailableAndPermitted(ChatUserRule? chatUserRule)
     {
         Result result = IsAvailable(chatUserRule);
-        if (result.Success)
+        if (result)
             result = chatUserRule!.IsPermission ? Result.OkResult() : Result.BadRequest("You're forbidden");
         return result;
     }

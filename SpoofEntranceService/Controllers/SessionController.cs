@@ -23,7 +23,7 @@ public class SessionController(ISessionService sessionService) : ControllerBase
         Result result = await _sessionService.Exit(request, sessionId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
             );
@@ -41,7 +41,7 @@ public class SessionController(ISessionService sessionService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );
@@ -58,7 +58,7 @@ public class SessionController(ISessionService sessionService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
             );
@@ -75,7 +75,7 @@ public class SessionController(ISessionService sessionService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
             );

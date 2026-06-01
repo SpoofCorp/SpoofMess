@@ -78,7 +78,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddTransient<IFileTokenService, FileTokenService>();
 builder.Services.AddTransient<IAttachmentAccessTokenService, AttachmentAccessTokenService>();
 builder.Services.AddSingleton(
-    builder.Configuration.GetSection("TokenHeader")
+    builder.Configuration.GetSection("LivedTokenHeader")
     .Get<LivedTokenHeaderCover>()!);
 builder.Services.AddSingleton(
     builder.Configuration.GetSection("TokenHeader")

@@ -10,7 +10,7 @@ public class UserAvatarValidator : SoftDeletableValidator<UserAvatar>, IUserAvat
     public Result FileIsActive(UserAvatar? userAvatar)
     {
         Result result = IsAvailable(userAvatar);
-        if (!result.Success)
+        if (!result)
             return result;
 
         return Result.OkResult();

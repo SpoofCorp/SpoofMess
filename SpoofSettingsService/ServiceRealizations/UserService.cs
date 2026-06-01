@@ -34,7 +34,7 @@ public class UserService(
             User? user = await _userRepository.GetByIdAsync(id);
             Result result = _userValidator.IsAvailable(user);
 
-            if (!result.Success) return Result<User>.From(result);
+            if (!result) return Result<User>.From(result);
 
             return Result<User>.OkResult(user!);
         }
@@ -51,7 +51,7 @@ public class UserService(
             User? user = await _userRepository.GetByLogin(login);
             Result result = _userValidator.IsAvailable(user);
 
-            if (!result.Success) 
+            if (!result) 
                 return Result<UserDTO>.From(result);
 
             UserAvatar? avatar = user!.UserAvatars.FirstOrDefault(a => a.IsActive);
@@ -81,7 +81,7 @@ public class UserService(
             User? user = await _userRepository.GetByIdAsync(userId);
             Result result = _userValidator.IsAvailableAndHisOwner(user, userId);
 
-            if (!result.Success) return result;
+            if (!result) return result;
 
             user!.Set(request);
             await _userRepository.UpdateAsync(user!);
@@ -102,7 +102,7 @@ public class UserService(
             User? user = await _userRepository.GetByIdAsync(userId);
             Result result = _userValidator.IsAvailableAndHisOwner(user, userId);
 
-            if (!result.Success) return result;
+            if (!result) return result;
             user!.IsDeleted = true;
 
             await _userRepository.SoftDeleteAsync(user);

@@ -19,7 +19,7 @@ public class SearchController(ISearchService searchService) : ControllerBase
         Guid userId = ClaimService.GetUserId(User);
         Result<List<SearchableEntity>> result = await _searchService.SimpleSearchChats(query, userId);
         return StatusCode(result.StatusCode,
-                          result.Success ? result.Body : result.Error ?? result.Message);
+                          result ? result.Body : result.Error ?? result.Message);
     }
     [HttpGet("simple-search-messages")]
     public async Task<IActionResult> SimpleSearchMessages(string query)
@@ -27,6 +27,6 @@ public class SearchController(ISearchService searchService) : ControllerBase
         Guid userId = ClaimService.GetUserId(User);
         Result<List<SearchableMessage>> result = await _searchService.SimpleSearchMessages(query, userId);
         return StatusCode(result.StatusCode,
-                          result.Success ? result.Body : result.Error ?? result.Message);
+                          result ? result.Body : result.Error ?? result.Message);
     }
 }

@@ -10,7 +10,7 @@ public class MessageValidator : SoftDeletableValidator<Message>, IMessageValidat
     public Result IsAvailableAndOwner(Message? message, Guid? userId)
     {
         Result result = IsAvailable(message);
-        if (!result.Success)
+        if (!result)
             return result;
         if (message!.UserId == userId)
             return Result.OkResult();

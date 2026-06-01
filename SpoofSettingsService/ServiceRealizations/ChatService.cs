@@ -41,14 +41,14 @@ public class ChatService(
         {
             Chat? chat = await _chatRepository.GetByIdAsync(request.Id);
             Result result = _chatValidator.IsAvailable(chat);
-            if (!result.Success)
+            if (!result)
                 return result;
             Result permissionResult = await _ruleService.HasPermissionAsync(
                     userId, 
                     request.Id,
                     Permissions.ChangeSettings
                 );
-            if (!permissionResult.Success)
+            if (!permissionResult)
                 return permissionResult;
 
             chat!.Set(request);
@@ -76,15 +76,15 @@ public class ChatService(
                 taskChatTypeResult
                 );
 
-            if (!taskUserResult.Result.Success)
+            if (!taskUserResult.Result)
                 return Result<ChatDTO>.From(taskUserResult.Result);
 
-            if (!taskChatTypeResult.Result.Success)
+            if (!taskChatTypeResult.Result)
                 return Result<ChatDTO>.From(taskChatTypeResult.Result);
 
             Chat? repetition = await _chatRepository.GetByUniqueName(request.UniqueName);
             Result result = _chatValidator.ValidateHasChatUniqueName(repetition);
-            if (!result.Success) return Result<ChatDTO>.From(result);
+            if (!result) return Result<ChatDTO>.From(result);
 
             DateTime now = DateTime.UtcNow;
             Chat newChat = new(
@@ -119,7 +119,7 @@ public class ChatService(
         try
         {
             Result<ChatWithOwner> result = await GetChatWithOwner(userId, chatId);
-            if (!result.Success)
+            if (!result)
                 return Result.From(result);
 
             await _chatRepository.SoftDeleteAsync(result.Body.Chat!);
@@ -138,7 +138,7 @@ public class ChatService(
         {
             Chat? chat = await _chatRepository.GetAsync(chatId);
             Result result = _chatValidator.IsAvailable(chat);
-            if(!result.Success)
+            if(!result)
                 return Result<Chat>.From(result);
 
             return Result<Chat>.OkResult(chat!);
@@ -158,11 +158,11 @@ public class ChatService(
             Task<Chat?> chatResult = _chatRepository.GetByIdAsync(chatId);
             await Task.WhenAll(userResult, chatResult);
 
-            if (!userResult.Result.Success)
+            if (!userResult.Result)
                 return Result<ChatWithOwner>.From(userResult.Result);
 
             Result result = _chatValidator.ValidateChatAndOwner(chatResult.Result, userId);
-            if (!result.Success)
+            if (!result)
                 return Result<ChatWithOwner>.From(result);
 
             return Result<ChatWithOwner>.OkResult(
@@ -184,7 +184,7 @@ public class ChatService(
         try
         {
             Result<Chat> result = await Get(chatId);
-            if (!result.Success)
+            if (!result)
                 return Result<ChatDTO>.From(result);
 
             return Result<ChatDTO>.OkResult(new(

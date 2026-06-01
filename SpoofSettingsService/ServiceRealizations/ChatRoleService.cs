@@ -23,7 +23,7 @@ public class ChatRoleService(
         {
             ChatRole? chatRole = await _chatRoleRepository.GetByIdAsync(id);
             Result result = _chatRoleValidator.IsAvailable(chatRole);
-            if (!result.Success)
+            if (!result)
                 return Result<ChatRole>.From(result);
 
             return Result<ChatRole>.OkResult(chatRole!);

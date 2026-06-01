@@ -28,11 +28,11 @@ public class FileMetadatumService(
         try
         {
             Result<User> user = await _userService.Get(userId);
-            if (!user.Success)
+            if (!user)
                 return Result<FileMetadata>.From(user);
             FileMetadatum? fileMetadatum = await _fileMetadatumRepository.GetByIdAsync(fileId);
             Result result = _fileMetadatumValidator.IsAvailable(fileMetadatum);
-            if (!result.Success)
+            if (!result)
                 return Result<FileMetadata>.From(result);
             return Result<FileMetadata>.OkResult(new(_fileTokenService.CreateToken(userId, fileMetadatum!.Id), fileMetadatum!.Id.ToByteArray(), string.Empty, fileMetadatum.Size));
         }
@@ -62,7 +62,7 @@ public class FileMetadatumService(
         {
             FileMetadatum? fileMetadatum = await _fileMetadatumRepository.GetByIdAsync(fileId);
             Result result = _fileMetadatumValidator.IsAvailable(fileMetadatum);
-            if (!result.Success)
+            if (!result)
                 return Result<FileMetadatum>.From(result);
             return Result<FileMetadatum>.OkResult(fileMetadatum!);
         }

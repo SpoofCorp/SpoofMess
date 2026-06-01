@@ -11,7 +11,7 @@ public class FileMetadatumValidator : SoftDeletableValidator<FileMetadatum>, IFi
     public Result IsAvailable(FileMetadatum? fileMetadatum, FileCategory category)
     {
         Result result = IsAvailable(fileMetadatum);
-        if (!result.Success)
+        if (!result)
             return result;
 
         if (!fileMetadatum!.Category.Equals(category.ToString(), StringComparison.InvariantCultureIgnoreCase))

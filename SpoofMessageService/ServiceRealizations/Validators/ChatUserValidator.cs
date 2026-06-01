@@ -15,7 +15,7 @@ public class ChatUserValidator(IRuleService ruleService) : SoftDeletableValidato
     public Result IsAvailableAndHasPermission(ChatUser? chatUser, Rules rule)
     {
         Result result = IsAvailable(chatUser);
-        if (result.Success)
+        if (result)
         {
             HasPermission hasPermission = ruleService.HasPermission(chatUser!.Rules, (long)rule);
             if (hasPermission == RuleRoleHelper.HasPermission.Allow)

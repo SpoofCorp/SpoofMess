@@ -23,7 +23,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
         Result<MessageDTO> result = await _messageService.SendMessage(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success 
+            result 
                 ? result.Message
                 : result.Error
             );
@@ -42,7 +42,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );
@@ -61,7 +61,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );
@@ -79,7 +79,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );
@@ -97,7 +97,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
             );
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
             );
@@ -110,7 +110,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
         Result<int> result = await _messageService.Stat();
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );

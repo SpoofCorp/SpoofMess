@@ -35,7 +35,7 @@ public class UserEntryService(
             UserEntry? user = await _repository.GetByLogin(request.Login);
 
             Result result = _validator.IsAvailable(user);
-            if (!result.Success)
+            if (!result)
                 return Result<UserAuthorizeResponse>.From(result);
 
             if (!Hasher.VerifyPassword(request.Password, user!.PasswordHash))
@@ -59,7 +59,7 @@ public class UserEntryService(
         {
             UserEntry? user = await _repository.GetByLogin(request.Login);
             Result userResult = _validator.HisIsActive(user);
-            if (!userResult.Success)
+            if (!userResult)
                 return Result<UserAuthorizeResponse>.From(userResult);
 
             Task<Guid> id = Task.Run(Guid.CreateVersion7);
@@ -79,7 +79,7 @@ public class UserEntryService(
             _ = Task.Run(() => _userPublisherService.Create(new(newUser.Id, request.Name, newUser.UniqueName)));
 
             Result<TokenResponse> result = await _tokenService.Create(sessionInfo);
-            if (!result.Success)
+            if (!result)
                 return Result<UserAuthorizeResponse>.From(result);
 
             await _repository.Create(newUser, sessionInfo, result.Body.Token);
@@ -99,7 +99,7 @@ public class UserEntryService(
             UserEntry? user = await _repository.GetByIdAsync(sessionInfo.UserEntryId);
 
             Result result = _validator.IsAvailable(user);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             await _sessionService.EndSessions(sessionInfo.Id, true);
@@ -119,7 +119,7 @@ public class UserEntryService(
             UserEntry? user = await _repository.GetByIdAsync(userId);
 
             Result result = _validator.IsAvailable(user);
-            if (!result.Success)
+            if (!result)
                 return;
             user!.IsDeleted = false;
 
@@ -154,7 +154,7 @@ public class UserEntryService(
             UserEntry? user = await _repository.GetByIdAsync(userId);
 
             Result result = _validator.IsAvailable(user);
-            if (!result.Success)
+            if (!result)
                 return;
             user!.IsDeleted = isDeleted;
 

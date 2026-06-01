@@ -53,7 +53,7 @@ public class TokenService(
             Token? oldToken = await _repository.GetByRefreshHash(hashToken);
 
             Result result = _tokenValidator.ValidateToken(oldToken);
-            if (!result.Success)
+            if (!result)
                 return Result<UserAuthorizeResponse>.From(result);
 
             tokenRequest.Token = string.Empty;

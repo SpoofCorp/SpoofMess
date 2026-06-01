@@ -52,7 +52,7 @@ public class FileService(
         {
             FileObject? fileObject = await _fileRepository.GetByL3(request.Fingerprint, request.Metadata);
             Result result = _fileValidator.IsFound(fileObject);
-            return result.Success
+            return result
                 ? Result<byte[]>.OkResult(_fileTokenService.CreateToken(userId, fileObject!.Id))
                 : Result<byte[]>.From(result);
         }
@@ -70,7 +70,7 @@ public class FileService(
         {
             FileObject? fileObject = await _fileRepository.GetByL3(fileId, Metadata);
             Result result = _fileValidator.IsAvailableAndFileExists(fileObject);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             await _fileRepository.SoftDeleteAsync(fileObject!);
@@ -94,7 +94,7 @@ public class FileService(
 
             FileObject? fileObject = await _fileRepository.GetByIdAsync(fileId);
             Result result = _fileValidator.IsAvailable(fileObject);
-            if (!result.Success)
+            if (!result)
                 return Result<FileStream>.From(result);
 
             FileStream? stream = await _fileWorkerService.Get(fileObject!.Path);
@@ -115,7 +115,7 @@ public class FileService(
             Guid fileId = Guid.CreateVersion7();
 
             Result<FingerprintFull> fingerprintResult = await _fingerprintService.GetFull(stream);
-            if (!fingerprintResult.Success)
+            if (!fingerprintResult)
                 return Result<byte[]>.From(fingerprintResult);
 
             FileObject fileObject = new()
@@ -131,7 +131,7 @@ public class FileService(
             };
 
             Result<ExtensionDto> fileExtension = await _extensionService.GetByFile(fileObject);
-            if (!fileExtension.Success)
+            if (!fileExtension)
                 return Result<byte[]>.From(fileExtension);
 
             if (await _fileRepository.Save(fileObject) is Guid id)

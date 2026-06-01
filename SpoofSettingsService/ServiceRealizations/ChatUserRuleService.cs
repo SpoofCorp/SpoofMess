@@ -19,7 +19,7 @@ public class ChatUserRuleService(ILoggerService loggerService, IChatService chat
         try
         {
             Result<ChatWithOwner> requester = await _chatService.GetChatWithOwner(requesterId, request.ChatId);
-            if (!requester.Success) return Result.From(requester);
+            if (!requester) return Result.From(requester);
 
             Result<ChatUser>? chatUserResult = await _chatUserService.Get(
                     new(
@@ -28,7 +28,7 @@ public class ChatUserRuleService(ILoggerService loggerService, IChatService chat
                         ),
                     requesterId
                 );
-            if (!chatUserResult.Success) return Result.From(chatUserResult);
+            if (!chatUserResult) return Result.From(chatUserResult);
 
             ChatUserRule? rule = chatUserResult.Body!.ChatUserRules.FirstOrDefault(x => x.PermissionId == request.RuleId);
             if (rule is null)

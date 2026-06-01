@@ -22,7 +22,7 @@ public class FileController(IFileService fileService) : ControllerBase
     public async Task<IActionResult> CheckL1(FingerprintExistL1L2 request)
     {
         Result result = await _fileService.ExistL1(request);
-        return StatusCode(result.StatusCode, result.Success
+        return StatusCode(result.StatusCode, result
             ? "L1 access granted"
             : result.Error);
     }
@@ -31,7 +31,7 @@ public class FileController(IFileService fileService) : ControllerBase
     {
         Guid userId = ClaimService.GetUserId(User);
         Result<byte[]> result = await _fileService.ExistL3(request, userId);
-        return StatusCode(result.StatusCode, result.Success
+        return StatusCode(result.StatusCode, result
             ? result.Body
             : result.Error);
     }
@@ -44,7 +44,7 @@ public class FileController(IFileService fileService) : ControllerBase
 
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
                 );
@@ -72,7 +72,7 @@ public class FileController(IFileService fileService) : ControllerBase
 
                     return StatusCode(
                         result.StatusCode,
-                        result.Success
+                        result
                             ? result.Body
                             : result.Error
                             );

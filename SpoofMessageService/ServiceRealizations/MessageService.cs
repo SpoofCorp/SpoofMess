@@ -73,14 +73,14 @@ public class MessageService(
                 ));
             await Task.WhenAll(messageTask, resultTask);
 
-            if (!resultTask.Result.Success)
+            if (!resultTask.Result)
                 return Result.From(resultTask.Result);
 
             Result result = _messageValidator.IsAvailableAndOwner(
                     messageTask.Result,
                     userId
                 );
-            if (!result.Success)
+            if (!result)
                 return result;
 
             await _messageRepository.DeleteAsync(messageTask.Result!);
@@ -108,13 +108,13 @@ public class MessageService(
                 ));
             await Task.WhenAll(messageTask, resultTask);
 
-            if (!resultTask.Result.Success)
+            if (!resultTask.Result)
                 return Result<EditMessageResponse>.From(resultTask.Result);
             Result result = _messageValidator.IsAvailableAndOwner(
                     messageTask.Result,
                     userId
                 );
-            if (!result.Success)
+            if (!result)
                 return Result<EditMessageResponse>.From(result);
             if (!string.IsNullOrEmpty(request.Text))
             {
@@ -145,7 +145,7 @@ public class MessageService(
                         return;
                     }
                     Result<FileMetadatum> result = await _fileMetadatumService.Get(fileId);
-                    if (!result.Success)
+                    if (!result)
                     {
                         tokenSource.Cancel();
                         _loggerService.Warning("Can't handle new attachment");
@@ -217,7 +217,7 @@ public class MessageService(
                     userId,
                     Rules.SendTexts
                 );
-            if (!chatUserResult.Success)
+            if (!chatUserResult)
                 return Result<MessageDTO>.From(chatUserResult);
 
             Message message = request.Set(
@@ -233,7 +233,7 @@ public class MessageService(
                     return;
                 }
                 Result<FileMetadatum> result = await _fileMetadatumService.Get(fileId);
-                if (!result.Success)
+                if (!result)
                 {
                     tokenSource.Cancel();
                     return;
@@ -287,7 +287,7 @@ public class MessageService(
                     userId,
                     Rules.DeleteMessage
                 );
-            if (!resultChatUser.Success)
+            if (!resultChatUser)
                 return Result<List<MessageDTO>>.From(resultChatUser);
 
             return Result<List<MessageDTO>>.OkResult(
@@ -331,7 +331,7 @@ public class MessageService(
                     userId,
                     Rules.DeleteMessage
                 );
-            if (!resultCHatUser.Success)
+            if (!resultCHatUser)
                 return Result<List<MessageDTO>>.From(resultCHatUser);
 
             return Result<List<MessageDTO>>.OkResult(
@@ -371,7 +371,7 @@ public class MessageService(
         {
             List<Message> messages = await _messageRepository.GetMessageSinceDate(userId, after, take);
             Result result = _messageValidator.IsAvailableCollection(messages);
-            if (!result.Success)
+            if (!result)
                 return Result<List<MessageDTO>>.From(result);
 
             return Result<List<MessageDTO>>.OkResult(

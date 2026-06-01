@@ -10,7 +10,7 @@ public class StickerPackValidator : SoftDeletableValidator<StickerPack>, ISticke
     public Result IsOwner(StickerPack? stickerPack, Guid userId)
     {
         Result result = IsAvailable(stickerPack);
-        if(!result.Success)
+        if(!result)
         return result;
 
         if (stickerPack!.AuthorId != userId)

@@ -23,7 +23,7 @@ public class UserAvatarController(IUserAvatarService userAvatarService) : Contro
         Result result = await _userAvatarService.SetAvatar(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
                 );
@@ -39,7 +39,7 @@ public class UserAvatarController(IUserAvatarService userAvatarService) : Contro
         Result<AvatarResponse> result = await _userAvatarService.GetAvatar(accessToken, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
                 );

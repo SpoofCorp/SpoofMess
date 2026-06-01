@@ -68,7 +68,7 @@ public class NotificationService : BackgroundService
     private async void UserUpdated(UpdateUserInfo user, Guid userId)
     {
         Result<List<ChatUser>> chatUsers = await _chatUserService.GetChats(userId);
-        if (chatUsers.Success)
+        if (chatUsers)
             foreach (var chat in chatUsers.Body!)
                 await _hubContext.Clients.Group($"chat-{chat.Chat.UniqueName}").SendAsync("user-updated", user);
     }
@@ -81,7 +81,7 @@ public class NotificationService : BackgroundService
     private async void ChatUserCreated(ChatUser chatUser)
     {
         Result<Chat> chatResult = await _chatService.Get(chatUser.Key1);
-        if (!chatResult.Success)
+        if (!chatResult)
             return;
         if (_tracker.Get(chatUser.Key2, out ConcurrentDictionary<Guid, UserConnection>? users))
             foreach (UserConnection userConnection in users.Values)

@@ -32,7 +32,7 @@ public class ExtensionService(
 
             ExtensionDto? extension = await _extensionRepository.GetByName(metadata.Id, metadata.Extension, metadata.FileType.ToString());
             Result result = _extensionValidator.IsAvailable(extension);
-            if (!result.Success)
+            if (!result)
                 return Result<ExtensionDto>.From(result);
             fileObject.Metadata = _serializer.Serialize(metadata);
             fileObject.ExtensionId = metadata.Id;
@@ -52,7 +52,7 @@ public class ExtensionService(
         {
             ExtensionDto? extension = await _extensionRepository.GetByName(fileExtension2.Id, fileExtension2.Name, fileExtension2.Type.ToString());
             Result result = _extensionValidator.IsAvailable(extension);
-            if (!result.Success)
+            if (!result)
                 return Result<ExtensionDto>.From(result);
             return Result<ExtensionDto>.OkResult(extension!);
         }

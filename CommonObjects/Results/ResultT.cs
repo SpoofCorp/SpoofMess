@@ -2,17 +2,8 @@
 
 namespace CommonObjects.Results;
 
-public class Result<T> : IDisposable, IAsyncDisposable
+public record class Result<T> : BaseResult, IDisposable, IAsyncDisposable
 {
-    public bool Success { get; set; }
-
-    public string? Message { get; set; }
-
-    public string? Error { get; set; }
-
-
-    public int StatusCode = 200;
-
     public T? Body { get; set; }
 
     private static Result<T> GetResult(bool success = true, string? message = null, string? error = null, int statusCode = 200, T? body = default) =>
@@ -54,10 +45,10 @@ public class Result<T> : IDisposable, IAsyncDisposable
         ErrorResult(error, 500);
 
     public static Result<T> From(Result result) =>
-        GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
-    public static Result<T> From<TAnother>(Result<TAnother> result) =>
-        GetResult(success: result.Success, message: result.Message, error: result.Error, statusCode: result.StatusCode);
+        GetResult(success: result, message: result.Message, error: result.Error, statusCode: result.StatusCode);
 
+    public static Result<T> From<TAnother>(Result<TAnother> result) =>
+        GetResult(success: result, message: result.Message, error: result.Error, statusCode: result.StatusCode);
 
     public static Result<T> Parse(string? message, T? body, int statusCode)
     {
@@ -86,4 +77,6 @@ public class Result<T> : IDisposable, IAsyncDisposable
             disposable.Dispose();
         GC.SuppressFinalize(this);
     }
+
+    public static implicit operator bool(Result<T> result) => result.Success;
 }

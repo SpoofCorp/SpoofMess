@@ -6,6 +6,7 @@ namespace SpoofSettingsService.Services.Repositories;
 
 public interface IChatUserRepository : ISoftDeletableDoubleIdentifiedRepository<ChatUser, Guid, Guid>
 {
+    public Task<List<ChatUser>> GetPart(string lastLogin, DateTime lastDate);
     public Task<ChatUser?> GetWithRules(Guid chatId, Guid userId);
     public Task<List<ChatUserDTO>> GetUserChatsAfterDate(Guid userId, DateTime after);
 }

@@ -21,7 +21,7 @@ public class StickerPackService(ILoggerService loggerService, IStickerPackReposi
         {
             Result<StickerPack> result = await GetStickerPackAsync(request);
 
-            if (!result.Success)
+            if (!result)
                 return Result<GetStickerPackResponse>.From(result);
 
             return Result<GetStickerPackResponse>.OkResult(result.Body!.Response());
@@ -44,7 +44,7 @@ public class StickerPackService(ILoggerService loggerService, IStickerPackReposi
                 stickerPack = await _stickerPackRepository.GetByIdAsync(request.Id);
 
             Result result = _stickerPackValidator.IsAvailable(stickerPack);
-            if (!result.Success)
+            if (!result)
                 return Result<StickerPack>.From(result);
 
             return Result<StickerPack>.OkResult(stickerPack!);

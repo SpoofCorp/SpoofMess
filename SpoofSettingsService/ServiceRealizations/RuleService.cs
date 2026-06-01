@@ -48,7 +48,7 @@ public class RuleService(IRuleRepository ruleRepository, IRuleValidator ruleVali
             mask
             );
         Result result = _ruleValidator.IsAvailableCollection(rules);
-        if (result.Success)
+        if (result)
             return Result<Rule[]>.OkResult(rules!);
         return Result<Rule[]>.From(result);
     }

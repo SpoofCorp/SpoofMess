@@ -21,7 +21,7 @@ public class FileMetadatumController(IFileMetadatumService fileMetadatumService)
         Result<FileMetadata> result = await _fileMetadatumService.Get(fileId, userId);
         return StatusCode(
            result.StatusCode,
-           result.Success
+           result
                ? result.Body
                : result.Error
            );

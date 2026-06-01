@@ -45,7 +45,7 @@ public class ChatAvatarService(
 
             ChatAvatar? avatar = await _chatAvatarRepository.GetByIdAsync(avatarId);
             Result result = _chatAvatarValidator.IsAvailable(avatar);
-            if (!result.Success)
+            if (!result)
                 return Result<AvatarResponse>.From(result);
 
             return Result<AvatarResponse>.OkResult(
@@ -71,7 +71,7 @@ public class ChatAvatarService(
         {
             ChatAvatar? avatar = await _chatAvatarRepository.GetActualChatAvatarById(request.ChatId);
             Result result = _chatAvatarValidator.IsAvailable(avatar);
-            if (!result.Success)
+            if (!result)
                 return Result<AvatarResponse>.From(result);
 
             return Result<AvatarResponse>.OkResult(
@@ -97,7 +97,7 @@ public class ChatAvatarService(
         {
             List<ChatAvatar>? avatars = await _chatAvatarRepository.GetChatAvatarsById(request.ChatId);
             Result result = _chatAvatarValidator.IsAvailableCollection(avatars);
-            if (!result.Success)
+            if (!result)
                 return Result<List<AvatarResponse>>.From(result);
 
             ChatAvatar avatar = null!;
@@ -135,7 +135,7 @@ public class ChatAvatarService(
                     request.ChatId,
                     Permissions.DeleteAvatar
                 );
-            if (!ruleResult.Success)
+            if (!ruleResult)
                 return ruleResult;
 
             bool result = await _chatAvatarRepository.TryDeleteAvatarByIds(request.ChatId, request.FileId);
@@ -154,7 +154,7 @@ public class ChatAvatarService(
         try
         {
             Result permissionresult = await _ruleService.HasPermissionAsync(userId, request.ChatId, Permissions.ChangeAvatar);
-            if (!permissionresult.Success)
+            if (!permissionresult)
                 return permissionresult;
 
 
@@ -162,11 +162,11 @@ public class ChatAvatarService(
                 request.Metadata.Token,
                 userId,
                 CommonObjects.DTO.FileCategory.Image);
-            if (!result.Success)
+            if (!result)
                 return Result.From(result);
 
             Result<Chat> chatResult = await _chatService.Get(request.ChatId);
-            if (!chatResult.Success)
+            if (!chatResult)
                 return Result.From(chatResult);
 
             ChatAvatar chatAvatar = new()

@@ -25,7 +25,7 @@ public class ChatUserController(
         Result result = await _chatUserService.Add(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success 
+            result 
                 ? result.Message
                 : result.Error
                 );
@@ -39,7 +39,7 @@ public class ChatUserController(
         Result result = await _chatUserService.Join(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
                 );
@@ -56,7 +56,7 @@ public class ChatUserController(
         Result<List<ChatUserDTO>> result = await _chatUserService.GetUserChats(userId, after);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
                 );

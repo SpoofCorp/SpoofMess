@@ -17,7 +17,7 @@ public class UserController(IUserService userService) : ControllerBase
         Result<int> result = await _userService.Stat();
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );

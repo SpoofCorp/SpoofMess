@@ -31,11 +31,11 @@ public class StickerService(
         try
         {
             Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new() { Id = request.StickerPackId });
-            if (!stickerPack.Success)
+            if (!stickerPack)
                 return Result.From(stickerPack);
 
             Result result = _stickerPackValidator.IsOwner(stickerPack.Body, userId);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             if (!_fileTokenService.IsValid(
@@ -70,11 +70,11 @@ public class StickerService(
         try
         {
             Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new() { Id = request.StickerPackId });
-            if (!stickerPack.Success)
+            if (!stickerPack)
                 return Result.From(stickerPack);
 
             Result result = _stickerPackValidator.IsOwner(stickerPack.Body, userId);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             return await _stickerRepository.SoftDeleteAsync(request.StickerId) 
@@ -94,7 +94,7 @@ public class StickerService(
         {
             Sticker? sticker = await _stickerRepository.GetByIdAsync(request.StickerId);
             Result result = _stickerValidator.IsAvailable(sticker);
-            if (!result.Success)
+            if (!result)
                 return Result<GetStickerResponse>.From(result);
 
             return Result<GetStickerResponse>.OkResult(new() 

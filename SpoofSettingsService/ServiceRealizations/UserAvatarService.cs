@@ -42,7 +42,7 @@ public class UserAvatarService(
                 
             UserAvatar? avatar = await _userAvatarRepository.GetByIdAsync(avatarId);
             Result result = _userAvatarValidator.IsAvailable(avatar);
-            if (!result.Success)
+            if (!result)
                 return Result<AvatarResponse>.From(result);
 
             return Result<AvatarResponse>.OkResult(
@@ -70,7 +70,7 @@ public class UserAvatarService(
         {
             UserAvatar? avatar = await _userAvatarRepository.GetActualUserAvatarById(request.UserId);
             Result result = _userAvatarValidator.IsAvailable(avatar);
-            if (!result.Success)
+            if (!result)
                 return Result<AvatarResponse>.From(result);
 
             return Result<AvatarResponse>.OkResult(
@@ -99,7 +99,7 @@ public class UserAvatarService(
         {
             List<UserAvatar>? avatars = await _userAvatarRepository.GetUserAvatarsById(request.UserId);
             Result result = _userAvatarValidator.IsAvailableCollection(avatars);
-            if (!result.Success)
+            if (!result)
                 return Result<List<AvatarResponse>>.From(result);
 
             UserAvatar avatar = null!;
@@ -149,14 +149,14 @@ public class UserAvatarService(
         try
         {
             Result<User> userResult = await _userService.Get(userId);
-            if (!userResult.Success)
+            if (!userResult)
                 return Result.From(userResult);
 
             Result<FileMetadatum> result = await _fileMetadatumService.GetByToken(
                 request.Metadata.Token,
                 userId,
                 CommonObjects.DTO.FileCategory.Image);
-            if (!result.Success)
+            if (!result)
                 return Result.From(result);
 
             UserAvatar avatar = new()

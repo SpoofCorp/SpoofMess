@@ -24,7 +24,7 @@ public class ChatController(IChatService chatService) : ControllerBase
         Result result = await _chatService.ChangeSettings(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
                 );
@@ -39,7 +39,7 @@ public class ChatController(IChatService chatService) : ControllerBase
         Result<ChatDTO> result = await _chatService.GetChat(userId, chatId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
                 );
@@ -54,7 +54,7 @@ public class ChatController(IChatService chatService) : ControllerBase
         Result<ChatDTO> result = await _chatService.CreateChat(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body 
                 : result.Error
                 );
@@ -69,7 +69,7 @@ public class ChatController(IChatService chatService) : ControllerBase
         Result result = await _chatService.DeleteChat(chatId, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
                 );

@@ -66,10 +66,10 @@ public class ChatUserService(
     public async Task<Result<ChatUser>> GetAndCheckPermission(Guid chatId, Guid userId, Rules rule)
     {
         Result<ChatUser> chatUserResult = await GetMember(chatId, userId);
-        if (chatUserResult.Success)
+        if (chatUserResult)
         {
             Result result = _chatUserValidator.HasPermission(chatUserResult.Body!, rule);
-            if (result.Success)
+            if (result)
                 return chatUserResult;
             return Result<ChatUser>.From(result);
         }
@@ -82,7 +82,7 @@ public class ChatUserService(
         {
             ChatUser? chatUser = await _chatUserRepository.GetById(updateChatUser.ChatId, updateChatUser.UserId);
             Result result = _chatUserValidator.IsAvailable(chatUser);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             chatUser!.Rules = _ruleParserService.ParseRules(updateChatUser.Rules);
@@ -103,7 +103,7 @@ public class ChatUserService(
         {
             ChatUser? chatUser = await _chatUserRepository.GetById(chatId, userId);
             Result result = _chatUserValidator.IsAvailable(chatUser);
-            if (!result.Success)
+            if (!result)
                 return Result<ChatUser>.From(result);
 
             return Result<ChatUser>.OkResult(chatUser!);
@@ -121,7 +121,7 @@ public class ChatUserService(
         {
             List<ChatUser> chatUsers = await _chatUserRepository.GetManyByChatId(chatId);
             Result result = _chatUserValidator.IsAvailableCollection(chatUsers);
-            if (!result.Success)
+            if (!result)
                 return Result<List<ChatUser>>.From(result);
 
             return Result<List<ChatUser>>.OkResult(chatUsers!);
@@ -139,7 +139,7 @@ public class ChatUserService(
         {
             List<ChatUser> chatUsers = await _chatUserRepository.GetManyByUserId(userId);
             Result result = _chatUserValidator.IsAvailableCollection(chatUsers);
-            if (!result.Success)
+            if (!result)
                 return Result<List<ChatUser>>.From(result);
 
             return Result<List<ChatUser>>.OkResult(chatUsers!);

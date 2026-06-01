@@ -10,7 +10,7 @@ public class UserValidator : SoftDeletableValidator<User>, IUserValidator
     public Result IsAvailableAndHisOwner(User? user, Guid userId)
     {
         Result result = IsAvailable(user);
-        if (result.Success)
+        if (result)
             return user!.Id == userId 
                 ? Result.OkResult() 
                 : Result.Forbidden("It's not your account");

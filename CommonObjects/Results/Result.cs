@@ -2,16 +2,8 @@
 
 namespace CommonObjects.Results;
 
-public class Result
+public record class Result : BaseResult
 {
-    public bool Success { get; set; }
-
-    public string? Message { get; set; }
-
-    public string? Error { get; set; }
-
-    public int StatusCode = 200;
-
     private static Result GetResult(bool success = true, string? message = null, string? error = null, int statusCode = 200) =>
         new()
         {
@@ -53,7 +45,7 @@ public class Result
         GetResult(success: false, error: error, statusCode: statusCode);
 
     public static Result From<T>(Result<T> result) =>
-        GetResult(result.Success, result.Message, result.Error, result.StatusCode);
+        GetResult(result, result.Message, result.Error, result.StatusCode);
 
     public static Result Parse(string message, int statusCode)
     {
@@ -69,4 +61,6 @@ public class Result
             _ => throw new InvalidOperationException(message),
         };
     }
+
+    public static implicit operator bool(Result result) => result.Success;
 }

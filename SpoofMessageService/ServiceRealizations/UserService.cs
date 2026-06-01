@@ -79,7 +79,7 @@ public class UserService(
         {
             User? user = await _userRepository.GetByIdAsync(updateUser.UserId);
             Result result = _userValidator.IsAvailable(user);
-            if (!result.Success) return result;
+            if (!result) return result;
             user!.Name = updateUser.Name;
             user.Login = updateUser.Login;
             user.LastModified = updateUser.Updated;
@@ -122,7 +122,7 @@ public class UserService(
         {
             User? user = await _userRepository.GetByIdAsync(id);
             Result result = _userValidator.IsAvailable(user);
-            return result.Success
+            return result
                 ? Result<User>.OkResult(user!)
                 : Result<User>.From(result);
         }

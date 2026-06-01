@@ -2,5 +2,5 @@
 
 public record Rule(
     short RuleId, 
-    bool IsPermission
+    bool IsAllowed
     );

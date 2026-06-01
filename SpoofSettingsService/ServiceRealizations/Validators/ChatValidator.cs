@@ -29,7 +29,7 @@ public class ChatValidator : SoftDeletableValidator<Chat>, IChatValidator
     public Result ValidateChatAndOwner(Chat? chat, Guid userId)
     {
         Result result = IsAvailable(chat);
-        if (!result.Success)
+        if (!result)
             return result;
         if (chat!.OwnerId == userId)
             return Result.OkResult();

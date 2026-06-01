@@ -10,7 +10,8 @@ public record ChatUserDTO(
         DateTime CreatedAt,
         string? Name,
         string? Metadata = null,
-        string? OriginalFileName = null
+        string? OriginalFileName = null,
+        int? UsersCount = null
     )
 {
     [JsonIgnore]
@@ -20,7 +21,6 @@ public record ChatUserDTO(
 
     [JsonIgnore]
     public string RulesJson { get; set; }
-
     [NotMapped]
     public long Rules { get; set; }
     [NotMapped]

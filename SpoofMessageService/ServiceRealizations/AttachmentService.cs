@@ -60,11 +60,11 @@ public class AttachmentService(
                 return Result<FileMetadata>.Forbidden("Unvalid token");
             Models.Attachment? attachment = await _attachmentRepository.GetByIdAsync(attachmentId);
             Result result = _attachmentValidator.IsAvailable(attachment);
-            if (!result.Success)
+            if (!result)
                 return Result<FileMetadata>.From(result);
             Result<ChatUser> resultChatUser = await _chatUserService.GetMember(attachment!.Message.ChatId, userId);
 
-            if (!resultChatUser.Success)
+            if (!resultChatUser)
                 return Result<FileMetadata>.From(resultChatUser);
 
             return await _fileMetadatumService.Get(attachment, userId);

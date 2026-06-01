@@ -23,7 +23,7 @@ public class UserController(IUserService userService) : ControllerBase
         Result result = await _userService.ChangeSettings(request, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
                 );
@@ -37,7 +37,7 @@ public class UserController(IUserService userService) : ControllerBase
         Result result = await _userService.Delete(userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Message
                 : result.Error
                 );
@@ -50,7 +50,7 @@ public class UserController(IUserService userService) : ControllerBase
         Result<UserDTO> result = await _userService.GetInfo(login, userId);
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
                 );

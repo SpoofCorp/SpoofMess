@@ -16,7 +16,7 @@ public class FileValidator : SoftDeletableValidator<FileObject>, IFileValidator
     public Result IsAvailableAndFileExists(FileObject? obj)
     {
         Result result = IsAvailable(obj);
-        if (!result.Success)
+        if (!result)
             return result;
 
         if (File.Exists(obj!.Path))

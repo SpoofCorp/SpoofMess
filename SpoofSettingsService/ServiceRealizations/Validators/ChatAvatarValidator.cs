@@ -10,7 +10,7 @@ public class ChatAvatarValidator : SoftDeletableValidator<ChatAvatar>, IChatAvat
     public Result FileIsActive(ChatAvatar? chatAvatar)
     {
         Result result = IsAvailable(chatAvatar);
-        if (!result.Success)
+        if (!result)
             return result;
         if (chatAvatar!.File is null)
             return Result.BadRequest("File was broken");

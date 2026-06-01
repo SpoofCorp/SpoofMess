@@ -19,7 +19,7 @@ public class AttachmentController(IAttachmentService attachmentService) : Contro
         Guid userId = ClaimService.GetUserId(User);
         Result<FileMetadata> result = await _attachmentService.GetToken(token, userId);
         return StatusCode(result.StatusCode,
-                          result.Success ? result.Body : result.Error ?? result.Message);
+                          result ? result.Body : result.Error ?? result.Message);
     }
 
 }

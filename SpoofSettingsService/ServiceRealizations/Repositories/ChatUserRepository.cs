@@ -4,6 +4,8 @@ using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services.Repositories;
+using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
@@ -17,11 +19,23 @@ public class ChatUserRepository(
             tasksService
         ), IChatUserRepository
 {
+    public async Task<List<ChatUser>> GetPart(string lastLogin, DateTime lastDate)
+    {
+        await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.ChatUsers
+            .Include(x => x.ChatUserChatRoles)
+            .Include(x => x.User)
+            .Where(x =>
+                x.User.WasOnline < lastDate ||
+                (x.User.WasOnline == lastDate && string.Compare(x.User.Login, lastLogin) > 0)
+            ).ToListAsync();
+    }
+
     public async Task<ChatUser?> GetWithRules(Guid chatId, Guid userId)
     {
         return await GetAsync(
             GetKey(chatId, userId),
-            async() =>
+            async () =>
             {
                 await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
                 return await context.ChatUsers.
@@ -38,14 +52,23 @@ public class ChatUserRepository(
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
         return await context.Database.SqlQuery<ChatUserDTO>(
-            $@"SELECT c.""Id"" ""ChatId"", c.""UniqueName"", c.""CreatedAt"", c.""Name"", ca.""FileId"" , ca.""OriginalFileName"", ca.""Id"" as ""AvatarOriginalId"", fm.""Metadata"",
-               jsonb_agg(perm::permission_result) AS ""RulesJson""
-               FROM ""ChatUser"" cu JOIN ""Chat"" c ON c.""Id"" = cu.""ChatId"" 
-               LEFT JOIN LATERAL get_user_permission({userId}, cu.""ChatId"", null) perm ON true
-               LEFT JOIN ""ChatAvatar"" ca ON c.""Id"" = ca.""ChatId"" and ca.""IsActive"" = true
-               LEFT JOIN ""FileMetadata"" fm ON fm.""Id"" = ca.""FileId""
-               WHERE cu.""UserId"" = {userId} AND cu.""JoinedAt"" > {after}
-               GROUP BY c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name"", ca.""FileId"", ca.""OriginalFileName"", ca.""Id"", fm.""Metadata"""
+            $@"SELECT
+	                c.""Id"" ""ChatId"",
+                    c.""UniqueName"",
+                    c.""CreatedAt"",
+                    c.""Name"",
+                    ca.""FileId"",
+                    ca.""OriginalFileName"",
+                    ca.""Id"" ""AvatarOriginalId"",
+                    fm.""Metadata"",
+                    jsonb_agg(perm::permission_result) ""RulesJson"",
+                    (SELECT count(*) FROM ""ChatUser"" cu_count WHERE cu_count.""ChatId"" = c.""Id"") ""UsersCount""
+                FROM ""ChatUser"" cu JOIN ""Chat"" c ON c.""Id"" = cu.""ChatId""
+                LEFT JOIN LATERAL get_user_permission({userId}, cu.""ChatId"", null) perm ON true
+                LEFT JOIN ""ChatAvatar"" ca ON c.""Id"" = ca.""ChatId"" and ca.""IsActive"" = true
+                LEFT JOIN ""FileMetadata"" fm ON fm.""Id"" = ca.""FileId""
+                WHERE cu.""UserId"" = {userId} AND cu.""JoinedAt"" > {after}
+                GROUP BY c.""Id"", c.""ChatTypeId"", c.""UniqueName"", c.""Name"", ca.""FileId"", ca.""OriginalFileName"", ca.""Id"", fm.""Metadata"""
            ).ToListAsync();
     }
 }

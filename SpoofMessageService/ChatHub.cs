@@ -48,7 +48,7 @@ public class ChatHub(
             _tracker.Add(userId, new() { [sessionId] = new(Context.ConnectionId, sessionId) });
         await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
         Result<List<ChatUser>> chatUsers = await _chatUserService.GetChats(userId);
-        if (chatUsers.Success)
+        if (chatUsers)
             foreach (var chatUser in chatUsers.Body!)
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"chat-{chatUser.Chat.UniqueName}");
@@ -73,7 +73,7 @@ public class ChatHub(
         Guid userId = ClaimService.GetUserId(Context.User);
 
         Result<MessageDTO> result = await _messageService.SendMessage(request, userId);
-        if (!result.Success)
+        if (!result)
             throw new ApplicationException(result.Error ?? result.Message);
     }
 
@@ -90,7 +90,7 @@ public class ChatHub(
 
         Result<EditMessageResponse> result = await _messageService.EditMessage(request, userId);
 
-        if (!result.Success)
+        if (!result)
             throw new ApplicationException(result.Error ?? result.Message);
     }
 }

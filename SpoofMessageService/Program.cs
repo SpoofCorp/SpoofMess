@@ -69,7 +69,7 @@ builder.Services.AddSingleton<IChatEventService, ChatEventService>();
 builder.Services.AddSingleton<ConnectionTracker>();
 
 builder.Services.AddSingleton(
-    builder.Configuration.GetSection("TokenHeader")
+    builder.Configuration.GetSection("LivedTokenHeader")
     .Get<LivedTokenHeaderCover>()!);
 builder.Services.AddSingleton(
     builder.Configuration.GetSection("TokenHeader")

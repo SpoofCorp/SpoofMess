@@ -43,10 +43,10 @@ public class ChatUserService(
 
             await Task.WhenAll(chatResult, memberResult);
 
-            if (!chatResult.Result.Success)
+            if (!chatResult.Result)
                 return Result.From(chatResult.Result);
 
-            if (!memberResult.Result.Success)
+            if (!memberResult.Result)
                 return Result.From(memberResult.Result);
 
             ChatUser newMember = new()
@@ -59,7 +59,7 @@ public class ChatUserService(
             _ = Task.Run(async () =>
             {
                 Result<CommunicationLibrary.Communication.Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
-                if (rulesResult.Success)
+                if (rulesResult)
                     await _chatUserPublisherService.Create(newMember, rulesResult.Body!);
                 else
                     _loggerService.Error($"Can't find rules for: {newMember.Key1}, {newMember.Key2}\n{rulesResult.Error}");
@@ -82,12 +82,12 @@ public class ChatUserService(
                     request.ChatId,
                     Permissions.Inviting
                 );
-            if (!result.Success)
+            if (!result)
                 return result;
 
             Result<User> memberResult = await _userService.Get(request.MemberId);
 
-            if (!memberResult.Success) return Result.From(memberResult);
+            if (!memberResult) return Result.From(memberResult);
 
             ChatUser newMember = new()
             {
@@ -99,7 +99,7 @@ public class ChatUserService(
             _ = Task.Run(async () =>
             {
                 Result<CommunicationLibrary.Communication.Rule[]> rulesResult = await _ruleService.ChatUserRulesForSMS(newMember.Key1, newMember.Key2);
-                if (rulesResult.Success)
+                if (rulesResult)
                     await _chatUserPublisherService.Create(newMember, rulesResult.Body!);
                 else
                     _loggerService.Error($"Can't find rules for: {newMember.Key1}, {newMember.Key2}\n{rulesResult.Error}");
@@ -131,10 +131,10 @@ public class ChatUserService(
                 );
 
             Result result = _chatUserValidator.IsAvailable(taskRequester.Result);
-            if (!result.Success) return Result<ChatUser>.From(result);
+            if (!result) return Result<ChatUser>.From(result);
 
             result = _chatUserValidator.IsAvailable(taskChatUser.Result);
-            if (!result.Success) return Result<ChatUser>.From(result);
+            if (!result) return Result<ChatUser>.From(result);
 
             return Result<ChatUser>.OkResult(taskChatUser.Result!);
         }
@@ -186,10 +186,10 @@ public class ChatUserService(
                     taskChat
                 );
 
-            if (!taskRuleResult.Result.Success)
+            if (!taskRuleResult.Result)
                 return taskRuleResult.Result;
 
-            if (!taskChat.Result.Success)
+            if (!taskChat.Result)
                 return Result.From(taskChat.Result);
 
             await _chatUserRepository.SoftDeleteAsync(request.ChatId, request.ChatId);

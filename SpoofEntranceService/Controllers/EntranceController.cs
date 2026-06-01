@@ -20,7 +20,7 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
         Result<UserAuthorizeResponse> result = await _userEntryService.Authorization(HttpContext, request, new());
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );
@@ -32,7 +32,7 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
         Result<UserAuthorizeResponse> result = await _userEntryService.Registration(HttpContext, request, new());
         return StatusCode(
             result.StatusCode,
-            result.Success
+            result
                 ? result.Body
                 : result.Error
             );
@@ -52,7 +52,7 @@ public class EntranceController(IUserEntryService userEntryService, ITokenServic
 
         return StatusCode(
             result.StatusCode,
-            result.Success 
+            result 
                 ? result.Body 
                 : result.Error
             );

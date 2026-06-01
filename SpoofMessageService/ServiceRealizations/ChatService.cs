@@ -57,7 +57,7 @@ public class ChatService(
         {
             Chat? chat = await _chatRepository.GetByIdAsync(chatId);
             Result result = _chatValidator.IsAvailable(chat);
-            return result.Success ? Result<Chat>.OkResult(chat!) : Result<Chat>.From(result);
+            return result ? Result<Chat>.OkResult(chat!) : Result<Chat>.From(result);
         }
         catch (Exception ex)
         {
@@ -71,7 +71,7 @@ public class ChatService(
         try
         {
             Result<ChatUser> result = await _chatUserService.GetMember(request.Id, userId);
-            if (!result.Success)
+            if (!result)
                 return Result.From(result);
             result.Body!.Chat.Name = request.ChatName ?? result.Body!.Chat.Name;
             result.Body!.Chat.IsPublic = request.IsPublic ?? result.Body!.Chat.IsPublic;

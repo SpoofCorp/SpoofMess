@@ -25,12 +25,12 @@ public class SessionService(
         {
             SessionInfo? currentSessionInfo = await _sessionRepository.GetByIdAsync(sessionInfoId);
             Result result = _sessionValidator.ValidateTrustSession(currentSessionInfo);
-            if(!result.Success)
+            if(!result)
                 return result;
 
             SessionInfo? deletedSessionInfo = await _sessionRepository.GetByIdAsync(request.SessionId);
             result = _sessionValidator.IsInvalidSession(deletedSessionInfo);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             await _sessionRepository.SoftDelete(deletedSessionInfo!);
@@ -53,7 +53,7 @@ public class SessionService(
             SessionInfo? sessionInfo = await _sessionRepository.GetByIdAsync(sessionInfoId);
 
             Result result = _sessionValidator.IsInvalidSession(sessionInfo);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             await _sessionRepository.SoftDelete(sessionInfo!);
@@ -119,7 +119,7 @@ public class SessionService(
             SessionInfo? session = await _sessionRepository.GetByIdAsync(id);
 
             Result result = _sessionValidator.ValidateTrustSession(session);
-            if (!result.Success)
+            if (!result)
                 return result;
 
             await _sessionRepository.SoftDeleteSessionsByUserId(

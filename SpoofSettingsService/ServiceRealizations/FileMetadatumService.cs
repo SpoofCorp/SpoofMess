@@ -66,7 +66,7 @@ public class FileMetadatumService(
 
             FileMetadatum? fileMetadatum = await _fileMetadatumRepository.GetByIdAsync(fileId);
             Result result = _fileMetadatumValidator.IsAvailable(fileMetadatum, type);
-            if (!result.Success)
+            if (!result)
                 return Result<FileMetadatum>.From(result);
 
             return Result<FileMetadatum>.OkResult(fileMetadatum!);
