@@ -61,4 +61,17 @@ public class ChatUserController(
                 : result.Error
                 );
     }
+    [HttpGet("getChatMembers")]
+    public async Task<IActionResult> GetChatMembers(Guid chatId, string? lastLogin, DateTime? before, int count = 10)
+    {
+        Guid userId = ClaimService.GetUserId(User);
+
+        Result<List<ChatMemberDTO>> result = await _chatUserService.GetChatUsers(userId, chatId, lastLogin, before, count);
+        return StatusCode(
+            result.StatusCode,
+            result
+                ? result.Body
+                : result.Error
+                );
+    }
 }

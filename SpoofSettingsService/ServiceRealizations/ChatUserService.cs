@@ -145,6 +145,30 @@ public class ChatUserService(
         }
     }
 
+    public async Task<Result<List<ChatMemberDTO>>> GetChatUsers(Guid userId, Guid chatId, string? lastLogin, DateTime? before, int count = 10)
+    {
+        try
+        {
+            List<ChatMemberDTO> chats = await _chatUserRepository.GetPart(chatId, lastLogin, before, count);
+            if (chats is null or [])
+                return Result<List<ChatMemberDTO>>.BadRequest("Invalid token");
+
+            foreach (ChatMemberDTO chatUser in chats)
+            {
+                if (chatUser.FileId is null)
+                    continue;
+                chatUser.AvatarFileToken = _fileTokenService.CreateToken(userId, chatUser.FileId.Value);
+                chatUser.AvatarId = Hasher.GetKey(chatUser.FileId.Value.ToByteArray());
+            }
+            return Result<List<ChatMemberDTO>>.OkResult(chats);
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("DataBase error", ex);
+            return Result<List<ChatMemberDTO>>.ErrorResult("DataBase error");
+        }
+    }
+
     public async Task<Result<List<ChatUserDTO>>> GetUserChats(Guid userId, DateTime after)
     {
         try

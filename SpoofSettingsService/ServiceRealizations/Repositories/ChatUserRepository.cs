@@ -4,8 +4,6 @@ using DataSaveHelpers.Services;
 using Microsoft.EntityFrameworkCore;
 using SpoofSettingsService.Models;
 using SpoofSettingsService.Services.Repositories;
-using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SpoofSettingsService.ServiceRealizations.Repositories;
 
@@ -19,16 +17,33 @@ public class ChatUserRepository(
             tasksService
         ), IChatUserRepository
 {
-    public async Task<List<ChatUser>> GetPart(string lastLogin, DateTime lastDate)
+    public async Task<List<ChatMemberDTO>> GetPart(Guid chatId, string? lastLogin, DateTime? lastDate, int count = 10)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.ChatUsers
-            .Include(x => x.ChatUserChatRoles)
-            .Include(x => x.User)
-            .Where(x =>
-                x.User.WasOnline < lastDate ||
-                (x.User.WasOnline == lastDate && string.Compare(x.User.Login, lastLogin) > 0)
-            ).ToListAsync();
+        IQueryable<ChatMemberDTO> query = context.Database.SqlQuery<ChatMemberDTO>($@"SELECT
+	            u.""Login"",
+	            u.""WasOnline"",
+	            u.""Name"", 
+	            fm.""Metadata"", 
+	            ua.""OriginalFileName"",
+	            cr.""Name"" ""Role"", 
+	            fm.""Id"" ""FileId""
+            FROM ""ChatUser"" cu
+            LEFT JOIN ""User"" u ON u.""Id"" = cu.""UserId""
+            RIGHT JOIN ""UserAvatar"" ua ON ua.""UserId"" = u.""Id"" AND ua.""IsActive""
+            RIGHT JOIN ""FileMetadata"" fm ON fm.""Id"" = ua.""FileId""
+            RIGHT JOIN ""ChatUserChatRole"" cucr ON cucr.""ChatId"" = cu.""ChatId"" AND cucr.""UserId"" = cu.""UserId""
+            RIGHT JOIN ""ChatRole"" cr ON cucr.""ChatRoleId"" = cr.""Id""
+            WHERE cu.""ChatId"" = {chatId}");
+
+        if (lastDate.HasValue && !string.IsNullOrEmpty(lastLogin))
+        {
+            query = query.Where(x =>
+                x.WasOnline < lastDate.Value ||
+                (x.WasOnline == lastDate.Value && string.Compare(x.Login, lastLogin) > 0)
+            ).Take(count);
+        }
+        return await query.ToListAsync();
     }
 
     public async Task<ChatUser?> GetWithRules(Guid chatId, Guid userId)

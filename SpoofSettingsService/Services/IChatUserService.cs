@@ -8,6 +8,14 @@ namespace SpoofSettingsService.Services;
 
 public interface IChatUserService
 {
+    public Task<Result<List<ChatMemberDTO>>> GetChatUsers(
+            Guid userId,
+            Guid chatId,
+            string? lastLogin,
+            DateTime? before,
+            int count = 10
+        );
+
     [Obsolete("Not check chat settings")]
     public Task<Result> Join(
             JoinToChatRequest request, 

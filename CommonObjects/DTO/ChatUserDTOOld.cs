@@ -4,6 +4,26 @@ using System.Text.Json.Serialization;
 
 namespace CommonObjects.DTO;
 
+public record ChatMemberDTO(
+        string Login,
+        DateTime WasOnline,
+        string? Name,
+        string? Metadata = null,
+        string? OriginalFileName = null,
+        string? Role = null
+    )
+{
+    [JsonIgnore]
+    public Guid? FileId { get; set; } = null;
+
+    [NotMapped]
+    public byte[]? AvatarId { get; set; } = null;
+    [NotMapped]
+    public byte[]? AvatarAccessToken { get; set; } = null;
+    [NotMapped]
+    public byte[]? AvatarFileToken { get; set; } = null;
+}
+
 public record ChatUserDTO(
         Guid ChatId,
         string UniqueName,
