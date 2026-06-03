@@ -1,4 +1,5 @@
-﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
+﻿using CommonObjects.Requests.Attachments;
+using DataSaveHelpers.EntityTypesRealizations.Identified;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;
@@ -21,4 +22,6 @@ public partial class Attachment : IdentifiedSoftDeletableChangeableEntity<Guid>
     public string Category { get; set;  } = string.Empty;
     [NotMapped]
     public string? AdditionalMetadata { get; set; }
+
+    public string? AttachmentMetadata { get; set; }
 }

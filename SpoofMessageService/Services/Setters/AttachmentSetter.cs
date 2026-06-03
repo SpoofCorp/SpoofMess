@@ -7,10 +7,11 @@ namespace SpoofMessageService.Services.Setters;
 
 public static class AttachmentSetter
 {
-    public static Attachment Set(this FileMetadata fileMetadata, Guid fileId, OperationsStatus operationsStatus) =>
+    public static Attachment Set(this FileMetadata fileMetadata, Guid fileId, OperationsStatus operationsStatus, string? attachmentMetadata) =>
         new()
         {
-            FileMetadata = fileMetadata.SetMetadata(fileId)
+            FileMetadata = fileMetadata.SetMetadata(fileId),
+            AttachmentMetadata = attachmentMetadata,
         };
 
     public static FileMetadatum SetMetadata(this FileMetadata fileMetadata, Guid fileId) =>
@@ -20,14 +21,15 @@ public static class AttachmentSetter
             Size = fileMetadata.Size
         };
 
-    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId) =>
+    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId, string? attachmentMetadata) =>
         new()
         {
             FileMetadataId = fileId,
+            AttachmentMetadata = attachmentMetadata,
             OriginalFileName = attachment.OriginalFileName
         };
 
-    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId, FileMetadatum metadatum) =>
+    public static Attachment Set(this CommonObjects.Requests.Attachments.Attachment attachment, Guid fileId, FileMetadatum metadatum, string? attachmentMetadata) =>
         new()
         {
             FileMetadataId = fileId,
@@ -35,6 +37,7 @@ public static class AttachmentSetter
             OriginalFileName = attachment.OriginalFileName,
             Size = metadatum.Size,
             Category = metadatum.Category,
+            AttachmentMetadata = attachmentMetadata,
             AdditionalMetadata = metadatum.Metadata,
         };
     public static Attachment Set(this EditAttachment attachment, Guid fileId) =>

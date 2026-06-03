@@ -9,7 +9,7 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public Guid? OwnerId { get; set; }
 
-    public string UniqueName { get; set; } = null!;
+    public string? UniqueName { get; set; }
 
     public string Name { get; set; } = null!;
 

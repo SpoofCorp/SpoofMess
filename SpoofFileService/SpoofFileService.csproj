@@ -41,12 +41,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="startup\FileExtensions.json">
+    <None Include="startup\FileExtensions.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="startup\ImageRoadMap.json">
+    </None>
+    <None Include="startup\ImageRoadMap.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </None>
   </ItemGroup>
 
 </Project>

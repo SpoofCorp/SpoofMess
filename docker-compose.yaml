@@ -132,6 +132,9 @@ services:
             - sessql
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:8080
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__Sql=Host=sessql;Port=5432;Database=SpoofEntranceService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
@@ -143,6 +146,7 @@ services:
             - "5000:8080"
         volumes:
             - ./src:/app/src
+            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
@@ -156,9 +160,12 @@ services:
             - ssssql
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:8081
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
-            - ConnectionStrings__Sql=Host=ssssql;Port=5434;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - ConnectionStrings__Sql=Host=ssssql;Port=5433;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
             - RabbitMQSettings__HostName=rabbitmq
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
@@ -167,6 +174,7 @@ services:
             - "5001:8081"
         volumes:
             - ./src:/app/src
+            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
@@ -180,13 +188,21 @@ services:
             - smssql
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:8082
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
-            - ConnectionStrings__Sql=Host=smssql;Port=5433;Database=SpoofMessageService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - ConnectionStrings__Sql=Host=smssql;Port=5434;Database=SpoofMessageService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - RabbitMQSettings__HostName=rabbitmq
+            - RabbitMQSettings__Port=5672
+            - RabbitMQSettings__UserName=admin
+            - RabbitMQSettings__Password=secret
         ports:
             - "5002:8082"
         volumes:
             - ./src:/app/src
+            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
@@ -200,13 +216,22 @@ services:
             - sfssql
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:8083
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__Sql=Host=sfssql;Port=5435;Database=SpoofFileService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - FileSettings__StoragePath=data\files
+            - RabbitMQSettings__HostName=rabbitmq
+            - RabbitMQSettings__Port=5672
+            - RabbitMQSettings__UserName=admin
+            - RabbitMQSettings__Password=secret
         ports:
-            - "5002:8082"
+            - "5003:8083"
         volumes:
             - ./src:/app/src
+            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 

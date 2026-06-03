@@ -29,6 +29,7 @@ public class MessageService(
         IAttachmentService attachmentService,
         IFileMetadatumService fileMetadatumService,
         IMessageEventService messageEventService,
+        ISerializer serializer,
         IRuleService ruleService
     ) : IMessageService
 {
@@ -36,6 +37,7 @@ public class MessageService(
     private readonly IFileMetadatumService _fileMetadatumService = fileMetadatumService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IMessageEventService _messageEventService = messageEventService;
+    private readonly ISerializer _serializer = serializer;
     private readonly IRuleService _ruleService = ruleService;
     private readonly IMessageRepository _messageRepository = messageRepository;
     private readonly IMessageValidator _messageValidator = messageValidator;
@@ -235,10 +237,20 @@ public class MessageService(
                 Result<FileMetadatum> result = await _fileMetadatumService.Get(fileId);
                 if (!result)
                 {
-                    tokenSource.Cancel();
-                    return;
+                    _loggerService.Error($"Retry");
+                    await Task.Delay(200, cancellationToken);
+                    result = await _fileMetadatumService.Get(fileId);
+                    if (!result)
+                    {
+                        #if DEBUG
+                            _loggerService.Debug($"Error while get metadata: {result.Error ?? result.Message}");
+                            _loggerService.Debug($"Input params {userId} {string.Join(", ", attachmentDTO.Token)} {fileId}");
+                        #endif
+                        tokenSource.Cancel();
+                        return;
+                    }
                 }
-                attachments.Add(attachmentDTO.Set(fileId, result.Body!));
+                attachments.Add(attachmentDTO.Set(fileId, result.Body!, attachmentDTO.AttachmentMetadata is null ? null : _serializer.Serialize(attachmentDTO.AttachmentMetadata)));
             });
             foreach (var attachment in attachments)
                 message.Attachments.Add(attachment);

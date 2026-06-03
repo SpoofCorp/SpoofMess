@@ -64,6 +64,7 @@ create table "Attachment"
 	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
+	"AttachmentMetadata" jsonb,
 	"IsDeleted" boolean not null default false
 );
 

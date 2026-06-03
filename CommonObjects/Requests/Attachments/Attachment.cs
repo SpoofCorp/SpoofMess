@@ -6,5 +6,6 @@ public record Attachment(
         string OriginalFileName,
         string Category,
         string? Metadata,
-        long Size
+        long Size,
+        IAttachmentMetadata? AttachmentMetadata = null
     );

@@ -35,6 +35,8 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.ToTable("Attachment");
 
+            entity.Property(e => e.AttachmentMetadata).HasColumnType("jsonb");
+
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

@@ -98,5 +98,30 @@
         "DebugTarget": "Container (Dockerfile)"
       }
     ]
+  },
+  {
+    "Name": "SES&SSS&SFS&SMS(Docker)",
+    "Projects": [
+      {
+        "Path": "SpoofEntranceService\\SpoofEntranceService.csproj",
+        "Action": "Start",
+        "DebugTarget": "Container (Dockerfile)"
+      },
+      {
+        "Path": "SpoofFileService\\SpoofFileService.csproj",
+        "Action": "Start",
+        "DebugTarget": "Container (Dockerfile)"
+      },
+      {
+        "Path": "SpoofMessageService\\SpoofMessageService.csproj",
+        "Action": "Start",
+        "DebugTarget": "Container (Dockerfile)"
+      },
+      {
+        "Path": "SpoofSettingsService\\SpoofSettingsService.csproj",
+        "Action": "Start",
+        "DebugTarget": "Container (Dockerfile)"
+      }
+    ]
   }
 ]
