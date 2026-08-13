@@ -61,21 +61,29 @@ services:
 
     sfssql:
         image: postgres:18.1
+        
         container_name: spoof-file-service-db
+
         environment:
             POSTGRES_DB: SpoofFileService
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres123
             PGDATA: /var/lib/postgresql/data/pgdata
+
         command: ["postgres", "-c", "port=5435", "-c", "timezone=UTC"]
+
         ports:
             - "5435:5435"
+
         volumes:
             - postgres_sfs_data:/var/lib/postgresql/data
             - ./SpoofFileService/SpoofFileService.sql:/docker-entrypoint-initdb.d/init.sql
+
         restart: unless-stopped
+
         networks:
             - spoof-network
+
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres -p 5435"]
             interval: 10s
@@ -84,21 +92,29 @@ services:
 
     smssql:
         image: postgres:18.1
+
         container_name: spoof-message-service-db
+
         environment:
             POSTGRES_DB: SpoofMessageService
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres123
             PGDATA: /var/lib/postgresql/data/pgdata
+
         command: ["postgres", "-c", "port=5434", "-c", "timezone=UTC"]
+
         ports:
             - "5434:5434"
+
         volumes:
             - postgres_sms_data:/var/lib/postgresql/data
             - ./SpoofMessageService/SpoofMessageService.sql:/docker-entrypoint-initdb.d/init.sql
+
         restart: unless-stopped
+        
         networks:
             - spoof-network
+
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U postgres -p 5434"]
             interval: 10s
@@ -107,18 +123,25 @@ services:
 
     redis:
         image: redis:8.4.0
+
         container_name: redis-test
+
         ports:
             - "6379:6379"
+
         volumes:
             - redis_data:/data
+
         command: redis-server --appendonly yes --requirepass redis123
+
         restart: unless-stopped
+
         healthcheck:
             test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
             interval: 10s
             timeout: 5s
             retries: 3
+
         networks:
             - spoof-network
 
@@ -126,11 +149,15 @@ services:
         build:
             context: .
             dockerfile: SpoofEntranceService/Dockerfile
+
         container_name: spoof-entrance-service
+
         depends_on:
             - redis
             - sessql
+
         restart: always
+
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8080
@@ -143,11 +170,13 @@ services:
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
             - RabbitMQSettings__Password=secret
+            
         ports:
             - "5000:8080"
         volumes:
             - ./src:/app/src
             - ./cert.pfx:/ssl/cert.pfx:ro
+            
         networks:
             - spoof-network
 
@@ -155,11 +184,15 @@ services:
         build:
             context: .
             dockerfile: SpoofSettingsService/Dockerfile
+
         container_name: spoof-settings-service
+
         depends_on:
             - redis
             - ssssql
+
         restart: always
+
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8081
@@ -172,11 +205,14 @@ services:
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
             - RabbitMQSettings__Password=secret
+
         ports:
             - "5001:8081"
+
         volumes:
             - ./src:/app/src
             - ./cert.pfx:/ssl/cert.pfx:ro
+
         networks:
             - spoof-network
 
@@ -184,11 +220,15 @@ services:
         build:
             context: .
             dockerfile: SpoofMessageService/Dockerfile
+
         container_name: spoof-message-service
+
         depends_on:
             - redis
             - smssql
+
         restart: always
+
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8082
@@ -201,11 +241,14 @@ services:
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
             - RabbitMQSettings__Password=secret
+
         ports:
             - "5002:8082"
+
         volumes:
             - ./src:/app/src
             - ./cert.pfx:/ssl/cert.pfx:ro
+
         networks:
             - spoof-network
 
@@ -213,11 +256,16 @@ services:
         build:
             context: .
             dockerfile: SpoofFileService/Dockerfile
-        container_name: spoof-file-service
+
+        container_name:
+            spoof-file-service
+
         depends_on:
             - redis
             - sfssql
-        restart: always
+        restart:
+            always
+
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8083
@@ -231,23 +279,30 @@ services:
             - RabbitMQSettings__Port=5672
             - RabbitMQSettings__UserName=admin
             - RabbitMQSettings__Password=secret
+
         ports:
             - "5003:8083"
+
         volumes:
             - ./src:/app/src
             - ./cert.pfx:/ssl/cert.pfx:ro
+
         networks:
             - spoof-network
 
 volumes:
     redis_data:
         driver: local
+
     postgres_ses_data:
         driver: local
+
     postgres_sss_data:
         driver: local
+
     postgres_sms_data:
         driver: local
+
     postgres_sfs_data:
         driver: local
 
