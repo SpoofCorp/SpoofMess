@@ -23,7 +23,8 @@ public class ChatService(
         IUserService userService,
         IRuleService ruleService,
         ILoggerService loggerService,
-        IFileTokenService fileTokenService
+        IFileTokenService fileTokenService,
+        Hasher hasher
     ) : IChatService
 {
     private readonly IChatValidator _chatValidator = chatValidator;
@@ -33,6 +34,7 @@ public class ChatService(
     private readonly IRuleService _ruleService = ruleService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IFileTokenService _fileTokenService = fileTokenService;
+    private readonly Hasher _hasher = hasher;
     private readonly IChatPublisherService _chatPublisherService = chatPublisherService;
 
     public async ValueTask<Result> ChangeSettings(ChangeChatSettingsRequest request, Guid userId)
@@ -195,7 +197,7 @@ public class ChatService(
                     result.Body.ActualAvatar is null ? null :
                     _fileTokenService.CreateToken(userId, result.Body.ActualAvatar.FileId),
                     result.Body.ActualAvatar is null ? null :
-                    Hasher.GetKey(result.Body.ActualAvatar.FileId.ToByteArray()),
+                    _hasher.GetKey(result.Body.ActualAvatar.FileId.ToByteArray()),
                     result.Body.ActualAvatar?.OriginalFileName,
                     result.Body.CreatedAt,
                     result.Body.OwnerId

@@ -83,6 +83,9 @@ builder.Services.AddSingleton(
 builder.Services.AddSingleton(
     builder.Configuration.GetSection("TokenHeader")
     .Get<TokenHeaderCover>()!);
+builder.Services.AddSingleton(
+    builder.Configuration.GetSection("HashSettings").Get<HashSettings>()!);
+builder.Services.AddSingleton<Hasher>();
 
 builder.Services.AddEndpointsApiExplorer();
 

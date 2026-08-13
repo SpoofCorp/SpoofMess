@@ -23,6 +23,8 @@ public class NotificationService : BackgroundService
     private readonly IFileTokenService _fileTokenService;
     private readonly IAttachmentAccessTokenService _attachmentAccessTokenService;
     private readonly ConnectionTracker _tracker;
+    private readonly Hasher _hasher;
+
     public NotificationService(IServiceScopeFactory serviceScope)
     {
         IServiceScope scope = serviceScope.CreateScope();
@@ -34,6 +36,7 @@ public class NotificationService : BackgroundService
         _chatService = scope.ServiceProvider.GetRequiredService<IChatService>();
         _attachmentAccessTokenService = scope.ServiceProvider.GetRequiredService<IAttachmentAccessTokenService>();
         _fileTokenService = scope.ServiceProvider.GetRequiredService<IFileTokenService>();
+        _hasher = scope.ServiceProvider.GetRequiredService<Hasher>();
         _tracker = scope.ServiceProvider.GetRequiredService<ConnectionTracker>();
     }
 
@@ -98,7 +101,7 @@ public class NotificationService : BackgroundService
                 )
             {
                 Rules = chatUser.Rules,
-                AvatarId = chatResult.Body.AvatarId is null ? [] : Hasher.GetKey(chatResult.Body.AvatarId.Value.ToByteArray()),
+                AvatarId = chatResult.Body.AvatarId is null ? [] : _hasher.GetKey(chatResult.Body.AvatarId.Value.ToByteArray()),
                 AvatarAccessToken = chatResult.Body.AvatarId is null ? [] : _attachmentAccessTokenService.CreateToken(chatResult.Body.AvatarId.Value),
                 AvatarFileToken = chatResult.Body.AvatarId is null ? [] : _fileTokenService.CreateToken(chatUser.Key2, chatResult.Body.AvatarId.Value)
             });

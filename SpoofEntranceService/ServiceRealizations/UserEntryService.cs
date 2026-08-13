@@ -17,11 +17,13 @@ public class UserEntryService(
     IUserEntryValidator validator, 
     ILoggerService logService,
     ITokenService tokenService, 
-    ISessionService sessionService) : IUserEntryService
+    ISessionService sessionService,
+    Hasher hasher) : IUserEntryService
 {
     private readonly IUserPublisherService _userPublisherService = userPublisherService;
     private readonly IUserEntryRepository _repository = repository;
     private readonly ISessionService _sessionService = sessionService;
+    private readonly Hasher _hasher = hasher;
     private readonly ITokenService _tokenService = tokenService;
     private readonly IUserEntryValidator _validator = validator;
     private readonly ILoggerService _logService = logService;
@@ -38,7 +40,7 @@ public class UserEntryService(
             if (!result)
                 return Result<UserAuthorizeResponse>.From(result);
 
-            if (!Hasher.VerifyPassword(request.Password, user!.PasswordHash))
+            if (!_hasher.VerifyPassword(request.Password, user!.PasswordHash))
                 return Result<UserAuthorizeResponse>.Forbidden("Invalid password");
 
             await _sessionService.StartSession(context, user, sessionInfo);
@@ -63,7 +65,7 @@ public class UserEntryService(
                 return Result<UserAuthorizeResponse>.From(userResult);
 
             Task<Guid> id = Task.Run(Guid.CreateVersion7);
-            Task<string> password = Task.Run(() => Hasher.HashPassword(request.Password));
+            Task<string> password = Task.Run(() => _hasher.HashPassword(request.Password));
 
             await Task.WhenAll(id, password);
 

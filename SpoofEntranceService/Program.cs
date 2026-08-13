@@ -1,14 +1,15 @@
+using SecurityLibrary;
+using SettingsHelper;
+using SpoofEntranceService.Models;
+using SpoofEntranceService.ServiceRealizations;
 using SpoofEntranceService.ServiceRealizations.Consumers;
 using SpoofEntranceService.ServiceRealizations.Publishers;
 using SpoofEntranceService.ServiceRealizations.Repositories;
 using SpoofEntranceService.ServiceRealizations.Validators;
-using SpoofEntranceService.ServiceRealizations;
-using SpoofEntranceService.Services.Repositories;
-using SpoofEntranceService.Services.Publishers;
-using SpoofEntranceService.Services.Validators;
 using SpoofEntranceService.Services;
-using SpoofEntranceService.Models;
-using SettingsHelper;
+using SpoofEntranceService.Services.Publishers;
+using SpoofEntranceService.Services.Repositories;
+using SpoofEntranceService.Services.Validators;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,11 @@ builder.Services.AddTransient<IUserEntryValidator, UserEntryValidator>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IUserEntryService, UserEntryService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+
+builder.Services.AddSingleton(
+    builder.Configuration.GetSection("HashSettings").Get<HashSettings>()!);
+builder.Services.AddSingleton<Hasher>();
 
 builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
 

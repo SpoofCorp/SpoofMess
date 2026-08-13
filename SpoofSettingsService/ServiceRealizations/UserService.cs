@@ -19,9 +19,11 @@ public class UserService(
     IUserRepository userRepository,
     IUserValidator userValidator,
     IUserMessageBrokerService userMessageBrokerService,
-    IFileTokenService fileTokenService) : IUserService
+    IFileTokenService fileTokenService,
+    Hasher hasher) : IUserService
 {
     private readonly IFileTokenService _fileTokenService = fileTokenService;
+    private readonly Hasher _hasher = hasher;
     private readonly ILoggerService _logger = logger;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IUserValidator _userValidator = userValidator;
@@ -63,7 +65,7 @@ public class UserService(
                         avatar.Id),
                     avatar is null
                     ? null
-                    : Hasher.GetKey(avatar.Id.ToByteArray()),
+                    : _hasher.GetKey(avatar.Id.ToByteArray()),
                     avatar?.OriginalFileName)
                 );
         }

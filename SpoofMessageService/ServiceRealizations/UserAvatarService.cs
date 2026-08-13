@@ -11,12 +11,14 @@ namespace SpoofMessageService.ServiceRealizations;
 public class UserAvatarService(
     IUserRepository userRepository,
     ILoggerService loggerService,
-    IUserEventService userEventService
+    IUserEventService userEventService,
+    Hasher hasher
     ) : IUserAvatarService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserEventService _userEventService = userEventService;
+    private readonly Hasher _hasher = hasher;
 
     public async Task<Result> Create(CreateUserAvatar createUserAvatar)
     {
@@ -29,7 +31,7 @@ public class UserAvatarService(
                     ? Result.OkResult()
                     : Result.BadRequest("Invalid id");
 
-            _userEventService.NotifyUpdate(new(null, createUserAvatar.Login, Hasher.GetKey(createUserAvatar.FileId.ToByteArray()), createUserAvatar.AccessToken, createUserAvatar.OriginalFileName, createUserAvatar.CreateTime), createUserAvatar.UserId);
+            _userEventService.NotifyUpdate(new(null, createUserAvatar.Login, _hasher.GetKey(createUserAvatar.FileId.ToByteArray()), createUserAvatar.AccessToken, createUserAvatar.OriginalFileName, createUserAvatar.CreateTime), createUserAvatar.UserId);
             return result;
         }
         catch (Exception ex)

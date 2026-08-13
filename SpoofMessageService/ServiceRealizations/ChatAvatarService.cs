@@ -11,12 +11,14 @@ namespace SpoofMessageService.ServiceRealizations;
 public class ChatAvatarService(
     IChatRepository chatRepository,
     ILoggerService loggerService,
-    IChatEventService chatEventService
+    IChatEventService chatEventService,
+    Hasher hasher
     ) : IChatAvatarService
 {
     private readonly IChatRepository _chatRepository = chatRepository;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatEventService _chatEventService = chatEventService;
+    private readonly Hasher _hasher = hasher;
 
     public async Task<Result> Create(CreateChatAvatar createChatAvatar)
     {
@@ -28,7 +30,7 @@ public class ChatAvatarService(
                 createChatAvatar.OriginalFileName)
                     ? Result.OkResult()
                     : Result.BadRequest("Invalid id");
-            _chatEventService.NotifyUpdate(new(createChatAvatar.ChatId, createChatAvatar.UniqueName, createChatAvatar.AccessToken, new([], Hasher.GetKey(createChatAvatar.FileId.ToByteArray()), createChatAvatar.OriginalFileName, 0)));
+            _chatEventService.NotifyUpdate(new(createChatAvatar.ChatId, createChatAvatar.UniqueName, createChatAvatar.AccessToken, new([], _hasher.GetKey(createChatAvatar.FileId.ToByteArray()), createChatAvatar.OriginalFileName, 0)));
             return result;
         }
         catch (Exception ex)

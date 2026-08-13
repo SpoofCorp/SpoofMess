@@ -30,7 +30,8 @@ public class MessageService(
         IFileMetadatumService fileMetadatumService,
         IMessageEventService messageEventService,
         ISerializer serializer,
-        IRuleService ruleService
+        IRuleService ruleService,
+        Hasher hasher
     ) : IMessageService
 {
     private readonly IAttachmentService _attachmentService = attachmentService;
@@ -39,6 +40,7 @@ public class MessageService(
     private readonly IMessageEventService _messageEventService = messageEventService;
     private readonly ISerializer _serializer = serializer;
     private readonly IRuleService _ruleService = ruleService;
+    private readonly Hasher _hasher = hasher;
     private readonly IMessageRepository _messageRepository = messageRepository;
     private readonly IMessageValidator _messageValidator = messageValidator;
     private readonly IChatUserService _chatUserService = chatUserService;
@@ -186,7 +188,7 @@ public class MessageService(
                 [.. attachmentsToSend.Select(x =>
                     new EditAttachment(
                         true,
-                        Hasher.GetKey(x.Id.ToByteArray()),
+                        _hasher.GetKey(x.Id.ToByteArray()),
                         _attachmentTokenService.CreateToken(x.Id),
                         x.OriginalFileName,
                         x.Category,
@@ -268,7 +270,7 @@ public class MessageService(
                 message.Attachments.Count == 0
                 ? null : [.. message.Attachments.Select(x =>
                                     new CommonObjects.Requests.Attachments.Attachment(
-                                        Hasher.GetKey(x.Id.ToByteArray()),
+                                        _hasher.GetKey(x.Id.ToByteArray()),
                                         _attachmentTokenService.CreateToken(x.Id),
                                         x.OriginalFileName,
                                         x.Category,
@@ -310,7 +312,7 @@ public class MessageService(
                     )).Select(x => x.Set(
                         [..
                             x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
-                            Hasher.GetKey(x.FileMetadataId.ToByteArray()),
+                            _hasher.GetKey(x.FileMetadataId.ToByteArray()),
                             _fileTokenService.CreateToken(
                                 userId,
                                 x.FileMetadata.Id),
@@ -354,7 +356,7 @@ public class MessageService(
                     )).Select(x => x.Set(
                         [..
                             x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
-                            Hasher.GetKey(x.FileMetadataId.ToByteArray()),
+                            _hasher.GetKey(x.FileMetadataId.ToByteArray()),
                             _fileTokenService.CreateToken(
                                 userId,
                                 x.FileMetadata.Id),
@@ -390,7 +392,7 @@ public class MessageService(
                 [.. messages.Select(x => x.Set(
                     [..
                         x.Attachments.Select(x => new CommonObjects.Requests.Attachments.Attachment(
-                        Hasher.GetKey(x.Id.ToByteArray()),
+                        _hasher.GetKey(x.Id.ToByteArray()),
                         _attachmentTokenService.CreateToken(x.Id),
                         x.OriginalFileName,
                         x.FileMetadata.Category,

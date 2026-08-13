@@ -21,13 +21,15 @@ public class UserAvatarService(
         IUserAvatarPublisherService userAvatarPublisherService,
         IFileMetadatumService fileMetadatumService,
         IUserService userService,
-        IAttachmentAccessTokenService attachmentAccessTokenService
+        IAttachmentAccessTokenService attachmentAccessTokenService,
+        Hasher hasher
     ) : IUserAvatarService
 {
     private readonly IUserAvatarPublisherService _userAvatarPublisherService = userAvatarPublisherService;
     private readonly IFileMetadatumService _fileMetadatumService = fileMetadatumService;
     private readonly IUserService _userService = userService;
     private readonly IAttachmentAccessTokenService _attachmentAccessTokenService = attachmentAccessTokenService;
+    private readonly Hasher _hasher = hasher;
     private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAvatarRepository _userAvatarRepository = userAvatarRepository;
@@ -53,7 +55,7 @@ public class UserAvatarService(
                             userId,
                             avatar.FileId
                             ),
-                        Hasher.GetKey(avatar.FileId.ToByteArray())
+                        _hasher.GetKey(avatar.FileId.ToByteArray())
                         ) 
                 });
         }
@@ -82,7 +84,7 @@ public class UserAvatarService(
                             userId,
                             avatar.FileId
                             ),
-                        Hasher.GetKey(avatar.FileId.ToByteArray())
+                        _hasher.GetKey(avatar.FileId.ToByteArray())
                         )
                 });
         }
@@ -117,7 +119,7 @@ public class UserAvatarService(
                             userId,
                             avatar.FileId
                             ),
-                        Hasher.GetKey(avatar.FileId.ToByteArray()))
+                        _hasher.GetKey(avatar.FileId.ToByteArray()))
                 });
             }
 

@@ -16,11 +16,13 @@ public class FileMetadatumService(
     ILoggerService loggerService, 
     IUserService userService,
     IFileTokenService fileTokenService,
-    IFileMetadatumValidator fileMetadatumValidator) : IFileMetadatumService
+    IFileMetadatumValidator fileMetadatumValidator,
+    Hasher hasher) : IFileMetadatumService
 {
     private readonly IUserService _userService = userService;
     private readonly IFileMetadatumRepository _fileMetadatumRepository = fileMetadatumRepository;
     private readonly IFileMetadatumValidator _fileMetadatumValidator = fileMetadatumValidator;
+    private readonly Hasher _hasher = hasher;
     private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly ILoggerService _loggerService = loggerService;
     public async Task<Result<FileMetadata>> Get(Guid fileId, Guid userId)
@@ -47,7 +49,14 @@ public class FileMetadatumService(
     {
         try
         {
-            return Result<FileMetadata>.OkResult(new(_fileTokenService.CreateToken(userId, attachment.FileMetadataId), Hasher.GetKey(attachment.FileMetadataId.ToByteArray()), attachment.OriginalFileName, attachment.FileMetadata.Size));
+            return Result<FileMetadata>.OkResult(
+                new(
+                    _fileTokenService.CreateToken(userId, attachment.FileMetadataId),
+                    _hasher.GetKey(
+                        attachment.FileMetadataId.ToByteArray()),
+                        attachment.OriginalFileName,
+                        attachment.FileMetadata.Size
+                    ));
         }
         catch (Exception ex)
         {

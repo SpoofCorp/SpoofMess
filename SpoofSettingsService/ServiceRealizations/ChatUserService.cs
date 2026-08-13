@@ -22,10 +22,12 @@ public class ChatUserService(
     IUserService userService,
     IChatUserRepository chatUserRepository,
     IChatUserPublisherService chatUserPublisherService,
-    IFileTokenService fileTokenService
+    IFileTokenService fileTokenService,
+    Hasher hasher
     ) : IChatUserService
 {
     private readonly IFileTokenService _fileTokenService = fileTokenService;
+    private readonly Hasher _hasher = hasher;
     private readonly IUserService _userService = userService;
     private readonly IChatUserValidator _chatUserValidator = chatUserValidator;
     private readonly IChatUserRepository _chatUserRepository = chatUserRepository;
@@ -158,7 +160,7 @@ public class ChatUserService(
                 if (chatUser.FileId is null)
                     continue;
                 chatUser.AvatarFileToken = _fileTokenService.CreateToken(userId, chatUser.FileId.Value);
-                chatUser.AvatarId = Hasher.GetKey(chatUser.FileId.Value.ToByteArray());
+                chatUser.AvatarId = _hasher.GetKey(chatUser.FileId.Value.ToByteArray());
             }
             return Result<List<ChatMemberDTO>>.OkResult(chats);
         }
@@ -182,7 +184,7 @@ public class ChatUserService(
                 if (chatUser.FileId is null)
                     continue;
                 chatUser.AvatarFileToken = _fileTokenService.CreateToken(userId, chatUser.FileId.Value);
-                chatUser.AvatarId = Hasher.GetKey(chatUser.FileId.Value.ToByteArray());
+                chatUser.AvatarId = _hasher.GetKey(chatUser.FileId.Value.ToByteArray());
             }
             return Result<List<ChatUserDTO>>.OkResult(chats);
         }

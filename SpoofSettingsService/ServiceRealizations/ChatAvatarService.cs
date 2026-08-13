@@ -23,7 +23,8 @@ public class ChatAvatarService(
         IChatAvatarPublisherService chatAvatarPublisherService,
         IFileTokenService fileTokenService,
         IChatService chatService,
-        IAttachmentAccessTokenService attachmentAccessTokenService
+        IAttachmentAccessTokenService attachmentAccessTokenService,
+        Hasher hasher
     ) : IChatAvatarService
 {
     private readonly IFileMetadatumService _fileMetadatumService = fileMetadatumService;
@@ -31,6 +32,7 @@ public class ChatAvatarService(
     private readonly IFileTokenService _fileTokenService = fileTokenService;
     private readonly IChatService _chatService = chatService;
     private readonly IAttachmentAccessTokenService _attachmentAccessTokenService = attachmentAccessTokenService;
+    private readonly Hasher _hasher = hasher;
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IChatAvatarRepository _chatAvatarRepository = chatAvatarRepository;
     private readonly IChatAvatarValidator _chatAvatarValidator = chatAvatarValidator;
@@ -55,7 +57,7 @@ public class ChatAvatarService(
                     FileMetadata = avatar.File!.Set(
                         avatar.OriginalFileName,
                         _fileTokenService.CreateToken(userId, avatar.FileId),
-                        Hasher.GetKey(avatar.FileId.ToByteArray()))
+                        _hasher.GetKey(avatar.FileId.ToByteArray()))
                 });
         }
         catch (Exception ex)
@@ -81,7 +83,7 @@ public class ChatAvatarService(
                     FileMetadata = avatar.File!.Set(
                         avatar.OriginalFileName,
                         _fileTokenService.CreateToken(userId, avatar.FileId),
-                        Hasher.GetKey(avatar.FileId.ToByteArray()))
+                        _hasher.GetKey(avatar.FileId.ToByteArray()))
                 });
         }
         catch (Exception ex)
@@ -113,7 +115,7 @@ public class ChatAvatarService(
                         FileMetadata = avatar.File!.Set(
                             avatar.OriginalFileName,
                             _fileTokenService.CreateToken(userId, avatar.FileId),
-                            Hasher.GetKey(avatar.FileId.ToByteArray()))
+                            _hasher.GetKey(avatar.FileId.ToByteArray()))
                     });
             }
 
