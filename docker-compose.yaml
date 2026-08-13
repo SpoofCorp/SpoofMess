@@ -130,6 +130,7 @@ services:
         depends_on:
             - redis
             - sessql
+        restart: always
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8080
@@ -158,6 +159,7 @@ services:
         depends_on:
             - redis
             - ssssql
+        restart: always
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8081
@@ -186,6 +188,7 @@ services:
         depends_on:
             - redis
             - smssql
+        restart: always
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8082
@@ -214,6 +217,7 @@ services:
         depends_on:
             - redis
             - sfssql
+        restart: always
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=https://+:8083
