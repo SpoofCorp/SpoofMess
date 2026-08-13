@@ -146,7 +146,7 @@ services:
             - "5000:8080"
         volumes:
             - ./src:/app/src
-            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
+            - ./cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
@@ -174,7 +174,7 @@ services:
             - "5001:8081"
         volumes:
             - ./src:/app/src
-            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
+            - ./cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
@@ -202,7 +202,7 @@ services:
             - "5002:8082"
         volumes:
             - ./src:/app/src
-            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
+            - ./cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
@@ -231,7 +231,7 @@ services:
             - "5003:8083"
         volumes:
             - ./src:/app/src
-            - D:\Projects\repos\SpoofMess\cert.pfx:/ssl/cert.pfx:ro
+            - ./cert.pfx:/ssl/cert.pfx:ro
         networks:
             - spoof-network
 
