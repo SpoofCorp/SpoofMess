@@ -85,8 +85,6 @@ if (app.Environment.IsDevelopment())
     app.MapSwagger();
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

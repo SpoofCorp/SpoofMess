@@ -1,4 +1,5 @@
-﻿using CommonObjects.DTO;
+﻿using AdditionalHelpers.Services;
+using CommonObjects.DTO;
 using CommonObjects.Requests.Messages;
 using CommonObjects.Responses;
 using CommonObjects.Results;
@@ -28,7 +29,8 @@ public class ChatHub(
         IMessageService messageService,
         IUserService userService,
         IChatUserService chatUserService,
-        ConnectionTracker tracker
+        ConnectionTracker tracker,
+        ILoggerService logger
     ) : Hub
 {
     private readonly IChatUserService _chatUserService = chatUserService;
@@ -38,6 +40,7 @@ public class ChatHub(
 
     public override async Task OnConnectedAsync()
     {
+        logger.Info("On start connection to ChatHub");
         Guid userId = ClaimService.GetUserId(Context.User);
         Guid sessionId = ClaimService.GetSessionId(Context.User);
 
@@ -54,10 +57,12 @@ public class ChatHub(
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"chat-{chatUser.Chat.UniqueName}");
             }
         await base.OnConnectedAsync();
+        logger.Info("On end connection to ChatHub");
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        logger.Info("On disconnection to ChatHub");
         Guid userId = ClaimService.GetUserId(Context.User);
         Guid sessionId = ClaimService.GetSessionId(Context.User);
 

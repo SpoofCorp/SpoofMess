@@ -54,7 +54,7 @@ public class JsonSerializerService : ISerializer
         T? obj;
         try
         {
-            obj = JsonSerializer.Deserialize<T>(body, Options);
+            obj = await JsonSerializer.DeserializeAsync<T>(body, Options);
         }
         catch
         {

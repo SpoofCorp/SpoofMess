@@ -101,8 +101,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 app.UseCors();
 app.MapControllers();

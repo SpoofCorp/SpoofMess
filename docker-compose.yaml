@@ -1,4 +1,21 @@
 services:
+    nginx:
+        image: nginx:1.31.5
+        container_name: api_gateway
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./nginx-ssl:/etc/nginx/ssl:ro 
+        networks:
+            - spoof-network
+        depends_on:
+            - spoofentranceservice
+            - spoofsettingsservice
+            - spoofmessageservice
+            - spooffileservice
+
     rabbitmq:
         image: rabbitmq:3-management
         restart: always
@@ -153,6 +170,7 @@ services:
         container_name: spoof-entrance-service
 
         depends_on:
+            - rabbitmq
             - redis
             - sessql
 
@@ -160,9 +178,7 @@ services:
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
-            - ASPNETCORE_URLS=https://+:8080
-            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
-            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
+            - ASPNETCORE_URLS=http://+:8080
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__Sql=Host=sessql;Port=5432;Database=SpoofEntranceService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
@@ -188,6 +204,7 @@ services:
         container_name: spoof-settings-service
 
         depends_on:
+            - rabbitmq
             - redis
             - ssssql
 
@@ -195,9 +212,7 @@ services:
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
-            - ASPNETCORE_URLS=https://+:8081
-            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
-            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
+            - ASPNETCORE_URLS=http://+:8081
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__Sql=Host=ssssql;Port=5433;Database=SpoofSettingsService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
@@ -224,6 +239,7 @@ services:
         container_name: spoof-message-service
 
         depends_on:
+            - rabbitmq
             - redis
             - smssql
 
@@ -231,9 +247,7 @@ services:
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
-            - ASPNETCORE_URLS=https://+:8082
-            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
-            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
+            - ASPNETCORE_URLS=http://+:8082
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__Sql=Host=smssql;Port=5434;Database=SpoofMessageService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
@@ -261,6 +275,7 @@ services:
             spoof-file-service
 
         depends_on:
+            - rabbitmq
             - redis
             - sfssql
         restart:
@@ -268,9 +283,7 @@ services:
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
-            - ASPNETCORE_URLS=https://+:8083
-            - ASPNETCORE_Kestrel__Certificates__Default__Path=/ssl/cert.pfx
-            - ASPNETCORE_Kestrel__Certificates__Default__Password=zxc654321
+            - ASPNETCORE_URLS=http://+:8083
             - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
             - Redis__Password=redis123
             - ConnectionStrings__Sql=Host=sfssql;Port=5435;Database=SpoofFileService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
