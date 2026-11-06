@@ -18,8 +18,8 @@ public class JsonSerializerService : ISerializer
     public string Serialize<T>(T obj) =>
         JsonSerializer.Serialize(obj, Options);
 
-    public async Task Serialize<T>(T obj, Stream stream) =>
-        await JsonSerializer.SerializeAsync(stream, obj, Options);
+    public async Task Serialize<T>(T obj, Stream stream, CancellationToken cancellationToken = default) =>
+        await JsonSerializer.SerializeAsync(stream, obj, Options, cancellationToken);
 
     public T Deserialize<T>(string text)
     {
@@ -49,12 +49,12 @@ public class JsonSerializerService : ISerializer
         return obj ?? throw new ArgumentNullException($"Data has been null: {body}");
     }
 
-    public async Task<T> Deserialize<T>(Stream body)
+    public async Task<T> Deserialize<T>(Stream body, CancellationToken cancellationToken = default)
     {
         T? obj;
         try
         {
-            obj = await JsonSerializer.DeserializeAsync<T>(body, Options);
+            obj = await JsonSerializer.DeserializeAsync<T>(body, Options, cancellationToken);
         }
         catch
         {

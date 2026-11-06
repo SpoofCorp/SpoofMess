@@ -6,9 +6,9 @@ namespace CommonObjects.DTO;
 public record SearchableEntity(
     Guid Id,
     string? Name,
-                               SearchType Type,
-                               string UniqueName,
-                               string? OriginalFileName)
+    SearchType Type,
+    string UniqueName,
+    string? OriginalFileName)
 {
     [NotMapped]
     public byte[]? AvatarToken { get; set; }

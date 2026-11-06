@@ -11,19 +11,22 @@ public class UserSESConsumerService(
     RabbitMQSettings settings,
     ISerializer serializer,
     ILoggerService loggerService,
-    IInjectionService injectionService
+    IServiceScopeFactory serviceFactory
     ) : ConsumerService(
         settings,
         serializer,
         loggerService
         )
 {
-    protected readonly IInjectionService _injectionService = injectionService;
+    private readonly IServiceScopeFactory _serviceFactory = serviceFactory;
+    protected IUserService _userService = null!;
     protected override string Exchange => "entrance-service";
     protected override string BaseQueueName => "message.user";
 
     public override async Task Initialize()
     {
+        IServiceScope scope = _serviceFactory.CreateScope();
+        _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
         await ConfirmCreated();
     }
 
@@ -34,9 +37,9 @@ public class UserSESConsumerService(
             "user.success.created",
             async (createUser) =>
             {
-                await _injectionService.Invoke<IUserService, Task>(
-                    async (userEntryService) => await userEntryService.Create(createUser));
+                await _userService.Create(createUser);
                 _loggerService.Info($"{createUser.UserId} was created");
-            });
+            }
+        );
     }
 }

@@ -46,7 +46,6 @@ public class UserEntryService(
             await _sessionService.StartSession(context, user, sessionInfo);
             Result<TokenResponse> response = await _tokenService.CreateAndSave(sessionInfo);
 
-            sessionInfo.UserEntry = user;
             return Result<UserAuthorizeResponse>.OkResult(response.Body.Response);
         }
         catch (Exception ex)

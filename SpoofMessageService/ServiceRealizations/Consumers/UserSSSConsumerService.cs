@@ -11,19 +11,22 @@ public class UserSSSConsumerService(
     RabbitMQSettings settings,
     ISerializer serializer,
     ILoggerService loggerService,
-    IInjectionService injectionService
+    IServiceScopeFactory serviceFactory
     ) : ConsumerService(
         settings,
         serializer,
         loggerService
         )
 {
-    protected readonly IInjectionService _injectionService = injectionService;
+    private readonly IServiceScopeFactory _serviceFactory = serviceFactory;
+    protected IUserService _userService = null!;
     protected override string Exchange => "settings-service";
     protected override string BaseQueueName => "message.user";
 
     public override async Task Initialize()
     {
+        IServiceScope scope = _serviceFactory.CreateScope();
+        _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
         await ConfirmUpdated();
     }
 
@@ -34,9 +37,9 @@ public class UserSSSConsumerService(
             "user.success.updated",
             async (updateUser) =>
             {
-                await _injectionService.Invoke<IUserService, Task>(
-                    async (userEntryService) => await userEntryService.Update(updateUser));
+                await _userService.Update(updateUser);
                 _loggerService.Info($"{updateUser.UserId} was updated");
-            });
+            }
+        );
     }
 }
