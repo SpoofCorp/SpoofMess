@@ -1,5 +1,4 @@
-﻿using CommonObjects.Requests.Attachments;
-using DataSaveHelpers.EntityTypesRealizations.Identified;
+﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofMessageService.Models;

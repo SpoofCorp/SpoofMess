@@ -1,5 +1,4 @@
-﻿using CommonObjects.DTO;
-using CommonObjects.Requests.Changes;
+﻿using CommonObjects.Requests.Changes;
 using CommonObjects.Responses;
 using SpoofMessageService.Models;
 

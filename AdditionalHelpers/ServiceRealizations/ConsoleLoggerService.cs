@@ -1,6 +1,5 @@
 ﻿using AdditionalHelpers.Services;
 using System.Collections.Concurrent;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace AdditionalHelpers.ServiceRealizations;

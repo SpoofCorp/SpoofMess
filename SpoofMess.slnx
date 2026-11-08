@@ -16,6 +16,7 @@
     <Project Path="SpoofMessageServiceTests/SpoofMessageServiceTests.csproj" Id="b0a9596c-bde3-489a-a8e7-c6b640e951cc" />
     <Project Path="SpoofSettingsServiceTests/SpoofSettingsServiceTests.csproj" Id="48948a50-5a09-4512-9e20-08706cee14d2" />
   </Folder>
+  <Project Path="SpoofCallService/SpoofCallService.csproj" Id="e2cbf09d-4aec-45a3-a515-f2f8f2c3bede" />
   <Project Path="SpoofEntranceService/SpoofEntranceService.csproj" />
   <Project Path="SpoofFileService/SpoofFileService.csproj" Id="22f535c8-80da-4d6c-a0c2-700a80cdb699" />
   <Project Path="SpoofMessageService/SpoofMessageService.csproj" Id="06d0894e-1f39-4b27-bd7b-071cf005af37" />

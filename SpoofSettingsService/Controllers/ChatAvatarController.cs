@@ -1,11 +1,9 @@
-﻿using CommonObjects.DTO;
-using CommonObjects.Requests.Avatars;
+﻿using CommonObjects.Requests.Avatars;
 using CommonObjects.Responses;
 using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityLibrary;
-using SpoofSettingsService.ServiceRealizations;
 using SpoofSettingsService.Services;
 
 namespace SpoofSettingsService.Controllers;

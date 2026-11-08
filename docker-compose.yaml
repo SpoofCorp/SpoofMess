@@ -144,6 +144,37 @@ services:
             timeout: 5s
             retries: 5
 
+    scssql:
+        image: postgres:18.1
+
+        container_name: spoof-call-service-db
+
+        environment:
+            POSTGRES_DB: SpoofCallService
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres123
+            PGDATA: /var/lib/postgresql/data/pgdata
+
+        command: ["postgres", "-c", "port=5436", "-c", "timezone=UTC"]
+
+        ports:
+            - "5436:5436"
+
+        volumes:
+            - postgres_scs_data:/var/lib/postgresql/data
+            - ./SpoofCallService/SpoofCallService.sql:/docker-entrypoint-initdb.d/init.sql
+
+        restart: unless-stopped
+        
+        networks:
+            - spoof-network
+
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -p 5436"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
     redis:
         image: redis:8.4.0
 
@@ -336,6 +367,9 @@ volumes:
         driver: local
 
     postgres_sfs_data:
+        driver: local
+
+    postgres_scs_data:
         driver: local
 
 networks:

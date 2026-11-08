@@ -2,7 +2,6 @@
 using CommunicationLibrary;
 using CommunicationLibrary.Communication;
 using CommunicationLibrary.ServiceRealizations;
-using CommunicationLibrary.Services;
 using SpoofMessageService.Services;
 
 namespace SpoofMessageService.ServiceRealizations.Consumers;

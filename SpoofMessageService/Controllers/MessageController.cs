@@ -4,7 +4,6 @@ using CommonObjects.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityLibrary;
-using SpoofMessageService.ServiceRealizations;
 using SpoofMessageService.Services;
 
 namespace SpoofMessageService.Controllers;

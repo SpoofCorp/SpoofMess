@@ -1,5 +1,4 @@
-﻿using CommonObjects.DTO;
-using CommonObjects.Results;
+﻿using CommonObjects.Results;
 using CommunicationLibrary.Communication;
 using SpoofMessageService.Models;
 
