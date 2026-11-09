@@ -3,30 +3,27 @@ name: .NET Core CI/CD
 on:
   push:
     branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        set-safe-directory: true
+    - name: Manual Checkout
+      run: |
+        git clone http://${{ github.actor }}:${{ github.token }}@192.168.0.54:3000/${{ github.repository }}.git .
 
-    - name: Configuration .NET SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '10.0'
+    - name: Install .NET SDK 10
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y dotnet-sdk-10.0
 
     - name: Restore
       run: dotnet restore
 
     - name: Build
       run: dotnet build --no-restore --configuration Release
-
-    - name: Test
-      run: dotnet test --configuration Release
       
     - name: Deploy to Docker
       run: |

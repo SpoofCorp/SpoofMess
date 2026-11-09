@@ -97,6 +97,7 @@ CREATE table "CallMember"
 CREATE table "CallMemberSession"
 (
     "Id" UUID CONSTRAINT "PK_CallMemberSession_Id" PRIMARY KEY DEFAULT uuidv7(),
+    "DeviceId" VARCHAR(100) NOT NULL,
     "CallId" UUID NOT NULL,
     "UserId" UUID NOT NULL,
     "EndReason" "SessionEndReasonType",

@@ -80,6 +80,7 @@ public partial class SpoofCallServiceContext : DbContext
 
             entity.HasIndex(e => new { e.UserId, e.JoinedAt }, "IX_CallMemberSession_Recent").IsDescending(false, true);
 
+            entity.Property(e => e.DeviceId).HasMaxLength(100);
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.JoinedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 

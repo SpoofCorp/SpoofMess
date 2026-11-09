@@ -12,5 +12,7 @@ public partial class CallMemberSession : IdentifiedEntity<Guid>
 
     public DateTime? LeftAt { get; set; }
 
+    public string DeviceId { get; set; } = null!;
+
     public virtual CallMember CallMember { get; set; } = null!;
 }

@@ -37,16 +37,15 @@ public class ChatHub(
     private readonly ConnectionTracker _tracker = tracker;
     private readonly IMessageService _messageService = messageService;
     private readonly IUserService _userService = userService;
+    private readonly ILoggerService _logger = logger;
 
     public override async Task OnConnectedAsync()
     {
-        logger.Info("On start connection to ChatHub");
-        Guid userId = ClaimService.GetUserId(Context.User);
-        Guid sessionId = ClaimService.GetSessionId(Context.User);
+        (Guid sessionId, Guid userId) = ClaimService.GetUserInfo(Context.User);
 
         await _userService.ChangeConnectionState(userId, true);
         if (_tracker.Get(userId, out ConcurrentDictionary<Guid, UserConnection>? sessions))
-            sessions.TryAdd(sessionId, new(Context.ConnectionId, sessionId));
+            sessions!.TryAdd(sessionId, new(Context.ConnectionId, sessionId));
         else
             _tracker.Add(userId, new() { [sessionId] = new(Context.ConnectionId, sessionId) });
         await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
@@ -57,18 +56,15 @@ public class ChatHub(
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"chat-{chatUser.Chat.UniqueName}");
             }
         await base.OnConnectedAsync();
-        logger.Info("On end connection to ChatHub");
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        logger.Info("On disconnection to ChatHub");
-        Guid userId = ClaimService.GetUserId(Context.User);
-        Guid sessionId = ClaimService.GetSessionId(Context.User);
+        (Guid sessionId, Guid userId) = ClaimService.GetUserInfo(Context.User);
 
         await _userService.ChangeConnectionState(userId, false);
         if (_tracker.Get(userId, out ConcurrentDictionary<Guid, UserConnection>? sessions))
-            sessions.TryRemove(sessionId, out _);
+            sessions!.TryRemove(sessionId, out _);
 
         await base.OnDisconnectedAsync(exception);
     }

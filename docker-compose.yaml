@@ -1,13 +1,13 @@
 services:
     nginx:
-        image: nginx:1.31.5
+        build:
+            context: .
+            dockerfile: Dockerfile.nginx
         container_name: api_gateway
+        restart: always
         ports:
             - "80:80"
             - "443:443"
-        volumes:
-            - ./nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./nginx-ssl:/etc/nginx/ssl:ro 
         networks:
             - spoof-network
         depends_on:
@@ -19,6 +19,7 @@ services:
     rabbitmq:
         image: rabbitmq:3-management
         restart: always
+        hostname: rabbitmq 
         ports:
             - "5672:5672"
             - "15672:15672"
@@ -26,13 +27,13 @@ services:
             test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
             interval: 10s
             timeout: 5s
+            start_period: 60s
             retries: 5
         environment:
             RABBITMQ_DEFAULT_USER: admin
             RABBITMQ_DEFAULT_PASS: secret
         volumes:
-            - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-            - ./definitions.json:/etc/rabbitmq/definitions.json
+            - rabbitmq_data:/var/lib/rabbitmq
         networks:
             - spoof-network
 
@@ -179,6 +180,7 @@ services:
         image: redis:8.4.0
 
         container_name: redis-test
+        hostname: redis 
 
         ports:
             - "6379:6379"
@@ -353,6 +355,47 @@ services:
         networks:
             - spoof-network
 
+    spoofcallservice:
+        build:
+            context: .
+            dockerfile: SpoofCallService/Dockerfile
+
+        container_name:
+            spoof-call-service
+
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            sfssql:
+                condition: service_healthy
+
+        restart:
+            always
+
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8084
+            - ConnectionStrings__Redis=redis:6379,password=redis123,abortConnect=false,connectTimeout=10000
+            - Redis__Password=redis123
+            - ConnectionStrings__Sql=Host=scssql;Port=5436;Database=SpoofCallService;Username=postgres;Password=postgres123;Pooling=true;Timeout=30;CommandTimeout=30;
+            - FileSettings__StoragePath=data\files
+            - RabbitMQSettings__HostName=rabbitmq
+            - RabbitMQSettings__Port=5672
+            - RabbitMQSettings__UserName=admin
+            - RabbitMQSettings__Password=secret
+
+        ports:
+            - "5004:8084"
+
+        volumes:
+            - ./src:/app/src
+            - ./cert.pfx:/ssl/cert.pfx:ro
+
+        networks:
+            - spoof-network
+
 volumes:
     redis_data:
         driver: local
@@ -370,6 +413,9 @@ volumes:
         driver: local
 
     postgres_scs_data:
+        driver: local
+
+    rabbitmq_data:
         driver: local
 
 networks:

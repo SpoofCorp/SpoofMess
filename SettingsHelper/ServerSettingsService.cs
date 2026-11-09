@@ -44,7 +44,7 @@ public static class ServerSettingsService
     {
         builder.Services.AddSingleton<ILoggerService>(provider =>
             new ConsoleLoggerService(
-                minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logging:LogLevel"] ?? "Information")
+                minLogLevel: Enum.Parse<AdditionalHelpers.LogLevel>(builder.Configuration["Logger:LogLevel"] ?? "Information")
             )
         );
     }

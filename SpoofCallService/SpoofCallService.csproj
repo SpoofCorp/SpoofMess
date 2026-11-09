@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14">
       <PrivateAssets>all</PrivateAssets>
@@ -22,6 +23,16 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdditionalHelpers\AdditionalHelpers.csproj" />
+    <ProjectReference Include="..\CommonObjects\CommonObjects.csproj" />
+    <ProjectReference Include="..\CommunicationLibrary\CommunicationLibrary.csproj" />
+    <ProjectReference Include="..\DataSaveHelpers\DataSaveHelpers.csproj" />
+    <ProjectReference Include="..\RuleRoleHelper\RuleRoleHelper.csproj" />
+    <ProjectReference Include="..\SecurityLibrary\SecurityLibrary.csproj" />
+    <ProjectReference Include="..\SettingsHelper\SettingsHelper.csproj" />
   </ItemGroup>
 
 </Project>
