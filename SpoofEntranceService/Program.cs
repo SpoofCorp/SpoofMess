@@ -46,6 +46,7 @@ builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
 builder.Services.AddHostedService<UserConsumerService>();
 
 WebApplication app = builder.Build();
+app.MapHealthChecks("/healthz").ShortCircuit();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

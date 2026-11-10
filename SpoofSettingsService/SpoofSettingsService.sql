@@ -44,11 +44,19 @@ create table "GlobalPermission"
 	"IsDeleted" boolean not null default false
 );
 
+create type "ChatViewType" as enum 
+(
+    'Main',
+	'Topic',
+	'Thread'
+);
+
 create table "Chat"
 (
     "Id" uuid constraint "PK_Chat_Id" primary key default uuidv7(),
     "ChatTypeId" int not null constraint "FK_Chat_ChatTypeId" references "ChatType"("Id") on delete cascade,
 	"OwnerId" uuid constraint "FK_Chat_OwnerId" references "User"("Id") on delete set null,
+	"ChatView" "ChatViewType" not null default 'Main',
     "UniqueName" varchar(100) unique not null,
     "Name" varchar(100) not null,
     "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,

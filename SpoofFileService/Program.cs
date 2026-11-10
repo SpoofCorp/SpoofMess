@@ -76,6 +76,7 @@ builder.Services.AddSingleton(
 
 WebApplication app = builder.Build();
 
+app.MapHealthChecks("/healthz").ShortCircuit();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

@@ -1,4 +1,5 @@
 ﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
+using SpoofSettingsService.Models.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpoofSettingsService.Models;
@@ -14,6 +15,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
     public string Name { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
+
+    public ChatViewType ChatView { get; set; }
 
     public long? BaseRoleId { get; set; }
 

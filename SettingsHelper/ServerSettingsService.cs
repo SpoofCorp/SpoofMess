@@ -138,6 +138,7 @@ public static class ServerSettingsService
     }
     public static void SetBaseSettings(this WebApplicationBuilder builder)
     {
+        builder.SetHealthCheck();
         builder.AddJwtAuthentification();
         builder.AddLogging();
         builder.AddRabbitMQ();
@@ -146,8 +147,13 @@ public static class ServerSettingsService
         builder.AddSwaggerGenWithAccess();
         builder.AddInjectionService();
     }
+
+    public static void SetHealthCheck(this WebApplicationBuilder builder) =>
+        builder.Services.AddHealthChecks();
+
     public static void SetBaseSettingsWithFactory<TContext>(this WebApplicationBuilder builder) where TContext : DbContext
     {
+        builder.SetHealthCheck();
         builder.AddDbContextFactory<TContext>();
         builder.AddJwtAuthentification();
         builder.AddLogging();

@@ -11,10 +11,16 @@ services:
         networks:
             - spoof-network
         depends_on:
-            - spoofentranceservice
-            - spoofsettingsservice
-            - spoofmessageservice
-            - spooffileservice
+            spoofentranceservice:
+                condition: service_healthy
+            spoofmessageservice:
+                condition: service_healthy
+            spooffileservice:
+                condition: service_healthy
+            spoofsettingsservice:
+                condition: service_healthy
+            spoofcallservice:
+                condition: service_healthy
 
     rabbitmq:
         image: rabbitmq:3-management
@@ -27,7 +33,7 @@ services:
             test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
             interval: 10s
             timeout: 5s
-            start_period: 60s
+            start_period: 20s
             retries: 5
         environment:
             RABBITMQ_DEFAULT_USER: admin
@@ -218,6 +224,13 @@ services:
 
         restart: always
 
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 15s
+
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=http://+:8080
@@ -254,6 +267,13 @@ services:
                 condition: service_healthy
 
         restart: always
+
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8081/healthz"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 15s
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
@@ -292,6 +312,13 @@ services:
                 condition: service_healthy
 
         restart: always
+
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8082/healthz"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 15s
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
@@ -333,6 +360,13 @@ services:
         restart:
             always
 
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8083/healthz"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 15s
+
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_URLS=http://+:8083
@@ -373,6 +407,13 @@ services:
 
         restart:
             always
+
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8084/healthz"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 15s
 
         environment:
             - ASPNETCORE_ENVIRONMENT=Development

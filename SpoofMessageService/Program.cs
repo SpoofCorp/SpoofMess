@@ -80,6 +80,7 @@ builder.Services.AddSingleton(
     .Get<TokenHeaderCover>()!);
 
 WebApplication app = builder.Build();
+app.MapHealthChecks("/healthz").ShortCircuit();
 app.MapHub<ChatHub>("/chat");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

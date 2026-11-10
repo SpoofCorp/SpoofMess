@@ -1,5 +1,6 @@
 ﻿using CommunicationLibrary.Communication;
 using Microsoft.EntityFrameworkCore;
+using SpoofSettingsService.Models.Enums;
 
 namespace SpoofSettingsService.Models;
 
@@ -59,6 +60,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasNoKey();
         });
 
+        modelBuilder.HasPostgresEnum<ChatViewType>(name: "ChatViewType");
         modelBuilder.HasPostgresEnum<OutboxStatus>(name: "OutboxStatus");
 
         modelBuilder.Entity<Chat>(entity =>
@@ -70,6 +72,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasIndex(e => e.UniqueName, "Chat_ChatUniqueName_key").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
+            entity.Property(e => e.ChatView).HasDefaultValue(ChatViewType.Main);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UniqueName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");

@@ -1,6 +1,6 @@
 ﻿using NpgsqlTypes;
 
-namespace SpoofSettingsService.Models;
+namespace SpoofSettingsService.Models.Enums;
 
 public enum OutboxStatus
 {

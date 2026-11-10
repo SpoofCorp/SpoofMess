@@ -4,6 +4,7 @@ using SecurityLibrary.Tokens;
 using SecurityLibrary.TokensRealizations;
 using SettingsHelper;
 using SpoofSettingsService.Models;
+using SpoofSettingsService.Models.Enums;
 using SpoofSettingsService.ServiceRealizations;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers.Consumers;
 using SpoofSettingsService.ServiceRealizations.MessageBrokers.Outboxers;
@@ -91,6 +92,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 WebApplication app = builder.Build();
 
+app.MapHealthChecks("/healthz").ShortCircuit();
 app.UseSwaggerUI();
 app.UseSwagger();
 app.MapOpenApi();

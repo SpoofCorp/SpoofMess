@@ -1,4 +1,5 @@
 ﻿using DataSaveHelpers.EntityTypesRealizations.Identified;
+using SpoofSettingsService.Models.Enums;
 
 namespace SpoofSettingsService.Models;
 

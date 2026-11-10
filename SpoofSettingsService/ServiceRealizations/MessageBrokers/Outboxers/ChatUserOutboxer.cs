@@ -2,6 +2,7 @@
 using CommunicationLibrary.Communication;
 using CommunicationLibrary.Services;
 using SpoofSettingsService.Models;
+using SpoofSettingsService.Models.Enums;
 using SpoofSettingsService.Services.MessageBrokers;
 using SpoofSettingsService.Services.Repositories;
 

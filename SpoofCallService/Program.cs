@@ -14,6 +14,7 @@ builder.SetBaseSettingsWithFactory<SpoofCallServiceContext>();
 
 var app = builder.Build();
 
+app.MapHealthChecks("/healthz").ShortCircuit();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
