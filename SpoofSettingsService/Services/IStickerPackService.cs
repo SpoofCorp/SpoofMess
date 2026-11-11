@@ -10,4 +10,5 @@ public interface IStickerPackService
 {
     public Task<Result<GetStickerPackResponse>> GetStickerPack(GetStickerPackRequest request);
     public Task<Result<StickerPack>> GetStickerPackAsync(GetStickerPackRequest request);
+    public Task<Result<StickerPack>> CreateStickerPatk(CreateStickerPackRequest request);
 }

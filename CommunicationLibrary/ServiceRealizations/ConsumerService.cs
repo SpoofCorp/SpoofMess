@@ -3,6 +3,7 @@ using CommunicationLibrary.Services;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 using System.Collections.Concurrent;
 
 namespace CommunicationLibrary.ServiceRealizations;
@@ -52,6 +53,10 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
             await Initialize();
             _loggerService.Info("Consumer service was initialized");
             await base.StartAsync(cancellationToken);
+        }
+        catch (ConnectFailureException ex)
+        {
+            _loggerService.Error("Error", ex);
         }
         catch (Exception ex)
         {

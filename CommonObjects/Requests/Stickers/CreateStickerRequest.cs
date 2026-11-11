@@ -2,12 +2,9 @@
 
 namespace CommonObjects.Requests.Stickers;
 
-public class CreateStickerRequest
-{
-    public long StickerPackId { get; set; }
-
-    public required FileMetadata FileMetadata { get; set; }
-
-    public string StickerName { get; set; } = string.Empty;
-
-}
+public record class CreateStickerRequest(
+        string StickerPackKey,
+        FileMetadata FileMetadata,
+        string Name,
+        string Key
+    );

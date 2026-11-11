@@ -323,6 +323,12 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("uuidv7()");
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(50);
+            entity.Property(e => e.Key).HasMaxLength(30);
+
+            entity.HasIndex(e => new { e.StickerPackId, e.Key })
+                .HasDatabaseName("UX_Sticker_Pack_Key_Lower")
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false AND \"Key\" IS NOT NULL");
 
             entity.HasOne(d => d.File).WithMany(p => p.Stickers)
                 .HasForeignKey(d => d.FileId)
@@ -338,7 +344,8 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK_StickerPack_Id");
 
             entity.ToTable("StickerPack");
-
+            entity.Property(e => e.Key).HasMaxLength(30);
+            entity.HasIndex(e => e.Key, "StickerPack_StickerPackKey_key").IsUnique();
             entity.HasIndex(e => e.AuthorId, "IX_StickerPack_AuthorId").HasFilter("(\"IsDeleted\" = false)");
 
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");

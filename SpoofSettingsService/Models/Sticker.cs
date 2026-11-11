@@ -8,6 +8,8 @@ public partial class Sticker : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public Guid FileId { get; set; }
 
+    public string Key { get; set; } = null!;
+
     public string OriginalFileName { get; set; } = null!;
 
     public string Title { get; set; } = null!;

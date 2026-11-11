@@ -157,6 +157,7 @@ create table "StickerPack"
 	"PreviewId" uuid not null constraint "FK_StickerPack_PreviewId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"Title" varchar(100),
+	"Key" varchar(32) unique not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
@@ -170,9 +171,11 @@ create table "Sticker"
 	"FileId" uuid not null constraint "FK_Sticker_FileId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
 	"Title" varchar(50) not null,
+	"Key" varchar(32) not null,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
+create unique index "UX_Sticker_Pack_Key_Lower" on "Sticker" ("StickerPackId", lower("Key")) where "IsDeleted" = false and "Key" is not null;
 
 create table "UserAvatar"
 (

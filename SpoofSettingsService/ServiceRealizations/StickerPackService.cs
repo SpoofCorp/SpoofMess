@@ -10,11 +10,28 @@ using SpoofSettingsService.Setters;
 
 namespace SpoofSettingsService.ServiceRealizations;
 
-public class StickerPackService(ILoggerService loggerService, IStickerPackRepository stickerPackRepository, IStickerPackValidator stickerPackValidator) : IStickerPackService
+public class StickerPackService(
+    ILoggerService loggerService,
+    IStickerPackRepository stickerPackRepository,
+    IStickerPackValidator stickerPackValidator) : IStickerPackService
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IStickerPackRepository _stickerPackRepository = stickerPackRepository;
     private readonly IStickerPackValidator _stickerPackValidator = stickerPackValidator;
+
+    public async Task<Result<StickerPack>> CreateStickerPatk(CreateStickerPackRequest request)
+    {
+        try
+        {
+            throw new Exception();
+        }
+        catch (Exception ex)
+        {
+            _loggerService.Error("Database error", ex);
+            return Result<StickerPack>.ErrorResult("Internal server error");
+        }
+    }
+
     public async Task<Result<GetStickerPackResponse>> GetStickerPack(GetStickerPackRequest request)
     {
         try

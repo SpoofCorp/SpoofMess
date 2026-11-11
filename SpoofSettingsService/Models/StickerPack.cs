@@ -10,6 +10,8 @@ public partial class StickerPack : IdentifiedSoftDeletableChangeableEntity<long>
 
     public string OriginalFileName { get; set; } = null!;
 
+    public string Key { get; set; } = null!;
+
     public string? Title { get; set; }
 
     public virtual User Author { get; set; } = null!;

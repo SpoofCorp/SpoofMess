@@ -38,7 +38,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 
 builder.Services.AddSingleton(
-    builder.Configuration.GetSection("HashSettings").Get<HashSettings>()!);
+builder.Configuration.GetSection("HashSettings").Get<HashSettings>()!);
 builder.Services.AddSingleton<Hasher>();
 
 builder.Services.AddTransient<IUserPublisherService, UserPublisherService>();
