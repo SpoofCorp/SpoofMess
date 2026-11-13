@@ -1,4 +1,5 @@
-create table "FileMetadata" (
+create table "FileMetadata"
+(
     "Id" uuid constraint "PK_FileMetadata_Id" primary key,
     "Size" bigint not null,
 	"Category" varchar(20) not null,
@@ -30,6 +31,8 @@ create table "Chat"
 	"IsDeleted" boolean not null default false
 );
 
+alter table "Chat" add "MainChatId" uuid constraint "FK_Chat_MainChatId" references "Chat"("Id") on delete cascade;
+
 create TABLE "ChatUser"
 (
     "ChatId" uuid not null constraint "FK_ChatUser_ChatId" references "Chat"("Id") on delete cascade,
@@ -60,6 +63,7 @@ create index "IX_Message_SentAt" on "Message"("SentAt");
 create table "Attachment"
 (
 	"Id" uuid constraint "PK_Attachment_Id" primary key default uuidv7(),
+	"Position" int not null default 0,
 	"MessageId"	uuid not null constraint "FK_Attachment_MessageId" references "Message"("Id") on delete cascade, 
 	"FileMetadataId" uuid not null constraint "FK_Attachment_FileMetadataId" references "FileMetadata"("Id") on delete cascade,
 	"OriginalFileName" text not null,
