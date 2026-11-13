@@ -37,6 +37,8 @@ public partial class SpoofMessageServiceContext : DbContext
 
             entity.Property(e => e.AttachmentMetadata).HasColumnType("jsonb");
 
+            entity.Property(e => e.Position).HasDefaultValue(0);
+
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -62,6 +64,11 @@ public partial class SpoofMessageServiceContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UniqueName).HasMaxLength(100);
+
+            entity.HasOne(d => d.MainChat).WithMany(p => p.InverseMainChat)
+                .HasForeignKey(d => d.MainChatId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Chat_MainChatId");
 
             entity.HasOne(d => d.Avatar).WithMany(p => p.Chats)
                 .HasForeignKey(d => d.AvatarId)

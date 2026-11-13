@@ -6,6 +6,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public Guid? AvatarId { get; set; }
 
+    public Guid? MainChatId { get; set; }
+
     public string UniqueName { get; set; } = null!;
 
     public string? OriginalFileName { get; set; }
@@ -16,7 +18,11 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public virtual FileMetadatum? Avatar { get; set; }
 
+    public virtual Chat? MainChat { get; set; }
+
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 
     public virtual ICollection<Message> Messages { get; set; } = [];
+
+    public virtual ICollection<Chat> InverseMainChat { get; set; } = [];
 }

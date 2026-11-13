@@ -9,11 +9,14 @@ public partial class Attachment : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public Guid FileMetadataId { get; set; }
 
+    public int Position { get; set; }
+
     public string OriginalFileName { get; set; } = null!;
 
     public virtual FileMetadatum FileMetadata { get; set; } = null!;
 
     public virtual Message Message { get; set; } = null!;
+
 
     [NotMapped]
     public long Size { get; set; }
