@@ -64,6 +64,8 @@ create table "Chat"
 	"IsDeleted" boolean not null default false
 );
 
+alter table "Chat" add "MainChatId" uuid constraint "FK_Chat_MainChatId" references "Chat"("Id") on delete cascade;
+
 create table "RoleRank"
 (
     "Id" bigserial constraint "PK_RoleRank_Id" primary key,
