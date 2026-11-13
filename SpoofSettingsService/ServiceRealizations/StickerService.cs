@@ -30,7 +30,7 @@ public class StickerService(
     {
         try
         {
-            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new() { Id = request.StickerPackId });
+            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new(request.StickerPackKey, false));
             if (!stickerPack)
                 return Result.From(stickerPack);
 
@@ -51,8 +51,8 @@ public class StickerService(
                 File = request.FileMetadata.Set(fileId),
                 LastModified = DateTime.UtcNow,
                 IsDeleted = false,
-                StickerPackId = request.StickerPackId,
-                Title = request.StickerName,
+                StickerPackId = stickerPack.Body!.Id,
+                Title = request.Name,
             };
 
             await _stickerRepository.AddAsync(sticker);
@@ -69,7 +69,7 @@ public class StickerService(
     {
         try
         {
-            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new() { Id = request.StickerPackId });
+            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new(request.StickerPackKey, false));
             if (!stickerPack)
                 return Result.From(stickerPack);
 
@@ -77,7 +77,7 @@ public class StickerService(
             if (!result)
                 return result;
 
-            return await _stickerRepository.SoftDeleteAsync(request.StickerId) 
+            return await _stickerRepository.SoftDeleteAsync(request.StickerKey) 
                 ? Result.OkResult() 
                 : Result.BadRequest("Invalid sticker id");
         }

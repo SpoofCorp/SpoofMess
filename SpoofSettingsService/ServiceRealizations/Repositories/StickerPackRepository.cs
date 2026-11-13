@@ -16,9 +16,15 @@ public class StickerPackRepository(
         tasksService
     ), IStickerPackRepository
 {
-    public async Task<StickerPack?> GetWithStickers(long id)
+    public async Task<StickerPack?> GetByKeyAsync(string key)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.StickerPacks.Include(x => x.Stickers).FirstOrDefaultAsync(x => x.Id == id);
+        return await context.StickerPacks.FirstOrDefaultAsync(x => x.Key == key);
+    }
+
+    public async Task<StickerPack?> GetWithStickers(string key)
+    {
+        await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
+        return await context.StickerPacks.Include(x => x.Stickers).FirstOrDefaultAsync(x => x.Key == key);
     }
 }

@@ -56,9 +56,9 @@ public class StickerPackService(
         {
             StickerPack? stickerPack;
             if(request.WithStickers)
-                stickerPack = await _stickerPackRepository.GetWithStickers(request.Id);
+                stickerPack = await _stickerPackRepository.GetWithStickers(request.Key);
             else
-                stickerPack = await _stickerPackRepository.GetByIdAsync(request.Id);
+                stickerPack = await _stickerPackRepository.GetByKeyAsync(request.Key);
 
             Result result = _stickerPackValidator.IsAvailable(stickerPack);
             if (!result)

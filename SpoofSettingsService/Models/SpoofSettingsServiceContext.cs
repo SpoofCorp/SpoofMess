@@ -82,6 +82,11 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasForeignKey(d => d.ChatTypeId)
                 .HasConstraintName("FK_Chat_ChatTypeId");
 
+            entity.HasOne(d => d.MainChat).WithMany(p => p.InverseMainChat)
+                .HasForeignKey(d => d.MainChatId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Chat_MainChatId");
+
             entity.HasOne(d => d.Owner).WithMany(p => p.Chats)
                 .HasForeignKey(d => d.OwnerId)
                 .OnDelete(DeleteBehavior.SetNull)

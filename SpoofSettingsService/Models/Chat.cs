@@ -10,6 +10,8 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public Guid? OwnerId { get; set; }
 
+    public Guid? MainChatId { get; set; }
+
     public string? UniqueName { get; set; }
 
     public string Name { get; set; } = null!;
@@ -33,9 +35,13 @@ public partial class Chat : IdentifiedSoftDeletableChangeableEntity<Guid>
 
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 
-    public virtual User Owner { get; set; } = null!;
+    public virtual User? Owner { get; set; }
+
+    public virtual Chat? MainChat { get; set; }
 
     public virtual ICollection<RoleRank> RoleRanks { get; set; } = [];
+
+    public virtual ICollection<Chat> InverseMainChat { get; set; } = [];
 
     public Chat() { }
 
