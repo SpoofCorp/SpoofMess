@@ -30,7 +30,7 @@ public class StickerService(
     {
         try
         {
-            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new(request.StickerPackKey, false));
+            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPack(new(request.StickerPackKey, false));
             if (!stickerPack)
                 return Result.From(stickerPack);
 
@@ -69,7 +69,7 @@ public class StickerService(
     {
         try
         {
-            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPackAsync(new(request.StickerPackKey, false));
+            Result<StickerPack> stickerPack = await _stickerPackService.GetStickerPack(new(request.StickerPackKey, false));
             if (!stickerPack)
                 return Result.From(stickerPack);
 
