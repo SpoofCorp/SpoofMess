@@ -1,12 +1,14 @@
 ﻿using CommonObjects.DTO;
 using CommonObjects.Requests.Stickers;
 using CommonObjects.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityLibrary;
 using SpoofSettingsService.Services;
 
 namespace SpoofSettingsService.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class StickerPackController(IStickerPackService stickerPackService) : ControllerBase
@@ -21,7 +23,7 @@ public class StickerPackController(IStickerPackService stickerPackService) : Con
         return StatusCode(result.StatusCode, result);
     }
 
-    [HttpGet("Get")]
+    [HttpPost("Get")]
     public async Task<IActionResult> Get(GetStickerPackRequest request)
     {
         Result<StickerPackDTO> result = await _stickerPackService.GetStickerPackAsync(request);

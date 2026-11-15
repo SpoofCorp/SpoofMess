@@ -2,16 +2,25 @@
 
 namespace CommonObjects.Results;
 
-public record class Result : BaseResult
+public record class Result(
+        bool Success,
+        string? Message,
+        string? Error,
+        int StatusCode = 200
+    ) : BaseResult(
+        Success,
+        Message,
+        Error,
+        StatusCode
+    )
 {
     private static Result GetResult(bool success = true, string? message = null, string? error = null, int statusCode = 200) =>
-        new()
-        {
-            Success = success,
-            Error = error,
-            StatusCode = statusCode,
-            Message = message,
-        };
+        new(
+            success,
+            message,
+            error,
+            statusCode
+        );
 
     [Obsolete("Используйте специализированные методы.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -63,4 +72,7 @@ public record class Result : BaseResult
     }
 
     public static implicit operator bool(Result result) => result.Success;
+
+    public override string ToString() =>
+        Success ? Message : Error;
 }

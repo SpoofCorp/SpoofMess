@@ -68,7 +68,19 @@ public abstract class ConsumerService : BackgroundService, IConsumerService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(1000, stoppingToken);
+            try
+            {
+                await Task.Delay(1000, stoppingToken);
+            }
+            catch(OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Error("Error while executing background task", ex);
+            }
+
         }
     }
 

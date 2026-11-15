@@ -19,12 +19,12 @@ public class StickerPackRepository(
     public async Task<StickerPack?> GetByKeyAsync(string key)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.StickerPacks.FirstOrDefaultAsync(x => x.Key == key);
+        return await context.StickerPacks.Include(x => x.Author).Include(x => x.Preview).FirstOrDefaultAsync(x => x.Key == key);
     }
 
     public async Task<StickerPack?> GetWithStickers(string key)
     {
         await using SpoofSettingsServiceContext context = await _factory.CreateDbContextAsync();
-        return await context.StickerPacks.Include(x => x.Stickers).FirstOrDefaultAsync(x => x.Key == key);
+        return await context.StickerPacks.Include(x => x.Stickers).Include(x => x.Author).Include(x => x.Preview).FirstOrDefaultAsync(x => x.Key == key);
     }
 }

@@ -2,19 +2,28 @@
 
 namespace CommonObjects.Results;
 
-public record class Result<T> : BaseResult, IDisposable, IAsyncDisposable
+public record class Result<T>
+    (
+        bool Success,
+        string? Message,
+        string? Error,
+        int StatusCode = 200,
+        T? Body = default
+    ) : BaseResult(
+        Success,
+        Message,
+        Error,
+        StatusCode
+    ), IDisposable, IAsyncDisposable
 {
-    public T? Body { get; set; }
-
     private static Result<T> GetResult(bool success = true, string? message = null, string? error = null, int statusCode = 200, T? body = default) =>
-     new()
-     {
-         Success = success,
-         Error = error,
-         StatusCode = statusCode,
-         Message = message,
-         Body = body,
-     };
+     new(
+         success,
+         message,
+         error,
+         statusCode,
+         body
+     );
 
     [Obsolete("Используйте специализированные методы.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -79,4 +88,7 @@ public record class Result<T> : BaseResult, IDisposable, IAsyncDisposable
     }
 
     public static implicit operator bool(Result<T> result) => result.Success;
+
+    public override string ToString() =>
+        Success ? Body.ToString() ?? Message : Error;
 }

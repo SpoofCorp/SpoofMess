@@ -1,10 +1,9 @@
-﻿namespace CommonObjects.DTO;
+﻿using CommonObjects.Requests.Files;
 
-public class StickerDTO
-{
-    public Guid FileId { get; set; }
+namespace CommonObjects.DTO;
 
-    public Guid Id { get; set; }
-
-    public string Name { get; set; } = string.Empty;
-}
+public record class StickerDTO(
+        Guid FileId,
+        Guid Id,
+        string Name
+    );

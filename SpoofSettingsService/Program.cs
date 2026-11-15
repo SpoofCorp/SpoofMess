@@ -26,6 +26,7 @@ builder.SetBaseSettings();
 builder.Services.AddDbContextFactory<SpoofSettingsServiceContext>(x => x.UseNpgsql(builder.Configuration.GetConnectionString("Sql"), x =>
 {
     x.MapEnum<OutboxStatus>("OutboxStatus");
+    x.MapEnum<ChatViewType>("ChatViewType");
     x.ConfigureDataSource(ndsb =>
     {
         //ndsb.MapComposite<PermissionResult>("permission_result");

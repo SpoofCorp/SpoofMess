@@ -68,12 +68,12 @@ public class MessageService(
     {
         try
         {
-            Task<Message?> messageTask = Task.Run(() => _messageRepository.GetByIdAsync(messageId));
-            Task<Result<ChatUser>> resultTask = Task.Run(() => _chatUserService.GetAndCheckPermission(
+            Task<Message?> messageTask = _messageRepository.GetByIdAsync(messageId);
+            Task<Result<ChatUser>> resultTask = _chatUserService.GetAndCheckPermission(
                     chatId,
                     userId,
                     Rules.DeleteMessage
-                ));
+                );
             await Task.WhenAll(messageTask, resultTask);
 
             if (!resultTask.Result)
@@ -103,12 +103,12 @@ public class MessageService(
     {
         try
         {
-            Task<Message?> messageTask = Task.Run(() => _messageRepository.GetByIdAsync(request.Id));
-            Task<Result<ChatUser>> resultTask = Task.Run(() => _chatUserService.GetAndCheckPermission(
+            Task<Message?> messageTask = _messageRepository.GetByIdAsync(request.Id);
+            Task<Result<ChatUser>> resultTask = _chatUserService.GetAndCheckPermission(
                     request.ChatId,
                     userId,
                     Rules.EditMessage
-                ));
+                );
             await Task.WhenAll(messageTask, resultTask);
 
             if (!resultTask.Result)
