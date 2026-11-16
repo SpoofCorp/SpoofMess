@@ -31,4 +31,6 @@ public partial class User : IdentifiedSoftDeletableEntity<Guid>
     public virtual ICollection<UserAvatar> UserAvatars { get; set; } = [];
 
     public virtual ICollection<GlobalPermission> GlobalPermissions { get; set; } = [];
+
+    public virtual ICollection<UserStickerPack> UserStickerPacks { get; set; } = [];
 }

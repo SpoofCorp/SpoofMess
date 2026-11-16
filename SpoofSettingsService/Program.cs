@@ -65,6 +65,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChatTypeRepository, ChatTypeRepository>();
 builder.Services.AddScoped<IRuleRepository, RuleRepository>();
 builder.Services.AddScoped<IChatUserOutboxRepository, ChatUserOutboxRepository>();
+builder.Services.AddScoped<IUserStickerPackRepository, UserStickerPackRepository>();
 
 builder.Services.AddScoped<IChatAvatarService, ChatAvatarService>();
 builder.Services.AddScoped<IFileMetadatumService, FileMetadatumService>();
@@ -77,6 +78,7 @@ builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IUserStickerPackService, UserStickerPackService>();
 builder.Services.AddTransient<IFileTokenService, FileTokenService>();
 builder.Services.AddTransient<IAttachmentAccessTokenService, AttachmentAccessTokenService>();
 builder.Services.AddSingleton(

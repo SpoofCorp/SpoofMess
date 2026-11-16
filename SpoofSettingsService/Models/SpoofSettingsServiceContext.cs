@@ -403,6 +403,22 @@ public partial class SpoofSettingsServiceContext : DbContext
                 .HasConstraintName("FK_UserAvatar_UserId");
         });
 
+        modelBuilder.Entity<UserStickerPack>(entity =>
+        {
+            entity.HasKey(e => new { e.Key1, e.Key2 }).HasName("PK_UserStickerPack_Id");
+
+            entity.ToTable("UserStickerPack");
+
+            entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.StickerPack).WithMany(p => p.UserStickerPacks)
+                .HasForeignKey(d => d.Key2)
+                .HasConstraintName("FK_UserStickerPack_StickerPackId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserStickerPacks)
+                .HasForeignKey(d => d.Key1)
+                .HasConstraintName("FK_UserStickerPack_UserId");
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }

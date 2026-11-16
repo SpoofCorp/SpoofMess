@@ -179,6 +179,15 @@ create table "Sticker"
 );
 create unique index "UX_Sticker_Pack_Key_Lower" on "Sticker" ("StickerPackId", lower("Key")) where "IsDeleted" = false and "Key" is not null;
 
+create table "UserStickerPack"
+(
+	"UserId" uuid not null constraint "FK_UserStickerPack_UserId" references "User"("Id") on delete cascade,
+	"StickerPackId" bigint not null constraint "FK_UserStickerPack_StickerPackId" references "StickerPack"("Id") on delete cascade,
+	"Position" int not null default 0,
+	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
+    constraint "PK_UserStickerPack_Id" primary key("UserId", "StickerPackId")
+);
+
 create table "UserAvatar"
 (
 	"Id" uuid constraint "PK_UserAvatar_Id" primary key default uuidv7(),

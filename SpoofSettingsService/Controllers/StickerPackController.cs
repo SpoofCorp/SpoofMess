@@ -29,4 +29,11 @@ public class StickerPackController(IStickerPackService stickerPackService) : Con
         Result<StickerPackDTO> result = await _stickerPackService.GetStickerPackAsync(request);
         return StatusCode(result.StatusCode, result);
     }
+
+    [HttpPost("Get/Many")]
+    public async Task<IActionResult> GetMany(GetStickerPackRequest request)
+    {
+        Result<StickerPackDTO> result = await _stickerPackService.GetStickerPackAsync(request);
+        return StatusCode(result.StatusCode, result);
+    }
 }

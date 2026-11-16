@@ -19,4 +19,6 @@ public partial class StickerPack : IdentifiedSoftDeletableChangeableEntity<long>
     public virtual FileMetadatum Preview { get; set; } = null!;
 
     public virtual ICollection<Sticker> Stickers { get; set; } = [];
+
+    public virtual ICollection<UserStickerPack> UserStickerPacks { get; set; } = [];
 }
