@@ -27,20 +27,23 @@ public record class Result<T>
 
     [Obsolete("Используйте специализированные методы.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Result<T> SuccessResult(T body, string? message = "OK", int statusCode = 200) =>
+    public static Result<T> SuccessResult(T? body, string? message = "OK", int statusCode = 200) =>
         body is null 
         ? throw new NullReferenceException("Body can't be empty if statusCode success. Use Result if you don't need send body with response") 
         : GetResult(success: true, message: message, statusCode: statusCode, body: body);
 
-    #pragma warning disable CS0618
+#pragma warning disable CS0618
     public static Result<T> OkResult(T body) =>
         SuccessResult(body);
-    #pragma warning restore CS0618
+    public static Result<T> NoContent() =>
+        SuccessResult(default, "No such data", 204);
+#pragma warning restore CS0618
     public static Result<T> NotFoundResult(string error) =>
         ErrorResult(error, 404);
 
     public static Result<T> Forbidden(string error = "Forbidden") =>
         ErrorResult(error, 403);
+
     public static Result<T> BadRequest(string error) =>
         ErrorResult(error, 400);
 
@@ -56,6 +59,9 @@ public record class Result<T>
     public static Result<T> From(Result result) =>
         GetResult(success: result, message: result.Message, error: result.Error, statusCode: result.StatusCode);
 
+    public static Result<T> From(Exception ex) =>
+        GetResult(success: false, error: ex.Message, statusCode: 500);
+
     public static Result<T> From<TAnother>(Result<TAnother> result) =>
         GetResult(success: result, message: result.Message, error: result.Error, statusCode: result.StatusCode);
 
@@ -68,7 +74,7 @@ public record class Result<T>
             401 => UnAuthorized(message ?? ""),
             403 => Forbidden(message ?? ""),
             404 => NotFoundResult(message ?? ""),
-            500 => ErrorResult(message ?? ""),
+            500 => InternalServerError(message ?? ""),
             _ => throw new InvalidOperationException(message),
         };
     }

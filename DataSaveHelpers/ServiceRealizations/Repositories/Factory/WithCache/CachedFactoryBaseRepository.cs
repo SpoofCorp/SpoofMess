@@ -83,6 +83,7 @@ public abstract class CachedFactoryBaseRepository<T, TDbContext>(
 
         return entity;
     }
+
     protected override async ValueTask<T?> GetAsync(string key, Func<Task<T?>> function, TimeSpan? expiration = null)
     {
         try

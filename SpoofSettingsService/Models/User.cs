@@ -2,7 +2,7 @@
 
 namespace SpoofSettingsService.Models;
 
-public partial class User : IdentifiedSoftDeletableEntity<Guid>
+public partial class User : IdentifiedSoftDeletableChangeableEntity<Guid>
 {
     public DateTime WasOnline { get; set; }
 
@@ -12,6 +12,8 @@ public partial class User : IdentifiedSoftDeletableEntity<Guid>
 
     public int MonthsBeforeDelete { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
     public bool SearchMe { get; set; }
 
     public bool ShowMe { get; set; }
@@ -19,8 +21,6 @@ public partial class User : IdentifiedSoftDeletableEntity<Guid>
     public bool ForwardMessage { get; set; }
 
     public bool InviteMe { get; set; }
-
-    public DateTime LastModified { get; set; }
 
     public virtual ICollection<ChatUser> ChatUsers { get; set; } = [];
 

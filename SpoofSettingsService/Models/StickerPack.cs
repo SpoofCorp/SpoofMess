@@ -16,6 +16,8 @@ public partial class StickerPack : IdentifiedSoftDeletableChangeableEntity<long>
 
     public virtual User Author { get; set; } = null!;
 
+    public DateTime CreatedAt { get; set; }
+
     public virtual FileMetadatum Preview { get; set; } = null!;
 
     public virtual ICollection<Sticker> Stickers { get; set; } = [];

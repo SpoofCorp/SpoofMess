@@ -329,6 +329,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(50);
             entity.Property(e => e.Key).HasMaxLength(30);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasIndex(e => new { e.StickerPackId, e.Key })
                 .HasDatabaseName("UX_Sticker_Pack_Key_Lower")
@@ -352,6 +353,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.Key).HasMaxLength(30);
             entity.HasIndex(e => e.Key, "StickerPack_StickerPackKey_key").IsUnique();
             entity.HasIndex(e => e.AuthorId, "IX_StickerPack_AuthorId").HasFilter("(\"IsDeleted\" = false)");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.Title).HasMaxLength(100);
@@ -381,6 +383,7 @@ public partial class SpoofSettingsServiceContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.SearchMe).HasDefaultValue(true);
             entity.Property(e => e.ShowMe).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.WasOnline).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.LastModified).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });

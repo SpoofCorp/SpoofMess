@@ -9,6 +9,7 @@ create table "User"
 	"ShowMe" boolean not null default true,
 	"ForwardMessage" boolean not null default true,
 	"InviteMe" boolean not null default true,
+    "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false,
     "LastModified" timestamptz not null default CURRENT_TIMESTAMP
 );
@@ -160,6 +161,7 @@ create table "StickerPack"
 	"OriginalFileName" text not null,
 	"Title" varchar(100),
 	"Key" varchar(32) unique not null,
+    "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
@@ -174,6 +176,7 @@ create table "Sticker"
 	"OriginalFileName" text not null,
 	"Title" varchar(50) not null,
 	"Key" varchar(32) not null,
+    "CreatedAt" timestamptz not null default CURRENT_TIMESTAMP,
 	"LastModified" timestamptz not null default CURRENT_TIMESTAMP,
 	"IsDeleted" boolean not null default false
 );
